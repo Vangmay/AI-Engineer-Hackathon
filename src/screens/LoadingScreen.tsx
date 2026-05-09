@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useGameStore } from '@/store/gameStore';
-import { StatusBar } from '@/components/ui/StatusBar';
 
 const STAGES = [
-  'INITIALIZING SCENE',
-  'GENERATING VICTIM PROFILE',
-  'CASTING WITNESSES',
-  'COMPOSING CRIME SCENE',
-  'SYNTHESIZING 911 CALL',
-  'ASSEMBLING CASE FILE',
+  'Opening case envelope',
+  'Indexing victim profile',
+  'Sorting witness statements',
+  'Dusting scene photograph',
+  'Threading 911 tape',
+  'Stamping active file',
 ];
 
 export function LoadingScreen() {
@@ -31,50 +30,46 @@ export function LoadingScreen() {
   }, [loadStaticCase]);
 
   return (
-    <div className="h-full flex flex-col bg-[var(--bg-base)]">
-      <StatusBar phase="LOADING" />
-      <div className="flex-1 grid place-items-center px-6">
-        <div className="w-[520px] max-w-full">
-          <div className="text-[10px] uppercase tracking-[0.32em] text-[var(--text-faint)] mb-4">
-            CRIME//SCENE — PROCEDURAL CASE BUILD
-          </div>
-          <div className="text-[var(--accent-yellow)] text-3xl font-light mb-8 flex items-center gap-3">
-            <span className="text-2xl">◉</span>
-            <span>{(t / 1000).toFixed(1)}s</span>
-            <span className="cursor-blink">_</span>
-          </div>
-          <ul className="space-y-2 font-mono text-[12px]">
-            {STAGES.map((label, i) => {
-              const state =
-                i < stage ? 'done' : i === stage ? 'active' : 'pending';
-              return (
-                <li key={label} className="flex items-center gap-3">
-                  <span
-                    className={
-                      state === 'done'
-                        ? 'text-[var(--accent-green)]'
-                        : state === 'active'
-                          ? 'text-[var(--accent-yellow)] pulse-yellow'
-                          : 'text-[var(--text-faint)]'
-                    }
-                  >
-                    {state === 'done' ? '✓' : state === 'active' ? '▸' : '·'}
-                  </span>
-                  <span
-                    className={
-                      state === 'pending'
-                        ? 'text-[var(--text-faint)]'
-                        : 'text-[var(--text-primary)]'
-                    }
-                  >
-                    {label}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
+    <main className="dossier-page grid min-h-screen place-items-center px-6">
+      <div className="dossier-tab" />
+      <section className="paper-card lifted w-[560px] max-w-full p-8">
+        <div className="dossier-overline">Singapore Police Force · CID</div>
+        <h1 className="mt-2 text-[32px] leading-none">CASE FILE</h1>
+        <div className="mt-1 text-[18px]">Death at Duxton Hill</div>
+        <div className="my-6 border-t-2 border-[var(--ink)]" />
+        <div className="flex items-baseline justify-between">
+          <span className="text-[11px] tracking-[0.25em] opacity-70">
+            UNPACKING DOSSIER
+          </span>
+          <span className="text-[22px] text-[var(--oxblood)]">
+            {(t / 1000).toFixed(1)}s
+          </span>
         </div>
-      </div>
-    </div>
+        <ul className="mt-5 space-y-2 text-[13px]">
+          {STAGES.map((label, i) => {
+            const state = i < stage ? 'done' : i === stage ? 'active' : 'pending';
+            return (
+              <li key={label} className="flex items-center gap-3">
+                <span
+                  className={
+                    state === 'done'
+                      ? 'text-[var(--oxblood)]'
+                      : state === 'active'
+                        ? 'text-[var(--ink)]'
+                        : 'opacity-35'
+                  }
+                >
+                  {state === 'done' ? '×' : state === 'active' ? '▶' : '·'}
+                </span>
+                <span className={state === 'pending' ? 'opacity-35' : ''}>
+                  {label}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+      <div className="dossier-grain" />
+    </main>
   );
 }

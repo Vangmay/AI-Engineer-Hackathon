@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:wght@400;700&family=Stardos+Stencil:wght@400;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
 @import './styles/d03-tokens.css';
 @import 'tailwindcss';
 
@@ -18,7 +18,7 @@
 }
 
 html, body, #root {
-  height: 100%;
+  min-height: 100%;
   margin: 0;
   padding: 0;
   background: var(--bg-base);
@@ -29,8 +29,27 @@ html, body, #root {
   -moz-osx-font-smoothing: grayscale;
 }
 
+:root {
+  --paper-warm-base: #f3e8c8;
+  --paper-warm-mid: #e9dab3;
+  --paper-warm-deep: #d8c595;
+  --paper-card: #fdf6e0;
+  --lined-light: #f6ecd0;
+  --lined-rule: #d8c08a;
+  --manila-tab: #c9b07c;
+  --tape: rgba(245,225,160,0.78);
+  --ink: #1a1410;
+  --oxblood: #8a2418;
+  --oxblood-spine: #b8243a;
+  --cream-on-dark: #f3e8c8;
+  --clip-grey: #5e6168;
+  --font-typewriter: 'Special Elite', 'Courier Prime', monospace;
+  --font-stamp: 'Stardos Stencil', sans-serif;
+}
+
 body {
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 ::selection {
@@ -105,4 +124,151 @@ body {
 *::-webkit-scrollbar-thumb {
   background: var(--border-strong);
   border-radius: 0;
+}
+
+.dossier-page {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: radial-gradient(ellipse at 30% 20%, var(--paper-warm-base) 0%, var(--paper-warm-mid) 60%, var(--paper-warm-deep) 100%);
+  color: var(--ink);
+  font-family: var(--font-typewriter);
+}
+
+.dossier-artboard {
+  position: relative;
+  min-height: 100vh;
+  padding: 40px 48px 32px;
+}
+
+.dossier-tab {
+  position: absolute;
+  top: 0;
+  left: 80px;
+  width: 220px;
+  height: 28px;
+  background: var(--manila-tab);
+  border-radius: 4px 4px 0 0;
+  box-shadow: inset 0 -2px 0 rgba(0,0,0,0.1);
+}
+
+.dossier-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 10px;
+}
+
+.dossier-overline {
+  font-family: var(--font-typewriter);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.68;
+}
+
+.dossier-title {
+  margin-top: 4px;
+  font-family: var(--font-typewriter);
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+.paper-card {
+  position: relative;
+  background: var(--paper-card);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.paper-card.lifted {
+  box-shadow: 0 8px 22px rgba(0,0,0,0.18);
+}
+
+.photo-ph {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 40%),
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.025) 0 6px, transparent 6px 12px),
+    linear-gradient(180deg, #1a1818 0%, #2a2622 50%, #100e0c 100%);
+  color: rgba(255,255,255,0.5);
+  font-family: 'JetBrains Mono', monospace;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.tape-corner {
+  position: absolute;
+  top: -8px;
+  width: 80px;
+  height: 22px;
+  background: var(--tape);
+  box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+}
+
+.tape-corner.left {
+  left: 26px;
+  transform: rotate(-3deg);
+}
+
+.tape-corner.right {
+  right: 26px;
+  transform: rotate(2deg);
+}
+
+.dossier-stamp {
+  position: absolute;
+  font-family: var(--font-stamp);
+  color: var(--stamp-color, var(--oxblood));
+  border: 3px solid var(--stamp-color, var(--oxblood));
+  padding: 6px 14px 4px;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: var(--stamp-size, 14px);
+  background: rgba(255,250,235,0.4);
+  box-shadow: inset 0 0 0 1px rgba(138,36,24,0.3);
+  opacity: 0.92;
+  transform: rotate(var(--stamp-rotate, -6deg));
+}
+
+.lined-paper {
+  background: repeating-linear-gradient(to bottom, var(--lined-light) 0 23px, var(--lined-rule) 23px 24px);
+  border-left: 2px solid var(--oxblood-spine);
+}
+
+.dossier-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  font-size: 10px;
+  opacity: 0.6;
+  letter-spacing: 0.15em;
+}
+
+.dossier-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  opacity: 0.32;
+}
+
+@media (max-width: 900px) {
+  .dossier-artboard {
+    padding: 30px 20px 28px;
+  }
+
+  .dossier-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .dossier-title {
+    font-size: 26px;
+  }
 }

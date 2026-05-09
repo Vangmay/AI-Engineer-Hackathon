@@ -1,214 +1,275 @@
-import { useEffect, useState } from 'react';
+import type { CSSProperties } from 'react';
+import { useState } from 'react';
 import { useGameStore } from '@/store/gameStore';
-import { StatusBar } from '@/components/ui/StatusBar';
-import { ConsolePanel } from '@/components/ui/ConsolePanel';
-import { CornerTicks } from '@/components/ui/CornerTicks';
-import { WaveformBar } from '@/components/ui/WaveformBar';
-import { WitnessCard } from '@/components/WitnessCard';
-import { VictimProfile } from '@/components/VictimProfile';
-import { EvidenceList } from '@/components/EvidenceList';
 
 const CALL_911_TRANSCRIPT = [
-  { t: 0.0, speaker: 'OPERATOR', text: '911, what is your emergency?' },
+  { who: 'DISP', text: "Nine-one-one, what's your emergency?" },
+  { who: 'CALL', text: "I-- I think Ray is dead. He's not breathing. Oh god." },
+  { who: 'DISP', text: "Ma'am, where are you?" },
   {
-    t: 1.3,
-    speaker: 'CALLER',
-    text:
-      "I — I came in to clean and Mr Teo, he's in the bedroom, he's not — he's not breathing, oh god —",
+    who: 'CALL',
+    text: 'Marina One penthouse. Forty-seventh floor. Please hurry.',
   },
-  { t: 5.4, speaker: 'OPERATOR', text: 'Ma’am, I need your address.' },
-  {
-    t: 6.6,
-    speaker: 'CALLER',
-    text: 'Marina One, the penthouse, 47-B. Please hurry.',
-  },
-  {
-    t: 9.4,
-    speaker: 'OPERATOR',
-    text: 'Stay on the line. Do not touch anything. Officers are en route.',
-  },
+  { who: 'DISP', text: 'Stay on the line. Is anyone else with you?' },
+  { who: 'CALL', text: 'No. The apartment is empty. Everyone left hours ago.' },
 ];
+
+function Stamp({
+  text,
+  top,
+  left,
+  rotate,
+  color,
+  size,
+}: {
+  text: string;
+  top: number;
+  left: number;
+  rotate: number;
+  color?: string;
+  size?: number;
+}) {
+  return (
+    <div
+      className="dossier-stamp"
+      style={
+        {
+          top,
+          left,
+          '--stamp-rotate': `${rotate}deg`,
+          '--stamp-color': color ?? 'var(--oxblood)',
+          '--stamp-size': size ? `${size}px` : undefined,
+        } as CSSProperties
+      }
+    >
+      {text}
+    </div>
+  );
+}
+
+function PaperClip({
+  left,
+  top,
+  rotate,
+}: {
+  left: number;
+  top: number;
+  rotate: number;
+}) {
+  return (
+    <div
+      className="absolute drop-shadow-[0_2px_1px_rgba(0,0,0,0.25)]"
+      style={{ left, top, transform: `rotate(${rotate}deg)` }}
+    >
+      <svg width="36" height="80" viewBox="0 0 36 80" aria-hidden="true">
+        <path
+          d="M18 6 Q28 6 28 18 L28 62 Q28 74 18 74 Q8 74 8 62 L8 24 Q8 14 18 14 Q22 14 22 18 L22 60"
+          fill="none"
+          stroke="var(--clip-grey)"
+          strokeLinecap="round"
+          strokeWidth="3"
+        />
+      </svg>
+    </div>
+  );
+}
+
+function Waveform({ activeBars = 28 }: { activeBars?: number }) {
+  return (
+    <svg width="320" height="28" viewBox="0 0 320 28" aria-hidden="true">
+      {Array.from({ length: 64 }).map((_, i) => {
+        const h = 4 + Math.abs(Math.sin(i * 0.6) * Math.cos(i * 0.15)) * 22;
+        return (
+          <rect
+            key={i}
+            x={i * 5}
+            y={(28 - h) / 2}
+            width="2.5"
+            height={h}
+            fill="var(--ink)"
+            opacity={i < activeBars ? 1 : 0.35}
+          />
+        );
+      })}
+    </svg>
+  );
+}
 
 export function CaseLoadScreen() {
   const caseData = useGameStore((s) => s.caseData)!;
   const generationMs = useGameStore((s) => s.generationMs);
   const startInterrogation = useGameStore((s) => s.startInterrogation);
   const goToAccusation = useGameStore((s) => s.goToAccusation);
+  const [noted, setNoted] = useState<Set<number>>(() => new Set());
 
-  const [callPlaying, setCallPlaying] = useState(false);
-  const [callElapsed, setCallElapsed] = useState(0);
-
-  // Auto-play 911 call 1.5s after mount.
-  useEffect(() => {
-    const start = setTimeout(() => setCallPlaying(true), 1500);
-    return () => clearTimeout(start);
-  }, []);
-
-  useEffect(() => {
-    if (!callPlaying) return;
-    const startedAt = performance.now();
-    const id = setInterval(() => {
-      const e = (performance.now() - startedAt) / 1000;
-      setCallElapsed(e);
-      if (e > 14) {
-        setCallPlaying(false);
-        clearInterval(id);
-      }
-    }, 80);
-    return () => clearInterval(id);
-  }, [callPlaying]);
-
-  const visibleLines = CALL_911_TRANSCRIPT.filter((l) => callElapsed >= l.t);
+  const generatedIn = `${((generationMs ?? 8300) / 1000).toFixed(1)}s`;
 
   return (
-    <div className="h-full flex flex-col bg-[var(--bg-base)]">
-      <StatusBar caseId={caseData.case_id} phase="CASE BRIEFING" />
-
-      <div className="flex-1 grid grid-rows-[55%_45%] overflow-hidden">
-        {/* Crime scene image */}
-        <div className="relative border-b border-[var(--border-yellow)] overflow-hidden">
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                'radial-gradient(ellipse at 30% 40%, rgba(214, 196, 64, 0.08), transparent 60%), linear-gradient(160deg, #14110a 0%, #0a0d0b 60%, #050605 100%)',
-            }}
-          />
-          {/* Mock evidence markers */}
-          {[
-            { id: 1, top: '38%', left: '42%' },
-            { id: 2, top: '62%', left: '28%' },
-            { id: 3, top: '54%', left: '68%' },
-          ].map((m) => (
-            <div
-              key={m.id}
-              className="absolute w-7 h-7 grid place-items-center -translate-x-1/2 -translate-y-1/2"
-              style={{ top: m.top, left: m.left }}
-            >
-              <span className="absolute inset-0 border border-[var(--accent-yellow)]" />
-              <span className="absolute -inset-2 border border-[var(--accent-yellow)]/30" />
-              <span className="text-[var(--accent-yellow)] text-[11px] font-medium">
-                {m.id}
-              </span>
+    <main className="dossier-page">
+      <div className="dossier-tab" />
+      <div className="dossier-artboard">
+        <header className="dossier-header">
+          <div>
+            <div className="dossier-overline">
+              Singapore Police Force · Criminal Investigation Department
             </div>
-          ))}
-          {/* Victim outline silhouette suggestion */}
-          <div
-            className="absolute"
-            style={{
-              top: '35%',
-              left: '45%',
-              width: '180px',
-              height: '60px',
-              border: '1px dashed rgba(198, 67, 56, 0.4)',
-              transform: 'rotate(-12deg)',
-            }}
-          />
+            <h1 className="dossier-title">
+              CASE FILE — {caseData.title.toUpperCase()}
+            </h1>
+          </div>
+          <div className="text-right text-[12px] leading-normal">
+            <div>FILE NO. {caseData.case_id}</div>
+            <div>OPENED {caseData.victim.date.toUpperCase()}</div>
+            <div>STATUS · ACTIVE</div>
+          </div>
+        </header>
 
-          {/* Generation badge */}
-          <div className="absolute top-4 right-4 px-2.5 py-1 bg-[var(--bg-statusbar)] border border-[var(--accent-yellow)]/50 text-[10px] tracking-[0.2em] text-[var(--accent-yellow)] uppercase">
-            <span className="text-[var(--text-faint)] mr-2">◉</span>
-            GENERATED IN {((generationMs ?? 8300) / 1000).toFixed(1)}s
-          </div>
-          <div className="absolute top-4 left-4 px-2.5 py-1 text-[10px] tracking-[0.2em] text-[var(--text-muted)] uppercase">
-            SCENE — {caseData.victim.location}
-          </div>
-          <div className="absolute bottom-4 left-4 right-4 flex justify-between text-[10px] uppercase tracking-[0.2em] text-[var(--text-faint)]">
-            <span>FRAME 01 / 03</span>
-            <span>{caseData.title}</span>
-            <span>EXPOSURE 1/60 · ISO 1600</span>
-          </div>
-          <CornerTicks size={14} />
-        </div>
+        <section className="mt-[22px] grid grid-cols-[1.35fr_1fr] gap-8 max-[900px]:grid-cols-1">
+          <div>
+            <section className="paper-card lifted p-[14px_14px_18px]">
+              <div className="tape-corner left" />
+              <div className="tape-corner right" />
+              <div className="photo-ph h-[250px] text-[11px] leading-relaxed">
+                CRIME SCENE — {caseData.victim.location.toUpperCase()}
+                <br />
+                {caseData.scene_prompt}
+              </div>
+              <div className="mt-2 flex justify-between gap-4 text-[10px] opacity-70">
+                <span>EXHIBIT A · SCENE PHOTOGRAPH 01</span>
+                <span>RESPONDING OFFICER · 04:22 SGT</span>
+              </div>
+              <Stamp text="CONFIDENTIAL" top={-22} left={310} rotate={-8} />
+            </section>
 
-        {/* Bottom split */}
-        <div className="grid grid-cols-[42%_58%] overflow-hidden">
-          {/* 911 call panel */}
-          <div className="border-r border-[var(--border-yellow)] p-4 flex flex-col gap-3 overflow-hidden">
-            <ConsolePanel
-              label="911 CALL // 04:22 SGT"
-              rightSlot={callPlaying ? '◉ LIVE' : 'PLAYBACK'}
-              className="shrink-0"
-            >
-              <div className="flex items-center gap-3 mb-3">
+            <section className="paper-card lined-paper mt-[22px] p-[14px_18px_16px]">
+              <div className="flex items-baseline justify-between border-b border-dashed border-[var(--ink)] pb-1">
+                <span className="text-[13px] tracking-[0.1em]">
+                  911 CALL · TRANSCRIPT
+                </span>
+                <span className="text-[11px] opacity-70">04:22 SGT · 1:42</span>
+              </div>
+              <div className="flex items-center gap-2.5 py-[10px] pb-1.5">
                 <button
-                  onClick={() => {
-                    setCallPlaying(true);
-                    setCallElapsed(0);
-                  }}
-                  className="w-9 h-9 grid place-items-center border border-[var(--accent-yellow)] text-[var(--accent-yellow)] hover:bg-[var(--accent-yellow)] hover:text-[var(--bg-base)] transition-colors"
-                  aria-label="Replay 911 call"
+                  type="button"
+                  className="grid h-7 w-7 place-items-center rounded-full bg-[var(--ink)] text-[11px] text-[var(--cream-on-dark)]"
+                  aria-label="Play 911 call"
                 >
                   ▶
                 </button>
-                <WaveformBar
-                  active={callPlaying}
-                  bars={36}
-                  height={28}
-                  className="flex-1"
-                />
-                <span className="text-[10px] text-[var(--text-faint)] tabular-nums">
-                  {callElapsed.toFixed(1)}s
-                </span>
+                <Waveform />
+                <div className="text-[10px] opacity-70">0:48 / 1:42</div>
               </div>
-              <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-faint)] mb-2">
-                TRANSCRIPT
-              </div>
-              <ul className="space-y-2 text-[12px] leading-relaxed max-h-[140px] overflow-y-auto">
-                {visibleLines.map((l, i) => (
-                  <li key={i} className="flex gap-2">
-                    <span className="text-[var(--accent-yellow)] text-[10px] tracking-[0.18em] w-16 shrink-0">
-                      {l.speaker}
-                    </span>
-                    <span className="text-[var(--text-primary)]">{l.text}</span>
-                  </li>
-                ))}
-              </ul>
-            </ConsolePanel>
-            <div className="flex-1 min-h-0">
-              <EvidenceList clues={caseData.clues} />
-            </div>
-          </div>
-
-          {/* Right: victim + witnesses */}
-          <div className="p-4 grid grid-rows-[auto_1fr_auto] gap-3 overflow-hidden">
-            <VictimProfile victim={caseData.victim} />
-
-            <div className="min-h-0 overflow-hidden">
-              <div className="flex items-baseline justify-between mb-2 px-1">
-                <span className="text-[10px] uppercase tracking-[0.22em] text-[var(--accent-yellow)]">
-                  WITNESSES // {caseData.witnesses.length}
-                </span>
-                <span className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-faint)]">
-                  TAP TO INTERROGATE
-                </span>
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                {caseData.witnesses.map((w, i) => (
-                  <WitnessCard
-                    key={w.id}
-                    witness={w}
-                    index={i}
-                    onSelect={startInterrogation}
-                  />
+              <div className="text-[12px] leading-[23px]">
+                {CALL_911_TRANSCRIPT.map((line, i) => (
+                  <div key={i} className="flex gap-2.5">
+                    <span className="w-[42px] opacity-60">{line.who}</span>
+                    <span>{line.text}</span>
+                  </div>
                 ))}
               </div>
-            </div>
-
-            <div className="flex items-center justify-between border-t border-[var(--border-yellow)] pt-3">
-              <p className="text-[11px] text-[var(--text-muted)] max-w-[60%] leading-snug">
-                {caseData.brief}
-              </p>
-              <button
-                onClick={goToAccusation}
-                className="px-4 py-2 bg-[var(--accent-yellow)] text-[var(--bg-base)] text-[11px] uppercase tracking-[0.22em] font-medium hover:bg-[var(--accent-yellow)]/85"
-              >
-                Make Accusation →
-              </button>
-            </div>
+            </section>
           </div>
+
+          <aside className="flex flex-col gap-[18px]">
+            <section className="paper-card p-[14px_16px_16px]">
+              <PaperClip left={-10} top={-22} rotate={-12} />
+              <div className="dossier-overline">Victim Profile</div>
+              <h2 className="mt-0.5 text-[22px]">{caseData.victim.name}</h2>
+              <dl className="mt-2.5 grid grid-cols-[auto_1fr] gap-x-3.5 gap-y-1 text-[12px]">
+                <dt className="opacity-[0.65]">AGE</dt>
+                <dd>{caseData.victim.age}</dd>
+                <dt className="opacity-[0.65]">OCCUPATION</dt>
+                <dd>{caseData.victim.occupation}</dd>
+                <dt className="opacity-[0.65]">LOCATION</dt>
+                <dd>{caseData.victim.location}</dd>
+                <dt className="opacity-[0.65]">TIME OF DEATH</dt>
+                <dd className="font-bold text-[var(--oxblood)]">
+                  {caseData.victim.time_of_death}
+                </dd>
+                <dt className="opacity-[0.65]">CAUSE</dt>
+                <dd>
+                  ██████████ <span className="opacity-55">(pending tox)</span>
+                </dd>
+              </dl>
+            </section>
+
+            <section className="paper-card p-[14px_16px]">
+              <div className="dossier-overline mb-2">Evidence Collected</div>
+              {caseData.clues.map((clue, i) => (
+                <button
+                  key={clue}
+                  type="button"
+                  onClick={() =>
+                    setNoted((prev) => {
+                      const next = new Set(prev);
+                      if (next.has(i)) next.delete(i);
+                      else next.add(i);
+                      return next;
+                    })
+                  }
+                  className="flex w-full items-start gap-2.5 border-t border-dashed border-[rgba(26,20,16,0.3)] py-2 text-left first:border-t-0"
+                >
+                  <span className="w-[26px] text-[11px] opacity-70">
+                    EX-{String.fromCharCode(65 + i)}
+                  </span>
+                  <span className="flex-1 text-[13px]">{clue}</span>
+                  <span className="mt-0.5 grid h-3.5 w-3.5 place-items-center border border-[var(--ink)] text-[10px]">
+                    {noted.has(i) ? '×' : ''}
+                  </span>
+                </button>
+              ))}
+            </section>
+
+            <section className="paper-card p-[14px_16px]">
+              <PaperClip left={250} top={-22} rotate={8} />
+              <div className="dossier-overline mb-2">
+                Witnesses · {caseData.witnesses.length} Listed
+              </div>
+              {caseData.witnesses.map((witness, i) => (
+                <div
+                  key={witness.id}
+                  className="flex items-center gap-2.5 border-t border-dashed border-[rgba(26,20,16,0.3)] py-2 first:border-t-0"
+                >
+                  <div className="grid h-[46px] w-[38px] place-items-center bg-[var(--ink)] text-[9px] text-[var(--cream-on-dark)]">
+                    W{i + 1}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[14px]">{witness.name}</div>
+                    <div className="truncate text-[11px] opacity-[0.65]">
+                      {witness.role}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => startInterrogation(witness.id)}
+                    className="bg-[var(--ink)] px-2.5 py-1.5 text-[11px] tracking-[0.1em] text-[var(--cream-on-dark)]"
+                  >
+                    INTERVIEW →
+                  </button>
+                </div>
+              ))}
+            </section>
+          </aside>
+        </section>
+
+        <div className="dossier-footer mt-7">
+          <span>DO NOT REMOVE FROM PREMISES · CHAIN OF CUSTODY {caseData.case_id}</span>
+          <button type="button" onClick={goToAccusation}>
+            READY TO ACCUSE · PAGE 01 / 04
+          </button>
         </div>
       </div>
-    </div>
+
+      <Stamp text="CASE OPEN" top={56} left={920} rotate={6} />
+      <Stamp
+        text={`GENERATED · ${generatedIn}`}
+        top={120}
+        left={900}
+        rotate={-3}
+        color="var(--ink)"
+        size={10}
+      />
+      <div className="dossier-grain" />
+    </main>
   );
 }

@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { useGameStore } from '@/store/gameStore';
-import { ScanlineOverlay } from '@/components/ui/ScanlineOverlay';
 import { LoadingScreen } from '@/screens/LoadingScreen';
 import { CaseLoadScreen } from '@/screens/CaseLoadScreen';
 import { InterrogationScreen } from '@/screens/InterrogationScreen';
@@ -31,9 +30,8 @@ export default function App() {
   else screen = <RevealScreen />;
 
   return (
-    <div className="h-full w-full relative">
+    <div className="min-h-screen w-full relative">
       {screen}
-      <ScanlineOverlay />
     </div>
   );
 }

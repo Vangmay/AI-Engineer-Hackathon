@@ -4,8 +4,26 @@ import { StatusBar } from '@/components/ui/StatusBar';
 import { CornerTicks } from '@/components/ui/CornerTicks';
 import { WaveformBar } from '@/components/ui/WaveformBar';
 
-// Web Speech API typings are unstable; use loose any-cast.
-type SR = any;
+interface SpeechRecognitionResultLike {
+  0: { transcript: string };
+}
+
+interface SpeechRecognitionEventLike {
+  results: SpeechRecognitionResultLike[];
+}
+
+interface SpeechRecognitionLike {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  onresult: ((e: SpeechRecognitionEventLike) => void) | null;
+  onerror: (() => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+}
+
+type SpeechRecognitionCtor = new () => SpeechRecognitionLike;
 
 export function AccusationScreen() {
   const caseData = useGameStore((s) => s.caseData)!;
@@ -14,24 +32,27 @@ export function AccusationScreen() {
 
   const [holding, setHolding] = useState(false);
   const [transcript, setTranscript] = useState('');
-  const [supported, setSupported] = useState(true);
-  const recRef = useRef<SR | null>(null);
+  const [supported] = useState(() => {
+    const w = window as unknown as {
+      SpeechRecognition?: SpeechRecognitionCtor;
+      webkitSpeechRecognition?: SpeechRecognitionCtor;
+    };
+    return !!(w.SpeechRecognition ?? w.webkitSpeechRecognition);
+  });
+  const recRef = useRef<SpeechRecognitionLike | null>(null);
 
   useEffect(() => {
     const w = window as unknown as {
-      SpeechRecognition?: SR;
-      webkitSpeechRecognition?: SR;
+      SpeechRecognition?: SpeechRecognitionCtor;
+      webkitSpeechRecognition?: SpeechRecognitionCtor;
     };
     const Ctor = w.SpeechRecognition ?? w.webkitSpeechRecognition;
-    if (!Ctor) {
-      setSupported(false);
-      return;
-    }
+    if (!Ctor) return;
     const rec = new Ctor();
     rec.lang = 'en-SG';
     rec.continuous = true;
     rec.interimResults = true;
-    rec.onresult = (e: any) => {
+    rec.onresult = (e) => {
       let text = '';
       for (let i = 0; i < e.results.length; i += 1) {
         text += e.results[i][0].transcript;

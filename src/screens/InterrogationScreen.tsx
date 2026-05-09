@@ -1,39 +1,93 @@
+import type { CSSProperties } from 'react';
 import { useEffect, useMemo, useRef } from 'react';
 import { useGameStore } from '@/store/gameStore';
-import { StatusBar } from '@/components/ui/StatusBar';
-import { ConsolePanel } from '@/components/ui/ConsolePanel';
-import { CornerTicks } from '@/components/ui/CornerTicks';
-import { WaveformBar } from '@/components/ui/WaveformBar';
-import { TranscriptFeed } from '@/components/TranscriptFeed';
 import type { TranscriptLine } from '@/types/case';
 
-// Stub conversation — replaced by Gemini flash-3.1-live in step 2.
 function stubConversation(witnessId: string): TranscriptLine[] {
   const base = Date.now();
   switch (witnessId) {
     case 'w_priya':
       return [
-        { speaker: 'system', text: 'Call connected · 04:51 SGT', timestamp: base },
-        { speaker: 'detective', text: 'Where were you between two and three this morning?', timestamp: base + 1 },
-        { speaker: 'witness', text: 'Asleep. At home. I dropped Mr Teo off after dinner and went straight back.', timestamp: base + 2 },
-        { speaker: 'detective', text: 'The lobby cam puts you in the building at three twelve.', timestamp: base + 3 },
-        { speaker: 'witness', text: '... I came back. He texted me. He wanted his calendar updated.', timestamp: base + 4 },
+        { speaker: 'detective', text: 'Where were you between two and three this morning?', timestamp: base },
+        { speaker: 'witness', text: 'Asleep. At home. I dropped Mr Teo off after dinner and went straight back.', timestamp: base + 1 },
+        { speaker: 'detective', text: 'The lobby cam puts you in the building at three twelve.', timestamp: base + 2 },
+        { speaker: 'witness', text: '... I came back. He texted me. He wanted his calendar updated.', timestamp: base + 3 },
       ];
     case 'w_marcus':
       return [
-        { speaker: 'system', text: 'Call connected · 04:54 SGT', timestamp: base },
-        { speaker: 'detective', text: 'Anything unusual on your shift?', timestamp: base + 1 },
-        { speaker: 'witness', text: 'A van I didn’t have on the manifest. And Ms Naidu left around three.', timestamp: base + 2 },
-        { speaker: 'detective', text: 'She normally leaves earlier?', timestamp: base + 3 },
-        { speaker: 'witness', text: 'Eight, nine PM at the latest. Three is — three is not normal.', timestamp: base + 4 },
+        { speaker: 'detective', text: 'Anything unusual on your shift?', timestamp: base },
+        { speaker: 'witness', text: "A van I didn't have on the manifest. And Ms Naidu left around three.", timestamp: base + 1 },
+        { speaker: 'detective', text: 'She normally leaves earlier?', timestamp: base + 2 },
+        { speaker: 'witness', text: 'Eight, nine PM at the latest. Three is not normal.', timestamp: base + 3 },
       ];
     default:
       return [
-        { speaker: 'system', text: 'Call connected', timestamp: base },
-        { speaker: 'detective', text: 'When did you last speak to Raymond?', timestamp: base + 1 },
-        { speaker: 'witness', text: 'Two days ago. He sounded — relieved. Said he was finally going to deal with a staff problem.', timestamp: base + 2 },
+        { speaker: 'detective', text: 'When did you last speak to Raymond?', timestamp: base },
+        { speaker: 'witness', text: 'Two days ago. He sounded relieved. Said he was finally going to deal with a staff problem.', timestamp: base + 1 },
+        { speaker: 'detective', text: 'Did he name the staff member?', timestamp: base + 2 },
+        { speaker: 'witness', text: 'No. Raymond liked people to wonder what he knew.', timestamp: base + 3 },
       ];
   }
+}
+
+function Stamp({
+  text,
+  top,
+  left,
+  rotate,
+  color,
+  size,
+}: {
+  text: string;
+  top: number;
+  left: number;
+  rotate: number;
+  color?: string;
+  size?: number;
+}) {
+  return (
+    <div
+      className="dossier-stamp"
+      style={
+        {
+          top,
+          left,
+          '--stamp-rotate': `${rotate}deg`,
+          '--stamp-color': color ?? 'var(--oxblood)',
+          '--stamp-size': size ? `${size}px` : undefined,
+        } as CSSProperties
+      }
+    >
+      {text}
+    </div>
+  );
+}
+
+function LiveWaveform() {
+  return (
+    <svg width="100%" height="56" viewBox="0 0 480 56" aria-hidden="true">
+      {Array.from({ length: 96 }).map((_, i) => {
+        const h =
+          4 +
+          Math.abs(
+            Math.sin(i * 0.42) * Math.cos(i * 0.18 + 1) +
+              0.3 * Math.sin(i * 1.1),
+          ) *
+            22;
+        return (
+          <rect
+            key={i}
+            x={i * 5}
+            y={(56 - h) / 2}
+            width="3"
+            height={h}
+            fill="var(--ink)"
+            opacity={0.85}
+          />
+        );
+      })}
+    </svg>
+  );
 }
 
 export function InterrogationScreen() {
@@ -42,13 +96,13 @@ export function InterrogationScreen() {
   const transcript = useGameStore((s) => s.transcript);
   const appendTranscript = useGameStore((s) => s.appendTranscript);
   const endInterrogation = useGameStore((s) => s.endInterrogation);
+  const goToAccusation = useGameStore((s) => s.goToAccusation);
 
   const witness = useMemo(
     () => caseData.witnesses.find((w) => w.id === witnessId)!,
     [caseData, witnessId],
   );
 
-  // Drip-feed stub lines on a timer.
   const cancelled = useRef(false);
   useEffect(() => {
     cancelled.current = false;
@@ -66,84 +120,138 @@ export function InterrogationScreen() {
     };
   }, [witnessId, appendTranscript]);
 
-  const witnessSpeaking =
-    transcript.length > 0 && transcript[transcript.length - 1].speaker === 'witness';
-
-  const initials = witness.name.split(' ').map((n) => n[0]).slice(0, 2).join('');
+  const firstName = witness.name.split(' ')[0].toUpperCase();
 
   return (
-    <div className="h-full flex flex-col bg-[var(--bg-base)]">
-      <StatusBar caseId={caseData.case_id} phase={`INTERROGATION // ${witness.id.toUpperCase()}`} />
-
-      <div className="flex-1 grid grid-cols-[1fr_420px] overflow-hidden">
-        {/* Left: avatar + waveform */}
-        <div className="relative grid place-items-center overflow-hidden">
-          <div className="absolute inset-0 opacity-40"
-            style={{ background: 'radial-gradient(ellipse at center, rgba(214, 196, 64, 0.12), transparent 60%)' }} />
-          <div className="relative w-[360px] flex flex-col items-center">
-            <div
-              className="relative w-[320px] h-[320px] mb-8 grid place-items-center overflow-hidden"
-              style={{
-                background: 'linear-gradient(135deg, #2a261a 0%, #14110a 100%)',
-                border: '1px solid var(--border-strong)',
-              }}
-            >
-              <CornerTicks size={16} />
-              <span className="text-[120px] font-light text-[var(--text-primary)]/40">
-                {initials}
-              </span>
-              <div className="absolute top-3 left-3 text-[10px] tracking-[0.22em] text-[var(--accent-yellow)]">
-                LIVE FEED
-              </div>
-              <div className="absolute top-3 right-3 flex items-center gap-1.5 text-[10px] tracking-[0.22em] text-[var(--accent-red)]">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--accent-red)] pulse-yellow" />
-                REC
-              </div>
-            </div>
-            <WaveformBar active={witnessSpeaking} bars={64} height={42} className="w-full" />
-            <div className="mt-6 text-center">
-              <div className="text-2xl font-light text-[var(--text-primary)]">{witness.name}</div>
-              <div className="text-[11px] uppercase tracking-[0.22em] text-[var(--text-muted)] mt-1">
-                {witness.role} · {witness.age}
-              </div>
-            </div>
+    <main className="dossier-page">
+      <div className="dossier-artboard min-h-screen !pb-[40px]">
+        <header className="dossier-header">
+          <div className="dossier-overline">Interview Recording · {caseData.case_id}</div>
+          <div className="flex gap-6 text-[12px]">
+            <span>● REC 00:04:17</span>
+            <span>TAPE 02 / SIDE A</span>
           </div>
+        </header>
 
-          <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between">
-            <button
-              onClick={endInterrogation}
-              className="px-4 py-2 border border-[var(--border-yellow)] text-[var(--text-muted)] text-[11px] uppercase tracking-[0.22em] hover:text-[var(--accent-yellow)] hover:border-[var(--accent-yellow)]"
-            >
-              ← Back to brief
-            </button>
-            <button
-              onClick={endInterrogation}
-              className="px-4 py-2 bg-[var(--accent-red)] text-[var(--text-primary)] text-[11px] uppercase tracking-[0.22em] font-medium hover:opacity-90"
-            >
-              End Call
-            </button>
-          </div>
-        </div>
-
-        {/* Right: transcript */}
-        <div className="border-l border-[var(--border-yellow)] p-4 flex flex-col gap-3 overflow-hidden">
-          <ConsolePanel label="LIVE TRANSCRIPT" rightSlot={`${transcript.length} LINES`}>
-            <TranscriptFeed lines={transcript} className="max-h-[44vh]" />
-          </ConsolePanel>
-          <ConsolePanel label="WITNESS DOSSIER">
-            <dl className="space-y-2 text-[12px]">
+        <section className="mt-[18px] grid grid-cols-[1.05fr_1fr] gap-7 max-[900px]:grid-cols-1">
+          <section className="paper-card lifted p-3.5">
+            <div className="tape-corner left" />
+            <div className="tape-corner right" />
+            <div className="photo-ph h-[380px] p-3 text-[11px]">
+              PORTRAIT — {witness.portrait_prompt}
+            </div>
+            <Stamp
+              text={witness.lies ? 'INCONSISTENT' : 'COOPERATIVE'}
+              top={20}
+              left={witness.lies ? 230 : 240}
+              rotate={-7}
+              color={witness.lies ? 'var(--oxblood)' : 'var(--ink)'}
+              size={11}
+            />
+            <div className="mt-2.5 text-[11px] opacity-70">
+              SUBJECT PHOTOGRAPH · {witness.name.toUpperCase()} · INTAKE 23:58 SGT
+            </div>
+            <div className="mt-2.5 flex items-center justify-between bg-[var(--ink)] p-[10px_12px] text-[var(--cream-on-dark)]">
               <div>
-                <dt className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-faint)]">Known to investigators</dt>
-                <dd className="text-[var(--text-primary)]">{witness.knows}</dd>
+                <div className="text-[10px] tracking-[0.15em] opacity-[0.65]">
+                  LIVE INTERVIEW
+                </div>
+                <div className="mt-0.5 text-[18px]">{witness.name}</div>
+                <div className="text-[11px] opacity-70">
+                  {witness.role} · age {witness.age}
+                </div>
               </div>
-              <div className="pt-2 border-t border-[var(--border-yellow)]">
-                <dt className="text-[10px] uppercase tracking-[0.18em] text-[var(--accent-red)]/80">Suspected concealment</dt>
-                <dd className="text-[var(--text-muted)] italic">[determined post-interview]</dd>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  className="h-10 w-10 rounded-full bg-[#3a342c] text-[16px]"
+                  aria-label="Pause call"
+                >
+                  ⏸
+                </button>
+                <button
+                  type="button"
+                  onClick={endInterrogation}
+                  className="h-10 w-10 rounded-full bg-[var(--oxblood)] text-[14px]"
+                >
+                  END
+                </button>
               </div>
-            </dl>
-          </ConsolePanel>
-        </div>
+            </div>
+          </section>
+
+          <section className="flex flex-col gap-3.5">
+            <div className="paper-card p-[14px_16px]">
+              <div className="dossier-overline">Subject File</div>
+              <h2 className="mt-0.5 text-[22px]">{witness.name}</h2>
+              <p className="mt-1.5 text-[12px] leading-[1.55] opacity-75">
+                {witness.knows}
+              </p>
+              <div className="mt-2.5 text-[10px] tracking-[0.1em] opacity-60">
+                VOICE PROFILE · {witness.voice_id}
+              </div>
+            </div>
+
+            <div className="paper-card p-[12px_14px]">
+              <div className="flex justify-between text-[10px] tracking-[0.15em] opacity-60">
+                <span>● LIVE · GEMINI VOICE LINK</span>
+                <span>SUBJECT SPEAKING</span>
+              </div>
+              <div className="mt-1.5">
+                <LiveWaveform />
+              </div>
+            </div>
+
+            <div className="paper-card lined-paper min-h-[250px] flex-1 p-[14px_18px_16px]">
+              <div className="border-b border-dashed border-[var(--ink)] pb-1 text-[12px] tracking-[0.1em]">
+                LIVE TRANSCRIPT
+              </div>
+              <div className="mt-1 text-[12px] leading-[24px]">
+                {transcript.map((line, i) => {
+                  if (line.speaker === 'system') return null;
+                  const speaker = line.speaker === 'detective' ? 'YOU' : firstName;
+                  return (
+                    <div key={`${line.timestamp}-${i}`}>
+                      <span className="inline-block w-[50px] opacity-60">
+                        {speaker}
+                      </span>
+                      {line.text}
+                    </div>
+                  );
+                })}
+                <div className="opacity-45 italic">· · · subject pause, 1.4s · · ·</div>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <footer className="mt-6 flex items-center justify-between gap-4 border-t border-[var(--ink)] pt-2.5 max-[900px]:flex-col max-[900px]:items-start">
+          <div className="text-[10px] tracking-[0.15em] opacity-70">
+            ASK A QUESTION · OR TAP A SUGGESTED LINE BELOW
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {['ALIBI', 'MOTIVE', 'RELATIONSHIP'].map((chip) => (
+              <button
+                key={chip}
+                type="button"
+                className="border border-[var(--ink)] px-2 py-1 text-[10px] tracking-[0.15em]"
+              >
+                {chip}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={goToAccusation}
+              className="bg-[var(--oxblood)] px-2 py-1 text-[10px] tracking-[0.15em] text-[var(--cream-on-dark)]"
+            >
+              READY TO ACCUSE →
+            </button>
+          </div>
+        </footer>
       </div>
-    </div>
+
+      <Stamp text="INTERVIEW IN PROGRESS" top={50} left={880} rotate={4} size={11} />
+      <div className="dossier-grain" />
+    </main>
   );
 }
