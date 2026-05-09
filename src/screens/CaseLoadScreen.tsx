@@ -123,9 +123,6 @@ export function CaseLoadScreen() {
     audio.addEventListener('play', () => setIsPlaying911(true));
     audio.addEventListener('pause', () => setIsPlaying911(false));
     audio.addEventListener('ended', () => setIsPlaying911(false));
-    void audio.play().catch(() => {
-      setIsPlaying911(false);
-    });
 
     return () => {
       audio.pause();

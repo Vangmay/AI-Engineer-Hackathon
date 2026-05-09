@@ -1,10 +1,10 @@
 {
-  "packageId": "pkg_84a1a9f322",
+  "packageId": "pkg_db8862b90e",
   "caseId": "case_colonel_russell_williams_2010",
-  "title": "The Russell Williams Interrogation",
+  "title": "The Belleville Vanishing",
   "runtimeCase": {
     "case_id": "case_colonel_russell_williams_2010",
-    "title": "The Russell Williams Interrogation",
+    "title": "The Belleville Vanishing",
     "victim": {
       "name": "Jessica Lloyd",
       "age": 28,
@@ -60,7 +60,7 @@
       "Searches uncovered a cache of images and trophies tying Williams to break-ins, surveillance behavior, and the broader pattern behind the case.",
       "Williams's demanding military responsibilities and high-profile command role initially created the impression that he had too visible a schedule to be the offender."
     ],
-    "scene_prompt": "Investigative scene reconstruction of The Russell Williams Interrogation, grounded in documented evidence and timeline details.",
+    "scene_prompt": "Investigative scene reconstruction of The Belleville Vanishing, grounded in documented evidence and timeline details.",
     "brief": "On February 7, 2010, investigators questioned Colonel Russell Williams at Ottawa Police Service while the search for Jessica Lloyd was still active. Tire-track analysis, vehicle scrutiny, and inconsistencies in Williams's account had begun to collapse the image of a disciplined air-force commander into that of the prime suspect."
   },
   "witnessPromptPacks": [
@@ -102,7 +102,7 @@
     }
   ],
   "call911Script": "Emergency dispatch, please respond to Jessica Lloyd residence area, Belleville, Ontario. Someone has been found unresponsive.",
-  "revealNarrationText": "The reconstructed truth points to the highest-confidence suspect in The Russell Williams Interrogation.",
+  "revealNarrationText": "The reconstructed truth points to the highest-confidence suspect in The Belleville Vanishing.",
   "assetManifest": {
     "sceneImageUri": "https://www.theglobeandmail.com/resizer/v2/7YNN5TC3B5FTDANRFCSS3TC7Q4?auth=676e98259adf2188e6c99ebb468d9b74be2b258d562965a22b4a18613e579fab&width=1200&height=800&quality=80&smart=true",
     "call911AudioUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/caller_911-roster_c9e30cca64-911.mp3",
@@ -164,5 +164,5 @@
     }
   },
   "packageVersion": "1.0.0",
-  "generatedAt": "2026-05-09T05:41:02.194Z"
+  "generatedAt": "2026-05-09T06:06:57.122Z"
 }

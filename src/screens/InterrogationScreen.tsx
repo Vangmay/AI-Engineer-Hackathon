@@ -137,9 +137,6 @@ export function InterrogationScreen() {
     audio.addEventListener('play', () => setIsIntroPlaying(true));
     audio.addEventListener('pause', () => setIsIntroPlaying(false));
     audio.addEventListener('ended', () => setIsIntroPlaying(false));
-    void audio.play().catch(() => {
-      setIsIntroPlaying(false);
-    });
 
     return () => {
       audio.pause();

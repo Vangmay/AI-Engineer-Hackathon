@@ -143,7 +143,7 @@
     "promptOrRecipe": "Natural conversational voice: middle-aged, male, Ontario, clipped military cadence, controlled and defensive. Clear articulation, believable pacing, emotionally restrained, suitable for an interactive mystery character.",
     "modelName": "eleven_multilingual_v2",
     "outputUri": "/Users/jaehyeokchoi/Documents/Projects/AI-Engineer-Hackathon/data/cases/case_colonel_russell_williams_2010/assets/audio/renders/roster_c8b88512e4-voice-model.json",
-    "generationDate": "2026-05-09T05:39:03.934Z",
+    "generationDate": "2026-05-09T06:06:34.961Z",
     "qualityScore": 65,
     "approvalStatus": "needs_review",
     "reviewNotes": "ElevenLabs profile voice: text-to-voice from character prompt (real-clone path disabled for this product build)."
@@ -163,7 +163,7 @@
     "promptOrRecipe": "Natural conversational voice: middle-aged, male, Ontario, clipped military cadence, controlled and defensive. Clear articulation, believable pacing, emotionally restrained, suitable for an interactive mystery character.",
     "modelName": "eleven_multilingual_v2",
     "outputUri": "/Users/jaehyeokchoi/Documents/Projects/AI-Engineer-Hackathon/data/cases/case_colonel_russell_williams_2010/assets/audio/renders/criminal-person_russell_williams-intro.mp3",
-    "generationDate": "2026-05-09T05:39:04.903Z",
+    "generationDate": "2026-05-09T06:06:36.053Z",
     "qualityScore": 65,
     "approvalStatus": "needs_review",
     "reviewNotes": "ElevenLabs profile voice: text-to-voice from character prompt (real-clone path disabled for this product build)."
@@ -183,7 +183,7 @@
     "promptOrRecipe": "Natural conversational voice: middle-aged, male, Ontario, clipped military cadence, controlled and defensive. Clear articulation, believable pacing, emotionally restrained, suitable for an interactive mystery character.",
     "modelName": "eleven_multilingual_v2",
     "outputUri": "/Users/jaehyeokchoi/Documents/Projects/AI-Engineer-Hackathon/data/cases/case_colonel_russell_williams_2010/assets/audio/renders/criminal-person_russell_williams-default.mp3",
-    "generationDate": "2026-05-09T05:39:05.703Z",
+    "generationDate": "2026-05-09T06:06:36.822Z",
     "qualityScore": 65,
     "approvalStatus": "needs_review",
     "reviewNotes": "ElevenLabs profile voice: text-to-voice from character prompt (real-clone path disabled for this product build)."
@@ -203,7 +203,7 @@
     "promptOrRecipe": "Natural conversational voice: middle-aged, male, Ontario, clipped military cadence, controlled and defensive. Clear articulation, believable pacing, emotionally restrained, suitable for an interactive mystery character.",
     "modelName": "eleven_multilingual_v2",
     "outputUri": "/Users/jaehyeokchoi/Documents/Projects/AI-Engineer-Hackathon/data/cases/case_colonel_russell_williams_2010/assets/audio/renders/criminal-person_russell_williams-sample.mp3",
-    "generationDate": "2026-05-09T05:39:07.759Z",
+    "generationDate": "2026-05-09T06:06:38.716Z",
     "qualityScore": 65,
     "approvalStatus": "needs_review",
     "reviewNotes": "ElevenLabs profile voice: text-to-voice from character prompt (real-clone path disabled for this product build)."
@@ -222,7 +222,7 @@
     "promptOrRecipe": "Natural conversational voice: middle-aged, male, Ontario, methodical investigative questioning, steady and probing. Clear articulation, believable pacing, emotionally restrained, suitable for an interactive mystery character.",
     "modelName": "eleven_multilingual_v2",
     "outputUri": "/Users/jaehyeokchoi/Documents/Projects/AI-Engineer-Hackathon/data/cases/case_colonel_russell_williams_2010/assets/audio/renders/roster_c6a2d650db-voice-model.json",
-    "generationDate": "2026-05-09T05:39:08.051Z",
+    "generationDate": "2026-05-09T06:06:38.948Z",
     "qualityScore": 65,
     "approvalStatus": "needs_review",
     "reviewNotes": "ElevenLabs profile voice: text-to-voice from character prompt (real-clone path disabled for this product build)."
@@ -242,7 +242,7 @@
     "promptOrRecipe": "Natural conversational voice: middle-aged, male, Ontario, methodical investigative questioning, steady and probing. Clear articulation, believable pacing, emotionally restrained, suitable for an interactive mystery character.",
     "modelName": "eleven_multilingual_v2",
     "outputUri": "/Users/jaehyeokchoi/Documents/Projects/AI-Engineer-Hackathon/data/cases/case_colonel_russell_williams_2010/assets/audio/renders/witness-person_jim_smyth-intro.mp3",
-    "generationDate": "2026-05-09T05:39:08.829Z",
+    "generationDate": "2026-05-09T06:06:39.921Z",
     "qualityScore": 65,
     "approvalStatus": "needs_review",
     "reviewNotes": "ElevenLabs profile voice: text-to-voice from character prompt (real-clone path disabled for this product build)."
@@ -262,7 +262,7 @@
     "promptOrRecipe": "Natural conversational voice: middle-aged, male, Ontario, methodical investigative questioning, steady and probing. Clear articulation, believable pacing, emotionally restrained, suitable for an interactive mystery character.",
     "modelName": "eleven_multilingual_v2",
     "outputUri": "/Users/jaehyeokchoi/Documents/Projects/AI-Engineer-Hackathon/data/cases/case_colonel_russell_williams_2010/assets/audio/renders/witness-person_jim_smyth-default.mp3",
-    "generationDate": "2026-05-09T05:39:09.634Z",
+    "generationDate": "2026-05-09T06:06:40.744Z",
     "qualityScore": 65,
     "approvalStatus": "needs_review",
     "reviewNotes": "ElevenLabs profile voice: text-to-voice from character prompt (real-clone path disabled for this product build)."
@@ -282,7 +282,7 @@
     "promptOrRecipe": "Natural conversational voice: middle-aged, male, Ontario, methodical investigative questioning, steady and probing. Clear articulation, believable pacing, emotionally restrained, suitable for an interactive mystery character.",
     "modelName": "eleven_multilingual_v2",
     "outputUri": "/Users/jaehyeokchoi/Documents/Projects/AI-Engineer-Hackathon/data/cases/case_colonel_russell_williams_2010/assets/audio/renders/witness-person_jim_smyth-sample.mp3",
-    "generationDate": "2026-05-09T05:39:11.716Z",
+    "generationDate": "2026-05-09T06:06:42.660Z",
     "qualityScore": 65,
     "approvalStatus": "needs_review",
     "reviewNotes": "ElevenLabs profile voice: text-to-voice from character prompt (real-clone path disabled for this product build)."
@@ -301,7 +301,7 @@
     "promptOrRecipe": "Natural conversational voice: middle-aged, female, Ontario, measured but emotional, grieving and direct. Clear articulation, believable pacing, emotionally restrained, suitable for an interactive mystery character.",
     "modelName": "eleven_multilingual_v2",
     "outputUri": "/Users/jaehyeokchoi/Documents/Projects/AI-Engineer-Hackathon/data/cases/case_colonel_russell_williams_2010/assets/audio/renders/roster_c13f4fd7ba-voice-model.json",
-    "generationDate": "2026-05-09T05:39:12.001Z",
+    "generationDate": "2026-05-09T06:06:42.928Z",
     "qualityScore": 65,
     "approvalStatus": "needs_review",
     "reviewNotes": "ElevenLabs profile voice: text-to-voice from character prompt (real-clone path disabled for this product build)."
@@ -321,7 +321,7 @@
     "promptOrRecipe": "Natural conversational voice: middle-aged, female, Ontario, measured but emotional, grieving and direct. Clear articulation, believable pacing, emotionally restrained, suitable for an interactive mystery character.",
     "modelName": "eleven_multilingual_v2",
     "outputUri": "/Users/jaehyeokchoi/Documents/Projects/AI-Engineer-Hackathon/data/cases/case_colonel_russell_williams_2010/assets/audio/renders/witness-person_carol_lloyd-intro.mp3",
-    "generationDate": "2026-05-09T05:39:12.773Z",
+    "generationDate": "2026-05-09T06:06:43.726Z",
     "qualityScore": 65,
     "approvalStatus": "needs_review",
     "reviewNotes": "ElevenLabs profile voice: text-to-voice from character prompt (real-clone path disabled for this product build)."
@@ -341,7 +341,7 @@
     "promptOrRecipe": "Natural conversational voice: middle-aged, female, Ontario, measured but emotional, grieving and direct. Clear articulation, believable pacing, emotionally restrained, suitable for an interactive mystery character.",
     "modelName": "eleven_multilingual_v2",
     "outputUri": "/Users/jaehyeokchoi/Documents/Projects/AI-Engineer-Hackathon/data/cases/case_colonel_russell_williams_2010/assets/audio/renders/witness-person_carol_lloyd-default.mp3",
-    "generationDate": "2026-05-09T05:39:13.618Z",
+    "generationDate": "2026-05-09T06:06:44.592Z",
     "qualityScore": 65,
     "approvalStatus": "needs_review",
     "reviewNotes": "ElevenLabs profile voice: text-to-voice from character prompt (real-clone path disabled for this product build)."
@@ -361,7 +361,7 @@
     "promptOrRecipe": "Natural conversational voice: middle-aged, female, Ontario, measured but emotional, grieving and direct. Clear articulation, believable pacing, emotionally restrained, suitable for an interactive mystery character.",
     "modelName": "eleven_multilingual_v2",
     "outputUri": "/Users/jaehyeokchoi/Documents/Projects/AI-Engineer-Hackathon/data/cases/case_colonel_russell_williams_2010/assets/audio/renders/witness-person_carol_lloyd-sample.mp3",
-    "generationDate": "2026-05-09T05:39:15.699Z",
+    "generationDate": "2026-05-09T06:06:46.538Z",
     "qualityScore": 65,
     "approvalStatus": "needs_review",
     "reviewNotes": "ElevenLabs profile voice: text-to-voice from character prompt (real-clone path disabled for this product build)."
@@ -379,7 +379,7 @@
     "promptOrRecipe": "Panicked emergency caller, realistic, urgent but intelligible, natural emergency delivery, clear articulation, emotionally heightened but controlled.",
     "modelName": "eleven_multilingual_v2",
     "outputUri": "/Users/jaehyeokchoi/Documents/Projects/AI-Engineer-Hackathon/data/cases/case_colonel_russell_williams_2010/assets/audio/renders/roster_c9e30cca64-voice-model.json",
-    "generationDate": "2026-05-09T05:39:15.984Z",
+    "generationDate": "2026-05-09T06:06:46.865Z",
     "qualityScore": 65,
     "approvalStatus": "needs_review",
     "reviewNotes": "Case-level 911 narration uses a controlled fallback voice by default."
@@ -398,7 +398,7 @@
     "promptOrRecipe": "Panicked emergency caller, realistic, urgent but intelligible, natural emergency delivery, clear articulation, emotionally heightened but controlled.",
     "modelName": "eleven_multilingual_v2",
     "outputUri": "/Users/jaehyeokchoi/Documents/Projects/AI-Engineer-Hackathon/data/cases/case_colonel_russell_williams_2010/assets/audio/renders/caller_911-roster_c9e30cca64-sample.mp3",
-    "generationDate": "2026-05-09T05:39:17.660Z",
+    "generationDate": "2026-05-09T06:06:48.619Z",
     "qualityScore": 65,
     "approvalStatus": "needs_review",
     "reviewNotes": "Case-level 911 narration uses a controlled fallback voice by default."
@@ -417,7 +417,7 @@
     "promptOrRecipe": "Panicked emergency caller, realistic, urgent but intelligible, natural emergency delivery, clear articulation, emotionally heightened but controlled.",
     "modelName": "eleven_multilingual_v2",
     "outputUri": "/Users/jaehyeokchoi/Documents/Projects/AI-Engineer-Hackathon/data/cases/case_colonel_russell_williams_2010/assets/audio/renders/caller_911-roster_c9e30cca64-911.mp3",
-    "generationDate": "2026-05-09T05:39:18.696Z",
+    "generationDate": "2026-05-09T06:06:49.643Z",
     "qualityScore": 65,
     "approvalStatus": "needs_review",
     "reviewNotes": "Case-level 911 narration uses a controlled fallback voice by default."
@@ -435,7 +435,7 @@
     "promptOrRecipe": "Calm narrator, clear pacing, natural and precise delivery, measured dramatic control, cinematic but grounded.",
     "modelName": "eleven_multilingual_v2",
     "outputUri": "/Users/jaehyeokchoi/Documents/Projects/AI-Engineer-Hackathon/data/cases/case_colonel_russell_williams_2010/assets/audio/renders/roster_7a087e2407-voice-model.json",
-    "generationDate": "2026-05-09T05:39:19.027Z",
+    "generationDate": "2026-05-09T06:06:49.909Z",
     "qualityScore": 65,
     "approvalStatus": "needs_review",
     "reviewNotes": "Reveal narration uses a controlled fallback narrator voice."
@@ -454,7 +454,7 @@
     "promptOrRecipe": "Calm narrator, clear pacing, natural and precise delivery, measured dramatic control, cinematic but grounded.",
     "modelName": "eleven_multilingual_v2",
     "outputUri": "/Users/jaehyeokchoi/Documents/Projects/AI-Engineer-Hackathon/data/cases/case_colonel_russell_williams_2010/assets/audio/renders/narrator-roster_7a087e2407-sample.mp3",
-    "generationDate": "2026-05-09T05:39:21.153Z",
+    "generationDate": "2026-05-09T06:06:51.858Z",
     "qualityScore": 65,
     "approvalStatus": "needs_review",
     "reviewNotes": "Reveal narration uses a controlled fallback narrator voice."
@@ -467,13 +467,13 @@
     "voiceMode": "profile_fallback",
     "providerVoiceId": "HFfBBhp6dP5OrPG6f9gD",
     "providerVoiceName": "case-case_colonel_russell_williams_2010-narrator-7e2407",
-    "renderText": "The reconstructed truth points to the highest-confidence suspect in The Russell Williams Interrogation.",
+    "renderText": "The reconstructed truth points to the highest-confidence suspect in The Belleville Vanishing.",
     "characterRole": "narrator",
     "inputMediaIds": [],
     "promptOrRecipe": "Calm narrator, clear pacing, natural and precise delivery, measured dramatic control, cinematic but grounded.",
     "modelName": "eleven_multilingual_v2",
     "outputUri": "/Users/jaehyeokchoi/Documents/Projects/AI-Engineer-Hackathon/data/cases/case_colonel_russell_williams_2010/assets/audio/renders/narrator-roster_7a087e2407-reveal.mp3",
-    "generationDate": "2026-05-09T05:39:22.189Z",
+    "generationDate": "2026-05-09T06:06:52.791Z",
     "qualityScore": 65,
     "approvalStatus": "needs_review",
     "reviewNotes": "Reveal narration uses a controlled fallback narrator voice."
