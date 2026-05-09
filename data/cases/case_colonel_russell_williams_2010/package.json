@@ -112,6 +112,9 @@
       "person_jim_smyth": "https://i.cbc.ca/ais/1.1777682,1717130919935/full/max/0/default.jpg?im=Crop%2Crect%3D%280%2C0%2C220%2C123%29%3B",
       "person_carol_lloyd": "https://i.cbc.ca/ais/1.2099319,1488560464000/full/max/0/default.jpg?im=Crop%2Crect%3D%280%2C0%2C305%2C171%29%3BResize%3D620"
     },
+    "witnessModels": {
+      "person_russell_williams": "https://v3b.fal.media/files/b/0a997bb9/grTSPqd_Vk6Vh8IAVkT-X_base_basic_pbr.glb"
+    },
     "witnessVoiceSamples": {
       "person_russell_williams": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/criminal-person_russell_williams-sample.mp3",
       "person_jim_smyth": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/witness-person_jim_smyth-sample.mp3",

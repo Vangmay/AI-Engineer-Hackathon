@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { Evidence3DViewer } from '@/components/Evidence3DViewer';
+import { Scene3DViewer } from '@/components/Scene3DViewer';
 import { useGameStore } from '@/store/gameStore';
 
 const CALL_911_TRANSCRIPT = [
@@ -176,8 +177,10 @@ export function CaseLoadScreen() {
             <section className="paper-card lifted p-[14px_14px_18px]">
               <div className="tape-corner left" />
               <div className="tape-corner right" />
-              <div className="case-scene-frame h-[250px]">
-                {sceneImageUrl ? (
+              <div className="case-scene-frame h-[300px] overflow-hidden">
+                {sceneModelUrl ? (
+                  <Scene3DViewer glbUrl={sceneModelUrl} previewUrl={sceneImageUrl ?? undefined} />
+                ) : sceneImageUrl ? (
                   <img
                     src={sceneImageUrl}
                     alt={`Crime scene reconstruction for ${caseData.title}`}
@@ -186,25 +189,12 @@ export function CaseLoadScreen() {
                 ) : (
                   <div className="photo-ph h-full text-[11px] leading-relaxed">
                     CRIME SCENE — {caseData.victim.location.toUpperCase()}
-                    <br />
-                    {caseData.scene_prompt}
                   </div>
                 )}
               </div>
               <div className="mt-2 flex justify-between gap-4 text-[10px] opacity-70">
-                <span>EXHIBIT A · SCENE PHOTOGRAPH 01</span>
-                {sceneModelUrl ? (
-                  <a
-                    href={sceneModelUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="opacity-100 underline decoration-dashed underline-offset-2"
-                  >
-                    3D SCENE MODEL · GLB
-                  </a>
-                ) : (
-                  <span>RESPONDING OFFICER · 04:22 SGT</span>
-                )}
+                <span>{sceneModelUrl ? 'EXHIBIT A · SCENE RECONSTRUCTION · 3D' : 'EXHIBIT A · SCENE PHOTOGRAPH 01'}</span>
+                <span>DRAG TO ROTATE · SCROLL TO ZOOM</span>
               </div>
               <Stamp text="CONFIDENTIAL" top={-22} left={310} rotate={-8} />
             </section>

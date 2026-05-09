@@ -160,7 +160,6 @@ export function InterrogationScreen() {
     }
   };
 
-  const [show3D, setShow3D] = useState(false);
   const firstName = witness.name.split(' ')[0].toUpperCase();
   const portraitUrl = witnessPortraitUrls[witness.id];
   const modelUrl = witnessModelUrls[witness.id];
@@ -188,7 +187,7 @@ export function InterrogationScreen() {
             <div className="tape-corner left" />
             <div className="tape-corner right" />
             <div className="relative h-[380px] w-full overflow-hidden" style={{ background: '#0e110e' }}>
-              {modelUrl && show3D ? (
+              {modelUrl ? (
                 <Evidence3DViewer
                   inline
                   glbUrl={modelUrl}
@@ -208,18 +207,12 @@ export function InterrogationScreen() {
                 </div>
               )}
               {modelUrl && (
-                <button
-                  type="button"
-                  onClick={() => setShow3D((v) => !v)}
-                  className="absolute bottom-2 right-2 px-2 py-1 text-[9px] tracking-[0.15em]"
-                  style={{
-                    background: 'rgba(0,0,0,0.7)',
-                    color: show3D ? 'var(--accent-yellow, #c9b06a)' : 'rgba(255,255,255,0.75)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                  }}
+                <div
+                  className="absolute bottom-2 left-2 text-[8px] tracking-[0.15em] pointer-events-none"
+                  style={{ color: 'rgba(255,255,255,0.35)' }}
                 >
-                  {show3D ? 'PHOTO' : '3D MODEL'}
-                </button>
+                  DRAG · ROTATE &nbsp;|&nbsp; SCROLL · ZOOM
+                </div>
               )}
             </div>
             <Stamp
