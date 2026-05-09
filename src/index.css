@@ -200,6 +200,15 @@ body {
   text-align: center;
 }
 
+.case-scene-frame {
+  background: #171310;
+  overflow: hidden;
+}
+
+.case-scene-frame img {
+  filter: sepia(0.18) contrast(1.08) saturate(0.82);
+}
+
 .tape-corner {
   position: absolute;
   top: -8px;

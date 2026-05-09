@@ -5,8 +5,8 @@ export function ensureDir(dirPath: string): void {
   fs.mkdirSync(dirPath, { recursive: true });
 }
 
-export function readJsonFile<T>(filePath: string, fallback: T): T {
-  if (!fs.existsSync(filePath)) return fallback;
+export function readJsonFile<T>(filePath: string, defaultValue: T): T {
+  if (!fs.existsSync(filePath)) return defaultValue;
   return JSON.parse(fs.readFileSync(filePath, 'utf8')) as T;
 }
 

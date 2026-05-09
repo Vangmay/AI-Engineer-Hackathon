@@ -714,6 +714,10 @@ export function buildGameCasePackage(input: {
         b.assetId.localeCompare(a.assetId)
       );
     })[0];
+  const latestAsset = (predicate: (asset: DerivedAsset) => boolean) =>
+    [...input.derivedAssets]
+      .filter(predicate)
+      .sort((a, b) => b.generationDate.localeCompare(a.generationDate))[0];
   const witnessPortraits = Object.fromEntries(
     runtimeCase.witnesses.map((witness) => {
       const portrait = pickBestAsset(
@@ -753,6 +757,9 @@ export function buildGameCasePackage(input: {
       ];
     }),
   );
+  const witnessVoiceSamples = Object.fromEntries(
+    Object.entries(voiceModels).map(([id, model]) => [id, model.sampleAssetUri ?? '']),
+  );
   const witnessIntroUris = Object.fromEntries(
     runtimeCase.witnesses.map((witness) => {
       const introAsset = pickBestAsset(
@@ -787,6 +794,36 @@ export function buildGameCasePackage(input: {
         asset.renderText === narratorRoster?.renderRevealText,
     ),
   )?.outputUri;
+  const evidenceRenders = Object.fromEntries(
+    input.evidence.map((evidence, index) => {
+      const render = latestAsset(
+        (asset) =>
+          asset.evidenceId === evidence.evidenceId &&
+          asset.assetType === 'evidence_render',
+      );
+      return [String(index), render?.outputUri ?? ''];
+    }),
+  );
+  const evidenceModels = Object.fromEntries(
+    input.evidence.map((evidence, index) => {
+      const model = latestAsset(
+        (asset) =>
+          asset.evidenceId === evidence.evidenceId &&
+          asset.assetType === 'evidence_model',
+      );
+      return [String(index), model?.outputUri ?? ''];
+    }),
+  );
+  const evidenceModelPreviews = Object.fromEntries(
+    input.evidence.map((evidence, index) => {
+      const model = latestAsset(
+        (asset) =>
+          asset.evidenceId === evidence.evidenceId &&
+          asset.assetType === 'evidence_model',
+      );
+      return [String(index), model?.previewUri ?? ''];
+    }),
+  );
 
   return {
     packageId: createId('pkg', `${caseId}:${new Date().toISOString()}`),
@@ -801,14 +838,26 @@ export function buildGameCasePackage(input: {
       narratorRoster?.renderRevealText ??
       `The reconstructed truth points to ${runtimeCase.truth.killer}. ${runtimeCase.truth.motive} ${runtimeCase.truth.method}`,
     assetManifest: {
-      sceneImageUri: web(input.derivedAssets.find((asset) => asset.assetType === 'case_image')?.outputUri),
+      sceneImageUri: web(latestAsset((asset) => asset.assetType === 'case_image')?.outputUri),
+      sceneModelUri: web(latestAsset((asset) => asset.assetType === 'scene_model')?.outputUri),
+      call911AudioUri: web(call911AudioUri),
+      revealNarrationAudioUri: web(revealNarrationAudioUri),
       witnessPortraits,
+      witnessVoiceSamples,
       voiceModels,
       renderedAudio: {
         call911AudioUri: web(call911AudioUri),
         revealNarrationAudioUri: web(revealNarrationAudioUri),
         witnessIntroUris,
+        ambientOrStingUris: Object.fromEntries(
+          input.derivedAssets
+            .filter((asset) => asset.assetType === 'ambient_audio')
+            .map((asset, index) => [index === 0 ? 'default' : `ambient_${index}`, web(asset.outputUri) ?? '']),
+        ),
       },
+      evidenceRenders,
+      evidenceModels,
+      evidenceModelPreviews,
     },
     packageVersion: '1.0.0',
     generatedAt: new Date().toISOString(),

@@ -133,6 +133,30 @@
         "person_w_priya": "/case-assets/case_raymond_teo_2026/assets/audio/renders/criminal-person_w_priya-intro.mp3",
         "person_w_eleanor": "/case-assets/case_raymond_teo_2026/assets/audio/renders/witness-person_w_eleanor-intro.mp3"
       }
+    },
+    "sceneImageUri": "https://v3b.fal.media/files/b/0a99788f/5bGoVR15vQUr0WRapv_0o_011ac6ec93134f67b13df0af0e4222f7.jpg",
+    "sceneModelUri": null,
+    "call911AudioUri": "/case-assets/case_raymond_teo_2026/assets/audio/renders/caller_911-roster_eef67127e9-911.mp3",
+    "revealNarrationAudioUri": "/case-assets/case_raymond_teo_2026/assets/audio/renders/narrator-roster_0e02d08380-reveal.mp3",
+    "witnessVoiceSamples": {
+      "person_w_marcus": "/assets/seed/marcus-intro.wav",
+      "person_w_priya": "",
+      "person_w_eleanor": ""
+    },
+    "evidenceRenders": {
+      "0": "https://v3b.fal.media/files/b/0a997890/OKBK1oJbh1fYIf2eC2fdj_adc5cf575ed643a0b58ec8a15fbafc62.jpg",
+      "1": "https://v3b.fal.media/files/b/0a997890/l74n00xPvmZUDSF0eESvu_c586ee19a3024435a0cfa2b091ecc020.jpg",
+      "2": "https://v3b.fal.media/files/b/0a997891/yl40HYhI_fDhiJR8m_twb_61292e69080c41b18a1665c7892ccbae.jpg"
+    },
+    "evidenceModels": {
+      "0": "https://v3b.fal.media/files/b/0a99789a/DsfLH0Ba-H-TzYBuSuDU__base_basic_pbr.glb",
+      "1": "https://v3b.fal.media/files/b/0a9978a2/1MSmwrQa9SKQnDuxuCyax_base_basic_pbr.glb",
+      "2": "https://v3b.fal.media/files/b/0a9978aa/vgxEfyTu_SfGx4TyWcJu0_base_basic_pbr.glb"
+    },
+    "evidenceModelPreviews": {
+      "0": "",
+      "1": "",
+      "2": ""
     }
   },
   "packageVersion": "1.0.0",

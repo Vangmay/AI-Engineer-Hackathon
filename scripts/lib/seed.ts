@@ -13,11 +13,12 @@ import type {
   SourceRecord,
   TimelineEvent,
 } from '../../src/types/research.ts';
-import { raymondTeoCase } from '../../src/data/raymondTeoCase.ts';
+import { getCurrentCasePackage } from '../../src/data/currentCasePackage.ts';
 import { createId } from './ids.ts';
 import { computePriorityScore } from './scoring.ts';
 
 const seededAt = '2026-05-09T00:00:00.000Z';
+const raymondTeoCase = getCurrentCasePackage().runtimeCase;
 
 export function createSeedCaseRecord(runtimeCase: MysteryCase): CaseRecord {
   const mysteryFitScore = 84;

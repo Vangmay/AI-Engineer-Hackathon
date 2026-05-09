@@ -9,10 +9,16 @@ interface GameState {
   phase: GamePhase;
   caseData: MysteryCase | null;
   sceneImageUrl: string | null;
+  sceneModelUrl: string | null;
   call911AudioUrl: string | null;
   revealNarrationAudioUrl: string | null;
   witnessIntroAudioUrls: Record<string, string>;
   voiceModels: AssetManifest['voiceModels'];
+  witnessPortraitUrls: Record<string, string>;
+  witnessVoiceSampleUrls: Record<string, string>;
+  evidenceImageUrls: Record<string, string>;
+  evidenceModelUrls: Record<string, string>;
+  evidenceModelPreviewUrls: Record<string, string>;
   activeWitnessId: string | null;
   accusation: string | null;
   isCorrect: boolean | null;
@@ -21,6 +27,13 @@ interface GameState {
   generationMs: number | null;
 
   loadStaticCase: () => Promise<void>;
+  loadCase: (caseId: string) => Promise<void>;
+  setConvexMedia: (media: {
+    sceneImageUrl: string | null;
+    evidenceImageUrls: Record<string, string>;
+    evidenceModelUrls: Record<string, string>;
+    evidenceModelPreviewUrls: Record<string, string>;
+  }) => void;
   goToBrief: () => void;
   startInterrogation: (witnessId: string) => Promise<void>;
   endInterrogation: () => Promise<void>;
@@ -36,10 +49,16 @@ function snapshotToState(snapshot: GameSnapshot) {
     phase: snapshot.session.phase,
     caseData: snapshot.caseData,
     sceneImageUrl: snapshot.media.sceneImageUrl,
+    sceneModelUrl: snapshot.media.sceneModelUrl,
     call911AudioUrl: snapshot.media.call911AudioUrl,
     revealNarrationAudioUrl: snapshot.media.revealNarrationAudioUrl,
     witnessIntroAudioUrls: snapshot.media.witnessIntroAudioUrls,
     voiceModels: snapshot.media.voiceModels,
+    witnessPortraitUrls: snapshot.media.witnessPortraitUrls,
+    witnessVoiceSampleUrls: snapshot.media.witnessVoiceSampleUrls,
+    evidenceImageUrls: snapshot.media.evidenceImageUrls,
+    evidenceModelUrls: snapshot.media.evidenceModelUrls,
+    evidenceModelPreviewUrls: snapshot.media.evidenceModelPreviewUrls,
     generationMs: snapshot.generationMs,
     transcript: snapshot.transcript,
     activeWitnessId: snapshot.session.activeWitnessId,
@@ -54,10 +73,16 @@ export const useGameStore = create<GameState>((set, get) => ({
   phase: 'LOADING',
   caseData: null,
   sceneImageUrl: null,
+  sceneModelUrl: null,
   call911AudioUrl: null,
   revealNarrationAudioUrl: null,
   witnessIntroAudioUrls: {},
   voiceModels: {},
+  witnessPortraitUrls: {},
+  witnessVoiceSampleUrls: {},
+  evidenceImageUrls: {},
+  evidenceModelUrls: {},
+  evidenceModelPreviewUrls: {},
   activeWitnessId: null,
   accusation: null,
   isCorrect: null,
@@ -65,9 +90,55 @@ export const useGameStore = create<GameState>((set, get) => ({
   transcript: [],
   generationMs: null,
 
+  /** Convex: runs `cases.startNewCase` (Exa + LLM or template). Local: seeds Raymond Teo bundle. */
   loadStaticCase: async () => {
     const snapshot = await gameBackend.startNewCase();
     set(snapshotToState(snapshot));
+  },
+
+  loadCase: async (caseId) => {
+    const snapshot = await gameBackend.loadCase(caseId);
+    if (!snapshot) {
+      set({
+        phase: 'LOADING',
+        sessionId: null,
+        caseData: null,
+        sceneImageUrl: null,
+        sceneModelUrl: null,
+        call911AudioUrl: null,
+        revealNarrationAudioUrl: null,
+        witnessIntroAudioUrls: {},
+        voiceModels: {},
+        witnessPortraitUrls: {},
+        witnessVoiceSampleUrls: {},
+        evidenceImageUrls: {},
+        evidenceModelUrls: {},
+        evidenceModelPreviewUrls: {},
+        activeWitnessId: null,
+        accusation: null,
+        isCorrect: null,
+        revealNarration: null,
+        transcript: [],
+        generationMs: null,
+      });
+      return;
+    }
+    set(snapshotToState(snapshot));
+  },
+
+  setConvexMedia: (media) => {
+    set((s) => ({
+      sceneImageUrl: media.sceneImageUrl ?? s.sceneImageUrl,
+      evidenceImageUrls: Object.keys(media.evidenceImageUrls).length > 0
+        ? media.evidenceImageUrls
+        : s.evidenceImageUrls,
+      evidenceModelUrls: Object.keys(media.evidenceModelUrls).length > 0
+        ? media.evidenceModelUrls
+        : s.evidenceModelUrls,
+      evidenceModelPreviewUrls: Object.keys(media.evidenceModelPreviewUrls).length > 0
+        ? media.evidenceModelPreviewUrls
+        : s.evidenceModelPreviewUrls,
+    }));
   },
 
   goToBrief: () => set({ phase: 'CASE_BRIEF', activeWitnessId: null }),

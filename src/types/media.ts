@@ -18,6 +18,9 @@ export type AssetType =
   | 'face_model'
   | 'animated_avatar'
   | 'case_image'
+  | 'scene_model'
+  | 'evidence_render'
+  | 'evidence_model'
   | 'ambient_audio';
 
 export type ToolProvider = 'elevenlabs' | 'fal' | 'openai' | 'manual';
@@ -94,6 +97,7 @@ export interface DerivedAsset {
   assetId: string;
   caseId: string;
   personId?: string;
+  evidenceId?: string;
   assetType: AssetType;
   toolProvider: ToolProvider;
   voiceMode?: VoiceMode;
@@ -105,6 +109,7 @@ export interface DerivedAsset {
   promptOrRecipe: string;
   modelName: string;
   outputUri: string;
+  previewUri?: string;
   generationDate: string;
   qualityScore: number;
   similarityScore?: number;

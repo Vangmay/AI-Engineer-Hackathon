@@ -3,11 +3,17 @@ import type { AssetManifest } from '@/types/gamePackage';
 
 export interface CaseMedia {
   sceneImageUrl: string | null;
+  sceneModelUrl: string | null;
   call911AudioUrl: string | null;
   revealNarrationAudioUrl: string | null;
   ambientAudioUrl: string | null;
   witnessIntroAudioUrls: Record<string, string>;
   voiceModels: AssetManifest['voiceModels'];
+  witnessPortraitUrls: Record<string, string>;
+  witnessVoiceSampleUrls: Record<string, string>;
+  evidenceImageUrls: Record<string, string>;
+  evidenceModelUrls: Record<string, string>;
+  evidenceModelPreviewUrls: Record<string, string>;
 }
 
 export interface GameSession {
@@ -38,6 +44,7 @@ export interface AccusationResult {
 
 export interface GameBackend {
   startNewCase: () => Promise<GameSnapshot>;
+  loadCase: (caseId: string) => Promise<GameSnapshot | null>;
   resumeSession: (sessionId: string) => Promise<GameSnapshot | null>;
   startInterview: (sessionId: string, witnessId: string) => Promise<GameSnapshot>;
   endInterview: (sessionId: string) => Promise<GameSnapshot>;

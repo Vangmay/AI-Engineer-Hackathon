@@ -4,11 +4,11 @@ This is the practical build list for turning the dossier UI into the actual game
 
 ## 0. Current State
 
-- React/Vite frontend exists with static Raymond Teo case data.
+- React/Vite frontend exists with the Raymond Teo case loaded from `data/cases/case_raymond_teo_2026/package.json`.
 - Screens exist for loading, case briefing, interview, accusation, and reveal.
 - Game state is Zustand backed by a backend contract and local adapter.
 - Interview transcript is stubbed with timed fake lines.
-- Accusation is evaluated through the backend contract with local fallback logic.
+- Accusation is evaluated through the backend contract with local data-backed logic.
 - Convex schema/function scaffolding exists, but the frontend is not yet using deployed Convex.
 - No generated cases, media pipeline, or live voice connection yet.
 
@@ -29,7 +29,7 @@ This is the practical build list for turning the dossier UI into the actual game
   - [x] `media`: scene image URL, 911 audio URL, reveal narration URL, ambient audio URL.
 - [ ] Replace local-only Zustand state with backend-backed actions.
   - [x] `startNewCase()`
-  - [ ] `loadCase(caseId)`
+  - [x] `loadCase(caseId)`
   - [x] `startInterview(witnessId)`
   - [x] `appendTranscriptLine(line)`
   - [x] `submitAccusation(text)`
@@ -37,28 +37,26 @@ This is the practical build list for turning the dossier UI into the actual game
 
 ## 2. Mystery Generation Engine
 
-- [ ] Implement a server-side `generateCase()` action.
-- [ ] Generate truth first.
-  - [ ] Killer id.
-  - [ ] Motive.
-  - [ ] Method.
-  - [ ] Timeline.
-  - [ ] Hidden clue.
-- [ ] Generate player-visible case file from truth.
-  - [ ] Victim profile.
-  - [ ] Case title.
-  - [ ] Scene brief.
-  - [ ] Three witnesses.
-  - [ ] Two real clues and one red herring.
-  - [ ] 911 call script.
-- [ ] Validate generated JSON before saving.
-  - [ ] Runtime schema validation.
-  - [ ] Ensure exactly one killer.
-  - [ ] Ensure witness ids match truth.
-  - [ ] Ensure each clue is represented in scene prompt or witness knowledge.
-  - [ ] Ensure the killer has a consistent lie and at least one contradiction.
-- [ ] Store hidden truth separately from the public case payload.
-- [ ] Add static fallback case if generation fails.
+- [x] Implement a server-side `generateCase()` action.
+- [x] LLM-backed `cases.startNewCase` **Convex action**: optional **Exa** retrieval (Wikipedia-biased queries) → corpus-appended OpenAI JSON → validate → persist; template fallback when keys missing / parse fails / API errors.
+- [x] Offline discovery: `npm run discover-cases -- --querySet=wikipedia-heavy` seeds Exa candidates with Wikipedia-shaped queries (see `scripts/discoverCases.ts`).
+- [x] Prompt orders **truth-first** (`hiddenTruth` JSON before `publicCase` in instructions); model returns paired `hiddenTruth` + `publicCase` in one object.
+  - [x] Killer id (witness id).
+  - [x] Motive.
+  - [x] Method.
+  - [ ] Timeline (optional field in dossier UX / future schema).
+  - [x] Hidden clue.
+- [x] Player-visible dossier generated with truth (single LLM JSON): victim, title, brief, witnesses, clues, scene prompt.
+  - [ ] 911 call script (voice pipeline).
+- [x] Validate generated JSON before saving (`validateCaseBundle` + normalization).
+  - [x] Structural checks / required fields / witness count / clue count.
+  - [x] Exactly one liar aligned with killer id.
+  - [x] Witness ids match killer reference.
+  - [ ] Strict schema package (zod/runtime deep validation) optional hardening.
+  - [ ] Clue-vs-scene/witness coherence review (currently not validated).
+  - [ ] Scripted killer lie/contradiction review (beyond `lies` flag).
+- [x] Store hidden truth separately from the public dossier (`cases.hiddenTruth` vs `cases.publicCase`).
+- [x] Static / template fallback if generation fails.
 
 ## 3. Media Pipeline
 
@@ -136,7 +134,7 @@ This is the practical build list for turning the dossier UI into the actual game
 
 ## 7. Frontend State Wiring
 
-- [ ] Replace static `raymondTeoCase` boot flow.
+- [x] Replace static boot flow with the packaged case under `data/cases`.
   - [x] Loading screen calls backend `startNewCase()`.
   - [x] Case file renders backend-provided public case.
   - [ ] Media placeholders swap to generated assets when ready.
