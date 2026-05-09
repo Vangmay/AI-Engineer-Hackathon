@@ -3,6 +3,11 @@ import type { Doc } from './_generated/dataModel';
 import { v } from 'convex/values';
 import { api, internal } from './_generated/api';
 import { normalize911Transcript, type GeneratedPublicCase } from './caseEngine';
+import {
+  inferVoiceGender,
+  pickGenderAwareElevenVoiceId,
+  pickGenderAwareOpenAiVoice,
+} from './voiceProfiles';
 
 const audioKind = v.union(
   v.literal('intro'),
@@ -105,6 +110,37 @@ async function synthOpenAiTtsMp3(openaiKey: string | undefined, input: string): 
     body: JSON.stringify({
       model: 'tts-1',
       voice: 'nova',
+      input: text,
+      response_format: 'mp3',
+    }),
+  });
+
+  if (!response.ok) {
+    console.error('[media] openai TTS:', response.status, await response.text());
+    return null;
+  }
+
+  return response.arrayBuffer();
+}
+
+async function synthOpenAiTtsMp3WithVoice(
+  openaiKey: string | undefined,
+  input: string,
+  voice: string,
+): Promise<ArrayBuffer | null> {
+  if (!openaiKey?.trim()) return null;
+  const text = sanitisePrompt(input).trim().slice(0, 3900);
+  if (!text) return null;
+
+  const response = await fetch('https://api.openai.com/v1/audio/speech', {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${openaiKey}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'tts-1',
+      voice,
       input: text,
       response_format: 'mp3',
     }),
@@ -865,18 +901,43 @@ export const generateForCase = action({
           );
 
           const voiceId =
-            typeof row.voiceId === 'string' &&
-            row.voiceId.trim() !== '' &&
-            row.voiceId !== 'stub'
-              ? row.voiceId
-              : call911FallbackVoice;
+            pickGenderAwareElevenVoiceId({
+              witnessId: row.witnessId,
+              preferredVoiceId:
+                typeof row.voiceId === 'string' && row.voiceId.trim() !== ''
+                  ? row.voiceId
+                  : undefined,
+              gender: inferVoiceGender({
+                name: profile.name,
+                role: profile.role,
+                profile: (profile as { profile?: string }).profile,
+                persona: (profile as { persona?: string }).persona,
+                gender: (profile as { gender?: string }).gender,
+                genderPresentation: (profile as { genderPresentation?: string }).genderPresentation,
+                sex: (profile as { sex?: string }).sex,
+              }),
+            }) || call911FallbackVoice;
 
           let introBuf: ArrayBuffer | null = null;
           if (eleven) {
             introBuf = await synthElevenLabsMp3(eleven, voiceId, introText, elevenModel);
           }
           if (!introBuf?.byteLength && openAiKey) {
-            introBuf = await synthOpenAiTtsMp3(openAiKey, introText);
+            introBuf = await synthOpenAiTtsMp3WithVoice(
+              openAiKey,
+              introText,
+              pickGenderAwareOpenAiVoice(
+                inferVoiceGender({
+                  name: profile.name,
+                  role: profile.role,
+                  profile: (profile as { profile?: string }).profile,
+                  persona: (profile as { persona?: string }).persona,
+                  gender: (profile as { gender?: string }).gender,
+                  genderPresentation: (profile as { genderPresentation?: string }).genderPresentation,
+                  sex: (profile as { sex?: string }).sex,
+                }),
+              ),
+            );
           }
 
           if (!introBuf?.byteLength) return;

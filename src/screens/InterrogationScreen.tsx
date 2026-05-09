@@ -4,6 +4,22 @@ import { Evidence3DViewer } from '@/components/Evidence3DViewer';
 import type { WitnessQuestionErrorCode } from '@/backend/contracts';
 import { useGameStore } from '@/store/gameStore';
 
+type SpeechRecognitionLike = {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  start: () => void;
+  stop: () => void;
+  onresult: ((event: {
+    resultIndex: number;
+    results: ArrayLike<ArrayLike<{ transcript: string }>>;
+  }) => void) | null;
+  onerror: ((event: { error: string }) => void) | null;
+  onend: (() => void) | null;
+};
+
+type SpeechCtor = new () => SpeechRecognitionLike;
+
 function Stamp({
   text,
   top,
@@ -57,6 +73,7 @@ export function InterrogationScreen() {
   const voiceModels = useGameStore((s) => s.voiceModels);
   const introAudioRef = useRef<HTMLAudioElement | null>(null);
   const replyAudioRef = useRef<HTMLAudioElement | null>(null);
+  const speechRef = useRef<SpeechRecognitionLike | null>(null);
   const autoPlayedReplyTsRef = useRef<number | null>(null);
   const [isIntroPlaying, setIsIntroPlaying] = useState(false);
   const [playingReplyTs, setPlayingReplyTs] = useState<number | null>(null);
@@ -64,6 +81,7 @@ export function InterrogationScreen() {
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
   const [banner, setBanner] = useState<string | null>(null);
+  const [isListening, setIsListening] = useState(false);
 
   const witness = useMemo(
     () => caseData.witnesses.find((w) => w.id === witnessId)!,
@@ -114,6 +132,13 @@ export function InterrogationScreen() {
         replyAudioRef.current.currentTime = 0;
         replyAudioRef.current = null;
       }
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      speechRef.current?.stop();
+      speechRef.current = null;
     };
   }, []);
 
@@ -189,6 +214,48 @@ export function InterrogationScreen() {
       setBanner(msgs[outcome.code] ?? outcome.message ?? 'Could not reach the booth.');
       return;
     }
+  };
+
+  const toggleVoiceInput = () => {
+    const speechApi = window as unknown as {
+      SpeechRecognition?: SpeechCtor;
+      webkitSpeechRecognition?: SpeechCtor;
+    };
+    const Ctor = speechApi.SpeechRecognition || speechApi.webkitSpeechRecognition;
+    if (!Ctor) {
+      setBanner('Voice input is not supported in this browser.');
+      return;
+    }
+
+    if (isListening && speechRef.current) {
+      speechRef.current.stop();
+      setIsListening(false);
+      return;
+    }
+
+    const recognition = new Ctor();
+    speechRef.current = recognition;
+    recognition.lang = 'en-US';
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.onresult = (event) => {
+      let text = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        text += event.results[i]?.[0]?.transcript ?? '';
+      }
+      setDraft((prev) => `${prev}${prev && text ? ' ' : ''}${text}`.trimStart());
+    };
+    recognition.onerror = (event) => {
+      setBanner(`Voice input error: ${event.error}`);
+      setIsListening(false);
+    };
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    setBanner(null);
+    setIsListening(true);
+    recognition.start();
   };
 
   const canSend =
@@ -373,6 +440,13 @@ export function InterrogationScreen() {
         />
       </label>
       <div className="mt-2 flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={toggleVoiceInput}
+          className="border border-[var(--ink)] px-2.5 py-1.5 text-[10px] tracking-[0.15em]"
+        >
+          {isListening ? 'STOP MIC' : 'VOICE INPUT'}
+        </button>
         <button
           type="button"
           disabled={!canSend}

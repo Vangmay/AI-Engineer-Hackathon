@@ -17,6 +17,7 @@ import type * as interrogation from "../interrogation.js";
 import type * as media from "../media.js";
 import type * as openaiJson from "../openaiJson.js";
 import type * as sessions from "../sessions.js";
+import type * as voiceProfiles from "../voiceProfiles.js";
 
 import type {
   ApiFromModules,
@@ -34,6 +35,7 @@ declare const fullApi: ApiFromModules<{
   media: typeof media;
   openaiJson: typeof openaiJson;
   sessions: typeof sessions;
+  voiceProfiles: typeof voiceProfiles;
 }>;
 
 /**

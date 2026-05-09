@@ -3,13 +3,13 @@ import { v } from 'convex/values';
 import { api, internal } from './_generated/api';
 import { QUESTIONS_PER_WITNESS_INTERRO } from './sessions';
 import { fetchOpenAiChatText } from './openaiJson';
+import {
+  inferVoiceGender,
+  pickGenderAwareElevenVoiceId,
+  pickGenderAwareOpenAiVoice,
+} from './voiceProfiles';
 
 const MAX_QUESTION_LEN = 600;
-const VOICE_FALLBACKS = [
-  'pNInz6obpgDQGcFmaJgB',
-  'EXAVITQu4vr4xnSDxMaL',
-  'ThT5KcBeYPX3keUQqHPh',
-] as const;
 
 interface PublicWitnessProfile {
   id: string;
@@ -52,18 +52,6 @@ function personaSystemPrompt(args: {
   ].join('\n');
 }
 
-function hashWitnessId(witnessId: string): number {
-  let h = 0;
-  for (let i = 0; i < witnessId.length; i++) {
-    h = ((h << 5) - h + witnessId.charCodeAt(i)) | 0;
-  }
-  return Math.abs(h);
-}
-
-function pickFallbackVoiceId(witnessId: string): string {
-  return VOICE_FALLBACKS[hashWitnessId(witnessId) % VOICE_FALLBACKS.length]!;
-}
-
 function sanitiseSpeechText(text: string): string {
   return text
     .replace(/\s+/g, ' ')
@@ -72,7 +60,11 @@ function sanitiseSpeechText(text: string): string {
     .slice(0, 2400);
 }
 
-async function synthOpenAiTtsMp3(openaiKey: string | undefined, input: string): Promise<ArrayBuffer | null> {
+async function synthOpenAiTtsMp3(
+  openaiKey: string | undefined,
+  input: string,
+  voice?: string,
+): Promise<ArrayBuffer | null> {
   if (!openaiKey?.trim()) return null;
   const text = sanitiseSpeechText(input);
   if (!text) return null;
@@ -85,7 +77,7 @@ async function synthOpenAiTtsMp3(openaiKey: string | undefined, input: string): 
     },
     body: JSON.stringify({
       model: 'tts-1',
-      voice: process.env.OPENAI_TTS_VOICE?.trim() || 'nova',
+      voice: voice || process.env.OPENAI_TTS_VOICE?.trim() || 'alloy',
       input: text,
       response_format: 'mp3',
     }),
@@ -267,10 +259,22 @@ export const sendWitnessQuestion = action({
 
     let witnessReplyAudioUrl: string | undefined;
     try {
-      const rawVoice =
-        typeof row.voiceId === 'string' && row.voiceId.trim() && row.voiceId !== 'stub'
-          ? row.voiceId.trim()
-          : pickFallbackVoiceId(args.witnessId);
+      const rawProfile = (row.publicProfile ?? {}) as Record<string, unknown>;
+      const gender = inferVoiceGender({
+        name: rawProfile.name,
+        role: rawProfile.role,
+        profile: rawProfile.profile,
+        persona: rawProfile.persona,
+        gender: rawProfile.gender,
+        genderPresentation: rawProfile.genderPresentation,
+        sex: rawProfile.sex,
+      });
+
+      const rawVoice = pickGenderAwareElevenVoiceId({
+        witnessId: args.witnessId,
+        preferredVoiceId: typeof row.voiceId === 'string' ? row.voiceId : undefined,
+        gender,
+      });
 
       let audioBuf: ArrayBuffer | null = null;
       if (elevenKey) {
@@ -282,7 +286,11 @@ export const sendWitnessQuestion = action({
         });
       }
       if (!audioBuf?.byteLength) {
-        audioBuf = await synthOpenAiTtsMp3(openaiKey, replyText);
+        audioBuf = await synthOpenAiTtsMp3(
+          openaiKey,
+          replyText,
+          pickGenderAwareOpenAiVoice(gender),
+        );
       }
       if (audioBuf?.byteLength) {
         const sid = await ctx.storage.store(
