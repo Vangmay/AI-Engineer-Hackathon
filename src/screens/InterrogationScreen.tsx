@@ -329,7 +329,9 @@ export function InterrogationScreen() {
                   LIVE INTERVIEW
                 </div>
                 <div className="mt-0.5 text-[18px]">{witness.name}</div>
-                <div className="text-[11px] opacity-70">age {witness.age}</div>
+                <div className="text-[11px] opacity-70">
+                  {[`age ${witness.age}`, witness.sex, witness.occupation].filter(Boolean).join(' · ')}
+                </div>
               </div>
               <div className="flex gap-2">
                 <button
@@ -358,12 +360,42 @@ export function InterrogationScreen() {
               <p className="mt-1.5 text-[12px] leading-[1.55] opacity-75">
                 {witness.profile ?? witness.knows}
               </p>
+              <div className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-[11px] leading-[1.45] opacity-75">
+                <div className="tracking-[0.1em] opacity-55">ROLE</div>
+                <div>{witness.role || 'Not formally listed in file.'}</div>
+                {witness.occupation && (
+                  <>
+                    <div className="tracking-[0.1em] opacity-55">OCCUPATION</div>
+                    <div>{witness.occupation}</div>
+                  </>
+                )}
+                {witness.relationship_to_victim && (
+                  <>
+                    <div className="tracking-[0.1em] opacity-55">CONNECTION</div>
+                    <div>{witness.relationship_to_victim}</div>
+                  </>
+                )}
+                {witness.residence && (
+                  <>
+                    <div className="tracking-[0.1em] opacity-55">RESIDENCE</div>
+                    <div>{witness.residence}</div>
+                  </>
+                )}
+              </div>
               {witness.persona && (
                 <div className="mt-2 rounded-sm border border-dashed border-[var(--ink)] px-2 py-1.5 text-[11px] leading-[1.5] opacity-75">
                   <span className="mr-1 tracking-[0.12em] opacity-55">PERSONA</span>
                   {witness.persona}
                 </div>
               )}
+              <div className="mt-2 rounded-sm border border-dashed border-[var(--ink)] px-2 py-1.5 text-[11px] leading-[1.55] opacity-75">
+                <span className="mr-1 tracking-[0.12em] opacity-55">KNOWS</span>
+                {witness.knows}
+              </div>
+              <div className="mt-2 rounded-sm border border-dashed border-[var(--ink)] px-2 py-1.5 text-[11px] leading-[1.55] opacity-75">
+                <span className="mr-1 tracking-[0.12em] opacity-55">WITHHOLDS</span>
+                {witness.hiding}
+              </div>
               <div className="mt-2.5 flex flex-wrap items-center gap-2 border-t border-[var(--ink)] pt-2.5 border-dashed">
                 <span className="rounded border border-[var(--ink)] px-2 py-0.5 text-[10px] tracking-[0.12em]">
                   QUESTIONS LEFT · {questionsRemaining} / 3

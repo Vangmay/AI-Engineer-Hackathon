@@ -50,6 +50,75 @@ function Stamp({
   );
 }
 
+function WitnessFacts({
+  witness,
+}: {
+  witness: {
+    age: number;
+    sex?: string;
+    occupation?: string;
+    residence?: string;
+    relationship_to_victim?: string;
+  };
+}) {
+  const facts = [
+    ['AGE', String(witness.age)],
+    ['SEX', witness.sex],
+    ['OCCUPATION', witness.occupation],
+    ['RESIDENCE', witness.residence],
+    ['CONNECTION', witness.relationship_to_victim],
+  ].filter(([, value]) => Boolean(value));
+
+  return (
+    <dl className="mt-1.5 grid grid-cols-[78px_1fr] gap-x-2 gap-y-0.5 text-[10px] leading-snug opacity-[0.68]">
+      {facts.map(([label, value]) => (
+        <div key={label} className="contents">
+          <dt className="tracking-[0.12em] opacity-[0.7]">
+            {label}
+          </dt>
+          <dd>{value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+function WitnessProfileNotes({
+  witness,
+}: {
+  witness: {
+    role: string;
+    profile?: string;
+    knows: string;
+    hiding: string;
+  };
+}) {
+  return (
+    <div className="mt-2.5 space-y-1.5 text-[10px] leading-[1.45]">
+      {witness.role && (
+        <div>
+          <span className="mr-1 tracking-[0.12em] opacity-[0.55]">ROLE</span>
+          <span className="opacity-[0.75]">{witness.role}</span>
+        </div>
+      )}
+      {witness.profile && (
+        <div>
+          <span className="mr-1 tracking-[0.12em] opacity-[0.55]">PROFILE</span>
+          <span className="opacity-[0.72]">{witness.profile}</span>
+        </div>
+      )}
+      <div>
+        <span className="mr-1 tracking-[0.12em] opacity-[0.55]">KNOWS</span>
+        <span className="opacity-[0.72]">{witness.knows}</span>
+      </div>
+      <div>
+        <span className="mr-1 tracking-[0.12em] opacity-[0.55]">WITHHOLDS</span>
+        <span className="opacity-[0.72]">{witness.hiding}</span>
+      </div>
+    </div>
+  );
+}
+
 function PaperClip({
   left,
   top,
@@ -224,30 +293,76 @@ export function CaseLoadScreen() {
           </div>
         </header>
 
-        {/* Full-width crime scene hero at top */}
-        <section className="paper-card lifted mt-[22px] p-[14px_14px_10px] relative">
-          <div className="tape-corner left" />
-          <div className="tape-corner right" />
-          <div className="overflow-hidden" style={{ height: 420 }}>
-            {sceneModelUrl ? (
-              <Scene3DViewer glbUrl={sceneModelUrl} previewUrl={sceneImageUrl ?? undefined} />
-            ) : sceneImageUrl ? (
-              <img
-                src={sceneImageUrl}
-                alt={`Crime scene — ${caseData.title}`}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="photo-ph h-full text-[11px] leading-relaxed">
-                CRIME SCENE — {caseData.victim.location.toUpperCase()}
-              </div>
-            )}
+        {/* Hero: crime scene left, key evidence right */}
+        <section className="mt-[22px] grid grid-cols-[1.6fr_1fr] gap-4 max-[900px]:grid-cols-1">
+          {/* Crime scene 3D */}
+          <div className="paper-card lifted p-[12px_12px_8px] relative">
+            <div className="tape-corner left" />
+            <div className="tape-corner right" />
+            <div className="overflow-hidden" style={{ height: 400 }}>
+              {sceneModelUrl ? (
+                <Scene3DViewer glbUrl={sceneModelUrl} previewUrl={sceneImageUrl ?? undefined} />
+              ) : sceneImageUrl ? (
+                <img
+                  src={sceneImageUrl}
+                  alt={`Crime scene — ${caseData.title}`}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="photo-ph h-full text-[11px] leading-relaxed">
+                  CRIME SCENE — {caseData.victim.location.toUpperCase()}
+                </div>
+              )}
+            </div>
+            <div className="mt-1.5 flex justify-between gap-4 text-[9px] opacity-60">
+              <span>EXHIBIT A · CRIME SCENE · HIGHWAY 37 HASTINGS COUNTY</span>
+              <span>DRAG · ROTATE | SCROLL · ZOOM</span>
+            </div>
+            <Stamp text="CONFIDENTIAL" top={-22} left={240} rotate={-8} />
           </div>
-          <div className="mt-2 flex justify-between gap-4 text-[10px] opacity-70">
-            <span>{sceneModelUrl ? 'EXHIBIT A · CRIME SCENE RECONSTRUCTION · INTERACTIVE 3D' : 'EXHIBIT A · SCENE PHOTOGRAPH 01'}</span>
-            <span>{sceneModelUrl ? 'DRAG TO ROTATE · SCROLL TO ZOOM' : 'RESPONDING OFFICER · 04:22 SGT'}</span>
+
+          {/* Key evidence: vehicle + weapon */}
+          <div className="flex flex-col gap-4">
+            {(['4', '5'] as const).map((idx, i) => {
+              const modelUrl = evidenceModelUrls[idx];
+              const previewUrl = evidenceModelPreviewUrls[idx] || evidenceImageUrls[idx];
+              const labels = [
+                { tag: 'EXHIBIT B', title: 'SUSPECT VEHICLE', sub: 'Nissan Pathfinder · Tire Match' },
+                { tag: 'EXHIBIT C', title: 'MURDER WEAPON', sub: 'Maglite Flashlight · Ligature' },
+              ];
+              const lbl = labels[i]!;
+              return (
+                <div key={idx} className="paper-card p-[10px_10px_8px] flex-1 relative">
+                  <div
+                    className="overflow-hidden cursor-pointer"
+                    style={{ height: 188, background: '#1c2030' }}
+                    onClick={() => modelUrl && setActiveModel(Number(idx))}
+                  >
+                    {modelUrl ? (
+                      <Evidence3DViewer
+                        inline
+                        glbUrl={modelUrl}
+                        previewUrl={previewUrl}
+                        label={lbl.title}
+                        description={lbl.sub}
+                      />
+                    ) : previewUrl ? (
+                      <img src={previewUrl} alt={lbl.title} className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="h-full flex items-center justify-center text-[9px] tracking-widest opacity-30">
+                        GENERATING…
+                      </div>
+                    )}
+                  </div>
+                  <div className="mt-1 flex items-baseline justify-between">
+                    <span className="text-[10px] tracking-[0.12em]">{lbl.title}</span>
+                    <span className="text-[8px] opacity-50">{lbl.tag}</span>
+                  </div>
+                  <div className="text-[8px] opacity-45 tracking-[0.1em]">{lbl.sub}</div>
+                </div>
+              );
+            })}
           </div>
-          <Stamp text="CONFIDENTIAL" top={-22} left={310} rotate={-8} />
         </section>
 
         <section className="mt-[22px] grid grid-cols-[1.35fr_1fr] gap-8 max-[900px]:grid-cols-1">
@@ -311,10 +426,18 @@ export function CaseLoadScreen() {
                 <span>{formatPlaybackTime(call911CurrentTime)}</span>
                 <span>{formatPlaybackTime(call911Duration)}</span>
               </div>
+              <div className="mb-3 border-b border-dashed border-[rgba(26,20,16,0.25)] pb-2 text-[11px] leading-[1.5]">
+                <div className="tracking-[0.14em] opacity-55">REPORTING PARTY</div>
+                <div className="mt-1 font-semibold">
+                  {call911Lines.find((line) => line.who === 'CALL')?.label ?? 'Caller not identified'}
+                </div>
+              </div>
               <div className="text-[12px] leading-[23px]">
                 {call911Lines.map((line, i) => (
                   <div key={i} className="flex gap-2.5">
-                    <span className="w-[42px] opacity-60">{line.who}</span>
+                    <span className="w-[110px] shrink-0 text-[10px] leading-[1.35] opacity-60">
+                      {line.label ?? line.who}
+                    </span>
                     <span>{line.text}</span>
                   </div>
                 ))}
@@ -368,31 +491,28 @@ export function CaseLoadScreen() {
               {suspects.map((witness, i) => (
                 <div
                   key={witness.id}
-                  className="flex items-center gap-2.5 border-t border-dashed border-[rgba(26,20,16,0.3)] py-2 first:border-t-0"
+                  className="flex items-start gap-2.5 border-t border-dashed border-[rgba(26,20,16,0.3)] py-3 first:border-t-0"
                 >
                   {witnessPortraitUrls[witness.id] ? (
                     <img
                       src={witnessPortraitUrls[witness.id]}
                       alt={`${witness.name} portrait`}
-                      className="h-[52px] w-[42px] object-cover grayscale"
+                      className="h-[92px] w-[72px] object-cover grayscale"
                     />
                   ) : (
-                    <div className="grid h-[46px] w-[38px] place-items-center bg-[var(--ink)] text-[9px] text-[var(--cream-on-dark)]">
+                    <div className="grid h-[92px] w-[72px] place-items-center bg-[var(--ink)] text-[9px] text-[var(--cream-on-dark)]">
                       W{i + 1}
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
                     <div className="text-[14px]">{witness.name}</div>
-                    {witness.profile && (
-                      <div className="line-clamp-2 text-[10px] leading-snug opacity-[0.55]">
-                        {witness.profile}
-                      </div>
-                    )}
+                    <WitnessFacts witness={witness} />
+                    <WitnessProfileNotes witness={witness} />
                   </div>
                   <button
                     type="button"
                     onClick={() => startInterrogation(witness.id)}
-                    className="bg-[var(--ink)] px-2.5 py-1.5 text-[11px] tracking-[0.1em] text-[var(--cream-on-dark)]"
+                    className="mt-1 bg-[var(--ink)] px-2.5 py-1.5 text-[11px] tracking-[0.1em] text-[var(--cream-on-dark)]"
                   >
                     INTERVIEW →
                   </button>
@@ -407,31 +527,28 @@ export function CaseLoadScreen() {
               {witnesses.map((witness, i) => (
                 <div
                   key={witness.id}
-                  className="flex items-center gap-2.5 border-t border-dashed border-[rgba(26,20,16,0.3)] py-2 first:border-t-0"
+                  className="flex items-start gap-2.5 border-t border-dashed border-[rgba(26,20,16,0.3)] py-3 first:border-t-0"
                 >
                   {witnessPortraitUrls[witness.id] ? (
                     <img
                       src={witnessPortraitUrls[witness.id]}
                       alt={`${witness.name} portrait`}
-                      className="h-[52px] w-[42px] object-cover grayscale"
+                      className="h-[92px] w-[72px] object-cover grayscale"
                     />
                   ) : (
-                    <div className="grid h-[46px] w-[38px] place-items-center bg-[var(--ink)] text-[9px] text-[var(--cream-on-dark)]">
+                    <div className="grid h-[92px] w-[72px] place-items-center bg-[var(--ink)] text-[9px] text-[var(--cream-on-dark)]">
                       W{i + 1}
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
                     <div className="text-[14px]">{witness.name}</div>
-                    {witness.profile && (
-                      <div className="line-clamp-2 text-[10px] leading-snug opacity-[0.55]">
-                        {witness.profile}
-                      </div>
-                    )}
+                    <WitnessFacts witness={witness} />
+                    <WitnessProfileNotes witness={witness} />
                   </div>
                   <button
                     type="button"
                     onClick={() => startInterrogation(witness.id)}
-                    className="bg-[var(--ink)] px-2.5 py-1.5 text-[11px] tracking-[0.1em] text-[var(--cream-on-dark)]"
+                    className="mt-1 bg-[var(--ink)] px-2.5 py-1.5 text-[11px] tracking-[0.1em] text-[var(--cream-on-dark)]"
                   >
                     INTERVIEW →
                   </button>
@@ -444,8 +561,9 @@ export function CaseLoadScreen() {
                 Final Action
               </div>
               <p className="text-[12px] leading-relaxed opacity-75">
-                Ready to put a suspect on record? The accusation is spoken and
-                filed into this case folder.
+                Ready to put a suspect on record? Review the suspect cards, make
+                one final selection, and the dossier will immediately tell you if
+                you were correct.
               </p>
               <button
                 type="button"

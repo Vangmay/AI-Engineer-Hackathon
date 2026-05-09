@@ -11,7 +11,7 @@ import type {
   WitnessQuestionResult,
 } from './contracts';
 
-const STORAGE_KEY = 'crime-scene.local-backend.v1';
+const STORAGE_KEY = 'crime-scene.local-backend.v2';
 
 const ACTIVE_CASE_ID =
   import.meta.env.VITE_ACTIVE_CASE_ID ?? 'case_colonel_russell_williams_2010';

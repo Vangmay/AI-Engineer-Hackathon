@@ -29,7 +29,9 @@ async function main() {
   ensureDir(outputDir);
 
   const additions: DerivedAsset[] = [];
-  for (const person of bundle.people.filter((entry) => entry.faceCloneCandidate)) {
+  for (const person of bundle.people.filter(
+    (entry) => entry.isPrimaryCharacter && entry.roleType !== 'victim',
+  )) {
     const media = bundle.media
       .filter((entry) => entry.personId === person.personId && entry.mediaKind === 'image')
       .sort((a, b) => b.usableForCloneScore - a.usableForCloneScore)[0];
