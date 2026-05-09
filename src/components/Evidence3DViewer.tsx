@@ -175,8 +175,8 @@ export function Evidence3DViewer({ glbUrl, previewUrl, label, description, onClo
       <div
         className="relative flex flex-col"
         style={{
-          width: 'min(92vw, 760px)',
-          height: 'min(88vh, 580px)',
+          width: 'min(94vw, 980px)',
+          height: 'min(88vh, 620px)',
           background: 'var(--bg-panel)',
           border: '1px solid var(--border-strong)',
         }}
@@ -214,74 +214,91 @@ export function Evidence3DViewer({ glbUrl, previewUrl, label, description, onClo
           </button>
         </div>
 
-        {/* Canvas area */}
-        <div className="relative flex-1 min-h-0">
-          <div ref={canvasRef} className="w-full h-full" />
+        <div className="flex min-h-0 flex-1 max-[900px]:flex-col">
+          <div className="relative min-h-0 flex-1">
+            <div ref={canvasRef} className="h-full w-full" />
 
-          {loading && (
-            <div
-              className="absolute inset-0 flex flex-col items-center justify-center gap-3"
-              style={{ background: 'var(--bg-panel)' }}
-            >
-              {previewUrl && (
-                <img
-                  src={previewUrl}
-                  alt="Evidence preview"
-                  className="h-32 w-32 object-contain opacity-40"
-                />
-              )}
+            {loading && (
               <div
-                className="text-[10px] tracking-[0.2em] animate-pulse"
-                style={{ color: 'var(--accent-yellow)' }}
+                className="absolute inset-0 flex flex-col items-center justify-center gap-3"
+                style={{ background: 'var(--bg-panel)' }}
               >
-                LOADING 3D MODEL…
+                {previewUrl && (
+                  <img
+                    src={previewUrl}
+                    alt="Evidence preview"
+                    className="h-32 w-32 object-contain opacity-40"
+                  />
+                )}
+                <div
+                  className="text-[10px] tracking-[0.2em] animate-pulse"
+                  style={{ color: 'var(--accent-yellow)' }}
+                >
+                  LOADING 3D MODEL…
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {error && (
-            <div
-              className="absolute inset-0 flex flex-col items-center justify-center gap-2"
-              style={{ background: 'var(--bg-panel)' }}
-            >
+            {error && (
               <div
-                className="text-[11px] tracking-[0.1em]"
-                style={{ color: 'var(--accent-red)' }}
+                className="absolute inset-0 flex flex-col items-center justify-center gap-2"
+                style={{ background: 'var(--bg-panel)' }}
               >
-                MODEL LOAD ERROR
+                <div
+                  className="text-[11px] tracking-[0.1em]"
+                  style={{ color: 'var(--accent-red)' }}
+                >
+                  MODEL LOAD ERROR
+                </div>
+                <div
+                  className="text-[10px] max-w-[60%] text-center"
+                  style={{ color: 'var(--text-muted)' }}
+                >
+                  {error}
+                </div>
               </div>
-              <div
-                className="text-[10px] max-w-[60%] text-center"
-                style={{ color: 'var(--text-muted)' }}
-              >
-                {error}
-              </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
 
-        {/* Footer */}
-        <div
-          className="px-3 py-2 shrink-0 flex items-center justify-between"
-          style={{
-            borderTop: '1px solid var(--border-yellow)',
-            background: 'var(--bg-statusbar)',
-          }}
-        >
-          <p
-            className="text-[10px] leading-snug flex-1 mr-4"
-            style={{ color: 'var(--text-muted)' }}
+          <aside
+            className="flex w-[280px] shrink-0 flex-col border-l px-4 py-3 max-[900px]:w-full max-[900px]:border-l-0 max-[900px]:border-t"
+            style={{
+              borderColor: 'var(--border-yellow)',
+              background: 'var(--bg-statusbar)',
+            }}
           >
-            {description}
-          </p>
-          {!loading && !error && (
-            <span
-              className="text-[9px] tracking-[0.15em] shrink-0"
-              style={{ color: 'var(--accent-green)' }}
+            <div
+              className="text-[9px] tracking-[0.18em]"
+              style={{ color: 'var(--accent-yellow)' }}
             >
-              DRAG TO ROTATE · SCROLL TO ZOOM
-            </span>
-          )}
+              EVIDENCE NOTES
+            </div>
+            <div
+              className="mt-1 text-[13px] tracking-[0.08em]"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              {label.toUpperCase()}
+            </div>
+            <div
+              className="mt-3 flex-1 overflow-y-auto pr-1 text-[11px] leading-[1.65]"
+              style={{ color: 'var(--text-muted)' }}
+            >
+              {description}
+            </div>
+            {!loading && !error && (
+              <div
+                className="mt-3 border-t pt-3 text-[9px] tracking-[0.15em]"
+                style={{
+                  color: 'var(--accent-green)',
+                  borderColor: 'var(--border-yellow)',
+                }}
+              >
+                DRAG TO ROTATE
+                <br />
+                SCROLL TO ZOOM
+              </div>
+            )}
+          </aside>
         </div>
       </div>
     </div>
