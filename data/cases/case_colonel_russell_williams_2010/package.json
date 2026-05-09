@@ -151,7 +151,10 @@
       "Plaster forensic cast of a boot impression taken from the muddy ground at the farmhouse rear entrance — tread pattern consistent with size 10.5 Canadian Forces parade boots recovered from the suspect's Tweed residence.",
       "Isolated 1920s limestone farmhouse along the Highway 37 corridor, Hastings County — victim's residence and primary scene. Remote location with cleared fields and no neighbours within 800 metres; multiple unforced external entry points documented.",
       "Dark mahogany wooden box with a brass hasp lock, recovered under the floorboards of the suspect's Tweed property during search warrant execution — contents include personal articles traced to multiple victims.",
-      "Canadian Forces dark-blue officer's beret bearing Colonel rank insignia and CFB Trenton unit badge — found in the suspect's personal effects. Williams's command role had initially created the impression of an alibi too visible to permit the offences."
+      "Canadian Forces dark-blue officer's beret bearing Colonel rank insignia and CFB Trenton unit badge — found in the suspect's personal effects. Williams's command role had initially created the impression of an alibi too visible to permit the offences.",
+      "Dark navy-black Nissan Pathfinder SUV — tire tread impressions in snow near victim's residence matched forensically to this vehicle, breaking the case open.",
+      "Military-grade Maglite flashlight (3-cell, black) used as blunt-force weapon, recovered with forensic trace; nylon utility rope, 1.2 m, identified as ligature in strangulation.",
+      "OPP Ontario Provincial Police cruiser — first responder vehicle, establishing the outer perimeter of the Belleville scene on January 29, 2010."
     ],
     "scene_prompt": "Investigative scene reconstruction of The Belleville Vanishing, grounded in documented evidence and timeline details.",
     "brief": "On February 7, 2010, investigators questioned Colonel Russell Williams at Ottawa Police Service while the search for Jessica Lloyd was still active. Tire-track analysis, vehicle scrutiny, and inconsistencies in Williams's account had begun to collapse the image of a disciplined air-force commander into that of the prime suspect.",
@@ -277,7 +280,8 @@
   "call911Script": "Nine-one-one, what is your emergency? Jessica Lloyd is missing. Her car is still outside her place and she is not answering her phone. Something is wrong. What is the address where you are calling from? I am at Jessica's residence area in Belleville. Please send officers right away. When did anyone last hear from her, and do you see any sign of forced entry? Last night. This is not like her at all. Her phone goes straight to voicemail and I do not want to go inside alone.",
   "revealNarrationText": "The reconstructed truth points to the highest-confidence suspect in The Belleville Vanishing.",
   "assetManifest": {
-    "sceneImageUri": "https://www.theglobeandmail.com/resizer/v2/7YNN5TC3B5FTDANRFCSS3TC7Q4?auth=676e98259adf2188e6c99ebb468d9b74be2b258d562965a22b4a18613e579fab&width=1200&height=800&quality=80&smart=true",
+    "sceneImageUri": "https://v3b.fal.media/files/b/0a997cc5/ciE9nHMN9E5d76oLulK0P_7d9c1bdf4741459192128c7a0e1db947.jpg",
+    "sceneModelUri": "https://v3b.fal.media/files/b/0a997cd0/0op6HgRwFJytQVXt7NV_1_base_basic_pbr.glb",
     "call911AudioUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/caller_911-roster_c9e30cca64-911.mp3",
     "revealNarrationAudioUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/narrator-roster_7a087e2407-reveal.mp3",
     "witnessPortraits": {
@@ -362,19 +366,28 @@
       "0": "https://v3b.fal.media/files/b/0a997abf/fDCwZTCe5kTUrXKK3yz26_a0b52afc38bd4fcaa73dae74d6c3322c.jpg",
       "1": "https://v3b.fal.media/files/b/0a997aca/6qg1D5hZ7Uo4Xjb2BOwu3_0250929b4e884d35acdf73d39551f06e.jpg",
       "2": "https://v3b.fal.media/files/b/0a997ad5/JolwieTI-WurvAgFdu4zg_7bcdbc5c90db4e8f8e344587aa369c5f.jpg",
-      "3": "https://v3b.fal.media/files/b/0a997adf/gES9W5fQr2AJTkdqQhse5_39549a3e8d2847adade59914bb3201e3.jpg"
+      "3": "https://v3b.fal.media/files/b/0a997adf/gES9W5fQr2AJTkdqQhse5_39549a3e8d2847adade59914bb3201e3.jpg",
+      "4": "https://v3b.fal.media/files/b/0a997d05/gtxPt25FBRus07AZuMmXF_defa3e1206744aa4aa334ab5fb57d47d.jpg",
+      "5": "https://v3b.fal.media/files/b/0a997d10/mZyUfnQrPUr4rW0x3hvLP_d2a35bf2071f4e31bc51575b28c18028.jpg",
+      "6": "https://v3b.fal.media/files/b/0a997d1a/f5gObZqDVAKzhPPGuAcIn_3deb51fea7af4706aff659dead1b8d05.jpg"
     },
     "evidenceModels": {
       "0": "https://v3b.fal.media/files/b/0a997ac9/yBCsMBtySuUfNUp7lG3BU_base_basic_pbr.glb",
       "1": "https://v3b.fal.media/files/b/0a997ad2/T7_1_p9rJkQ5Dh9Ga3U3l_base_basic_pbr.glb",
       "2": "https://v3b.fal.media/files/b/0a997ade/d5oSGBovZwhNQLcNqPiuQ_base_basic_pbr.glb",
-      "3": "https://v3b.fal.media/files/b/0a997ae7/yFpAuS7cR7o5TVnk_lc9-_base_basic_pbr.glb"
+      "3": "https://v3b.fal.media/files/b/0a997ae7/yFpAuS7cR7o5TVnk_lc9-_base_basic_pbr.glb",
+      "4": "https://v3b.fal.media/files/b/0a997d0f/h8vF8jxDIvDPfOb-VFADI_base_basic_pbr.glb",
+      "5": "https://v3b.fal.media/files/b/0a997d19/wfP8AoA1hVwm99kHOVY_S_base_basic_pbr.glb",
+      "6": "https://v3b.fal.media/files/b/0a997d24/VHtQFZkZeafs6MmMz9wch_base_basic_pbr.glb"
     },
     "evidenceModelPreviews": {
       "0": "",
       "1": "",
       "2": "",
-      "3": ""
+      "3": "",
+      "4": "https://v3b.fal.media/files/b/0a997d05/gtxPt25FBRus07AZuMmXF_defa3e1206744aa4aa334ab5fb57d47d.jpg",
+      "5": "https://v3b.fal.media/files/b/0a997d10/mZyUfnQrPUr4rW0x3hvLP_d2a35bf2071f4e31bc51575b28c18028.jpg",
+      "6": "https://v3b.fal.media/files/b/0a997d1a/f5gObZqDVAKzhPPGuAcIn_3deb51fea7af4706aff659dead1b8d05.jpg"
     }
   },
   "packageVersion": "1.0.0",

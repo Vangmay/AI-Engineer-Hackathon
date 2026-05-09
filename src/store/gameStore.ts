@@ -237,10 +237,10 @@ export const useGameStore = create<GameState>((set, get) => ({
   appendTranscript: (line) => {
     const { sessionId } = get();
     set((s) => {
-      const key = `${line.speaker}:${line.timestamp}:${line.text}:${line.witnessId ?? ''}`;
+      const key = `${line.speaker}:${line.timestamp}:${line.text}:${line.witnessId ?? ''}:${line.audioUrl ?? ''}`;
       const exists = s.transcript.some(
         (item) =>
-          `${item.speaker}:${item.timestamp}:${item.text}:${item.witnessId ?? ''}` === key,
+          `${item.speaker}:${item.timestamp}:${item.text}:${item.witnessId ?? ''}:${item.audioUrl ?? ''}` === key,
       );
       return exists ? s : { transcript: [...s.transcript, line] };
     });

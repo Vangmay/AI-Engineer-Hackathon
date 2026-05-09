@@ -55,6 +55,8 @@ export interface TranscriptLine {
   timestamp: number;
   /** When set (interrogation), ties the line to one witness transcript thread. */
   witnessId?: string;
+  /** Optional speech asset URL for this line (used for witness AI voice replies). */
+  audioUrl?: string;
 }
 
 export type GamePhase =
