@@ -115,6 +115,8 @@ export function CaseLoadScreen() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const generatedIn = `${((generationMs ?? 8300) / 1000).toFixed(1)}s`;
+  const suspects = caseData.witnesses.filter((entry) => entry.category === 'suspect');
+  const witnesses = caseData.witnesses.filter((entry) => entry.category !== 'suspect');
 
   useEffect(() => {
     if (!call911AudioUrl) return;
@@ -323,9 +325,9 @@ export function CaseLoadScreen() {
             <section className="paper-card p-[14px_16px]">
               <PaperClip left={250} top={-22} rotate={8} />
               <div className="dossier-overline mb-2">
-                Witnesses · {caseData.witnesses.length} Listed
+                Suspects · {suspects.length} Listed
               </div>
-              {caseData.witnesses.map((witness, i) => (
+              {suspects.map((witness, i) => (
                 <div
                   key={witness.id}
                   className="flex items-center gap-2.5 border-t border-dashed border-[rgba(26,20,16,0.3)] py-2 first:border-t-0"
@@ -343,9 +345,50 @@ export function CaseLoadScreen() {
                   )}
                   <div className="min-w-0 flex-1">
                     <div className="text-[14px]">{witness.name}</div>
-                    <div className="truncate text-[11px] opacity-[0.65]">
-                      {witness.role}
+                    {witness.profile && (
+                      <div className="line-clamp-2 text-[10px] leading-snug opacity-[0.55]">
+                        {witness.profile}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => startInterrogation(witness.id)}
+                    className="bg-[var(--ink)] px-2.5 py-1.5 text-[11px] tracking-[0.1em] text-[var(--cream-on-dark)]"
+                  >
+                    INTERVIEW →
+                  </button>
+                </div>
+              ))}
+            </section>
+
+            <section className="paper-card p-[14px_16px]">
+              <div className="dossier-overline mb-2">
+                Witnesses · {witnesses.length} Listed
+              </div>
+              {witnesses.map((witness, i) => (
+                <div
+                  key={witness.id}
+                  className="flex items-center gap-2.5 border-t border-dashed border-[rgba(26,20,16,0.3)] py-2 first:border-t-0"
+                >
+                  {witnessPortraitUrls[witness.id] ? (
+                    <img
+                      src={witnessPortraitUrls[witness.id]}
+                      alt={`${witness.name} portrait`}
+                      className="h-[52px] w-[42px] object-cover grayscale"
+                    />
+                  ) : (
+                    <div className="grid h-[46px] w-[38px] place-items-center bg-[var(--ink)] text-[9px] text-[var(--cream-on-dark)]">
+                      W{i + 1}
                     </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[14px]">{witness.name}</div>
+                    {witness.profile && (
+                      <div className="line-clamp-2 text-[10px] leading-snug opacity-[0.55]">
+                        {witness.profile}
+                      </div>
+                    )}
                   </div>
                   <button
                     type="button"

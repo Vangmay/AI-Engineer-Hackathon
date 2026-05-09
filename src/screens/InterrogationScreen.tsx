@@ -6,28 +6,61 @@ import type { TranscriptLine } from '@/types/case';
 function stubConversation(witnessId: string): TranscriptLine[] {
   const base = Date.now();
   switch (witnessId) {
-    case 'person_w_priya':
-    case 'w_priya':
+    case 'person_russell_williams':
       return [
-        { speaker: 'detective', text: 'Where were you between two and three this morning?', timestamp: base },
-        { speaker: 'witness', text: 'Asleep. At home. I dropped Mr Teo off after dinner and went straight back.', timestamp: base + 1 },
-        { speaker: 'detective', text: 'The lobby cam puts you in the building at three twelve.', timestamp: base + 2 },
-        { speaker: 'witness', text: '... I came back. He texted me. He wanted his calendar updated.', timestamp: base + 3 },
+        { speaker: 'detective', text: 'Walk me through your movements the night Jessica disappeared.', timestamp: base },
+        { speaker: 'witness', text: 'I have already cooperated. My schedule was normal, and I had no reason to be anywhere near her home.', timestamp: base + 1 },
+        { speaker: 'detective', text: 'Then explain why the vehicle evidence keeps dragging us back to you.', timestamp: base + 2 },
+        { speaker: 'witness', text: 'You are building a theory around coincidence. That is not the same thing as proof.', timestamp: base + 3 },
       ];
-    case 'person_w_marcus':
-    case 'w_marcus':
+    case 'person_graham_reid':
       return [
-        { speaker: 'detective', text: 'Anything unusual on your shift?', timestamp: base },
-        { speaker: 'witness', text: "A van I didn't have on the manifest. And Ms Naidu left around three.", timestamp: base + 1 },
-        { speaker: 'detective', text: 'She normally leaves earlier?', timestamp: base + 2 },
-        { speaker: 'witness', text: 'Eight, nine PM at the latest. Three is not normal.', timestamp: base + 3 },
+        { speaker: 'detective', text: 'You argued with Jessica shortly before she vanished, correct?', timestamp: base },
+        { speaker: 'witness', text: 'We argued, yes. People argue. That does not put me in her driveway that night.', timestamp: base + 1 },
+        { speaker: 'detective', text: 'Why leave that argument out the first time?', timestamp: base + 2 },
+        { speaker: 'witness', text: 'Because I knew exactly how it would sound, and I panicked.', timestamp: base + 3 },
+      ];
+    case 'person_colin_fraser':
+      return [
+        { speaker: 'detective', text: 'Your truck was near Belleville late that night. Why?', timestamp: base },
+        { speaker: 'witness', text: 'I was working a private job and did not want tax questions on top of police questions.', timestamp: base + 1 },
+        { speaker: 'detective', text: 'So you hid your route from us.', timestamp: base + 2 },
+        { speaker: 'witness', text: 'I hid the job, not a murder. There is a difference.', timestamp: base + 3 },
+      ];
+    case 'person_adam_doyle':
+      return [
+        { speaker: 'detective', text: 'Why touch vehicle paperwork after the search started?', timestamp: base },
+        { speaker: 'witness', text: 'Because the base was in chaos and I thought I was fixing a clerical mess.', timestamp: base + 1 },
+        { speaker: 'detective', text: 'You understand that looks like a cover-up.', timestamp: base + 2 },
+        { speaker: 'witness', text: 'I understand it now. At the time I was thinking about careers, not crimes.', timestamp: base + 3 },
+      ];
+    case 'person_jim_smyth':
+      return [
+        { speaker: 'detective', text: 'What made the interview strategy work?', timestamp: base },
+        { speaker: 'witness', text: 'Pressure only works when the facts are already closing in. The tire evidence and his own routines did most of the work.', timestamp: base + 1 },
+        { speaker: 'detective', text: 'When did you know he was slipping?', timestamp: base + 2 },
+        { speaker: 'witness', text: 'When calm stopped looking like confidence and started looking rehearsed.', timestamp: base + 3 },
+      ];
+    case 'person_carol_lloyd':
+      return [
+        { speaker: 'detective', text: 'What do people miss about Jessica when they talk about the case?', timestamp: base },
+        { speaker: 'witness', text: 'They turn her into a headline. She had routines, humour, and plans. She was not just the worst thing that happened to her.', timestamp: base + 1 },
+        { speaker: 'detective', text: 'What mattered most in the early days?', timestamp: base + 2 },
+        { speaker: 'witness', text: 'That the search stay urgent, and that police not settle for the easiest story.', timestamp: base + 3 },
+      ];
+    case 'person_erin_mcallister':
+      return [
+        { speaker: 'detective', text: 'Did Jessica mention anyone making her uncomfortable?', timestamp: base },
+        { speaker: 'witness', text: 'She mentioned being more careful lately, but she did not hand me a neat suspect list.', timestamp: base + 1 },
+        { speaker: 'detective', text: 'Why hold part of that back?', timestamp: base + 2 },
+        { speaker: 'witness', text: 'Because I did not want gossip turning into evidence before I was sure what I remembered.', timestamp: base + 3 },
       ];
     default:
       return [
-        { speaker: 'detective', text: 'When did you last speak to Raymond?', timestamp: base },
-        { speaker: 'witness', text: 'Two days ago. He sounded relieved. Said he was finally going to deal with a staff problem.', timestamp: base + 1 },
-        { speaker: 'detective', text: 'Did he name the staff member?', timestamp: base + 2 },
-        { speaker: 'witness', text: 'No. Raymond liked people to wonder what he knew.', timestamp: base + 3 },
+        { speaker: 'detective', text: 'Start from the beginning and tell me what matters most.', timestamp: base },
+        { speaker: 'witness', text: 'The small details mattered more than anyone wanted to admit at first.', timestamp: base + 1 },
+        { speaker: 'detective', text: 'Such as?', timestamp: base + 2 },
+        { speaker: 'witness', text: 'Routes, routines, and the things people edited out when they were scared.', timestamp: base + 3 },
       ];
   }
 }
@@ -208,16 +241,14 @@ export function InterrogationScreen() {
                   LIVE INTERVIEW
                 </div>
                 <div className="mt-0.5 text-[18px]">{witness.name}</div>
-                <div className="text-[11px] opacity-70">
-                  {witness.role} · age {witness.age}
-                </div>
+                <div className="text-[11px] opacity-70">age {witness.age}</div>
               </div>
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={toggleIntroAudio}
                   className="h-10 w-10 rounded-full bg-[#3a342c] text-[16px]"
-                  aria-label="Play witness intro"
+                  aria-label="Play subject intro"
                 >
                   {isIntroPlaying ? '⏸' : '▶'}
                 </button>
@@ -237,8 +268,14 @@ export function InterrogationScreen() {
               <div className="dossier-overline">Subject File</div>
               <h2 className="mt-0.5 text-[22px]">{witness.name}</h2>
               <p className="mt-1.5 text-[12px] leading-[1.55] opacity-75">
-                {witness.knows}
+                {witness.profile ?? witness.knows}
               </p>
+              {witness.persona && (
+                <div className="mt-2 rounded-sm border border-dashed border-[var(--ink)] px-2 py-1.5 text-[11px] leading-[1.5] opacity-75">
+                  <span className="mr-1 tracking-[0.12em] opacity-55">PERSONA</span>
+                  {witness.persona}
+                </div>
+              )}
               <div className="mt-2.5 text-[10px] tracking-[0.1em] opacity-60">
                 VOICE · ELEVENLABS PROFILE (TEXT-TO-VOICE)
               </div>

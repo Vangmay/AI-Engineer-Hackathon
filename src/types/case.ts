@@ -1,8 +1,11 @@
 export interface Witness {
   id: string;
   name: string;
+  category?: 'suspect' | 'witness';
   role: string;
   age: number;
+  profile?: string;
+  persona?: string;
   knows: string;
   hiding: string;
   lies: boolean;

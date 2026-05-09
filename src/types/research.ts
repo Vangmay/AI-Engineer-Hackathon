@@ -136,6 +136,10 @@ export interface PersonRecord {
     demeanor?: string;
   };
   shortBio: string;
+  profileSummary?: string;
+  personaSummary?: string;
+  knownInfo?: string;
+  hiddenInfo?: string;
   notes?: string;
 }
 
