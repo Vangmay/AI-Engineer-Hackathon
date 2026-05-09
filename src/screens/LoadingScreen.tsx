@@ -16,16 +16,15 @@ export function LoadingScreen() {
   const [t, setT] = useState(0);
 
   useEffect(() => {
+    void loadStaticCase();
     const start = performance.now();
     const tick = setInterval(() => setT(performance.now() - start), 80);
     const stages = setInterval(() => {
       setStage((s) => Math.min(STAGES.length - 1, s + 1));
     }, 700);
-    const done = setTimeout(() => loadStaticCase(), 4500);
     return () => {
       clearInterval(tick);
       clearInterval(stages);
-      clearTimeout(done);
     };
   }, [loadStaticCase]);
 

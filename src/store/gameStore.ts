@@ -17,6 +17,7 @@ interface GameState {
   generationMs: number | null;
 
   loadStaticCase: () => Promise<void>;
+  loadCase: (caseId: string) => Promise<void>;
   goToBrief: () => void;
   startInterrogation: (witnessId: string) => Promise<void>;
   endInterrogation: () => Promise<void>;
@@ -55,8 +56,30 @@ export const useGameStore = create<GameState>((set, get) => ({
   transcript: [],
   generationMs: null,
 
+  /** Convex: runs `cases.startNewCase` (Exa + LLM or template). Local: seeds Raymond Teo bundle. */
   loadStaticCase: async () => {
     const snapshot = await gameBackend.startNewCase();
+    set(snapshotToState(snapshot));
+  },
+
+  loadCase: async (caseId) => {
+    const snapshot = await gameBackend.loadCase(caseId);
+    if (!snapshot) {
+      set({
+        phase: 'LOADING',
+        sessionId: null,
+        caseData: null,
+        sceneImageUrl: null,
+        call911AudioUrl: null,
+        activeWitnessId: null,
+        accusation: null,
+        isCorrect: null,
+        revealNarration: null,
+        transcript: [],
+        generationMs: null,
+      });
+      return;
+    }
     set(snapshotToState(snapshot));
   },
 

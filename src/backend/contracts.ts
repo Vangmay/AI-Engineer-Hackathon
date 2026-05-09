@@ -35,6 +35,7 @@ export interface AccusationResult {
 
 export interface GameBackend {
   startNewCase: () => Promise<GameSnapshot>;
+  loadCase: (caseId: string) => Promise<GameSnapshot | null>;
   resumeSession: (sessionId: string) => Promise<GameSnapshot | null>;
   startInterview: (sessionId: string, witnessId: string) => Promise<GameSnapshot>;
   endInterview: (sessionId: string) => Promise<GameSnapshot>;

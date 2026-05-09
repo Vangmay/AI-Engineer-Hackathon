@@ -15,6 +15,11 @@ const QUERY_SETS: Record<string, string[]> = {
     'solved murder case with conflicting accounts disputed timeline documentary interviews',
     'solved homicide case controversy conflicting witness statements documentary',
   ],
+  'wikipedia-heavy': [
+    'site:en.wikipedia.org unsolved murder investigation homicide case',
+    'site:en.wikipedia.org murder trial overturned disputed evidence witnesses',
+    'site:en.wikipedia.org cold case homicide reinvestigation',
+  ],
 };
 
 async function main() {
