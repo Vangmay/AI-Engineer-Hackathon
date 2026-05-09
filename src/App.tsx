@@ -94,7 +94,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen w-full relative">
-      <div className="pointer-events-none fixed left-1/2 top-5 z-40 w-full max-w-[420px] -translate-x-1/2 px-4 select-none max-[640px]:top-3">
+      <div className="pointer-events-none absolute left-1/2 top-5 z-40 w-full max-w-[420px] -translate-x-1/2 px-4 select-none max-[640px]:top-3">
         <div className="flex items-center gap-3 text-[rgba(57,44,36,0.55)]">
           <div className="h-px flex-1 bg-[linear-gradient(to_right,transparent,rgba(57,44,36,0.22))]" />
           <div className="flex flex-col items-center">
