@@ -19,6 +19,8 @@ import type {
 import type { ExaSearchResult } from './exa.ts';
 import { writeTextFile } from './fs.ts';
 import { createId, createCaseId, hashText } from './ids.ts';
+import { filesystemUriToCaseWebPath } from './caseWebAssets.ts';
+import { scoreMediaUrlExtractionFitness } from './mediaCandidateUrlQuality.ts';
 import { computeCloneUsabilityScore, computePriorityScore } from './scoring.ts';
 
 export function createCandidateFromExa(input: {
@@ -211,6 +213,10 @@ export function inferSourceType(title: string, url: string): SourceRecord['sourc
 }
 
 export function inferMediaKindFromUrl(title: string, url: string): MediaCandidate['mediaKind'] {
+  const urlLower = url.toLowerCase();
+  if (/\.(mp3|wav|m4a|aac|opus|ogg)(\?|#|$)/iu.test(urlLower)) return 'audio';
+  if (/\.(mp4|m4v|webm|mkv|mov)(\?|#|$)/iu.test(urlLower)) return 'video';
+
   const haystack = `${title} ${url}`.toLowerCase();
   if (
     haystack.includes('.mp3') ||
@@ -512,7 +518,28 @@ export function buildMediaCandidatesFromSearch(input: {
       const results = input.searchResultsByPerson[person.personId] ?? [];
       return results.map((result, index) => {
         const mediaKind = inferMediaKindFromUrl(result.title, result.url);
-        const { signalQuality, transcriptRichness } = scoreMediaCandidateShape(mediaKind, result.text);
+        const fitness = scoreMediaUrlExtractionFitness({
+          url: result.url,
+          title: result.title,
+          textSnippet: result.text,
+          exaScore: result.score,
+          bundledSources: input.sources,
+        });
+        const extractionTierBoost =
+          fitness.tier === 'strong'
+            ? 15
+            : fitness.tier === 'ok'
+              ? 8
+              : fitness.tier === 'weak'
+                ? -8
+                : -22;
+
+        const { signalQuality: baseSignalQuality, transcriptRichness } = scoreMediaCandidateShape(
+          mediaKind,
+          result.text,
+        );
+        const signalQuality = Math.min(96, Math.max(18, baseSignalQuality + extractionTierBoost));
+
         const personCertainty = mediaKind === 'image' ? 64 : 78 - Math.min(index * 3, 18);
         const sourceCredibility = mediaKind === 'video' || mediaKind === 'audio' ? 82 : 68;
         const relatedSourceIds =
@@ -557,6 +584,9 @@ export function buildMediaCandidatesFromSearch(input: {
           overlapRatio: mediaKind === 'image' ? 0 : mediaKind === 'audio' ? 0.12 : 0.18,
           usableForCloneScore,
           rightsNotes: `Harvested from Exa result: ${result.title}`,
+          extractionFitnessScore: fitness.score,
+          extractionFitnessTier: fitness.tier,
+          extractionFitnessNotes: fitness.notes.join(' · '),
           sourceIds: relatedSourceIds,
           extractedAt: new Date().toISOString(),
           durationSec: mediaKind === 'image' ? undefined : normalizedDurationFromText(result.text),
@@ -669,6 +699,8 @@ export function buildGameCasePackage(input: {
   derivedAssets: DerivedAsset[];
   voiceRoster?: VoiceRosterEntry[];
 }): GameCasePackage {
+  const caseId = input.caseRecord.caseId;
+  const web = (uri: string | undefined) => filesystemUriToCaseWebPath(caseId, uri);
   const runtimeCase = buildRuntimeCase(input);
   const witnessPromptPacks = buildWitnessPromptPacks(runtimeCase, input.people);
   const voiceRoster = input.voiceRoster ?? [];
@@ -689,7 +721,7 @@ export function buildGameCasePackage(input: {
           (asset) => asset.personId === witness.id && asset.assetType === 'portrait',
         ),
       );
-      return [witness.id, portrait?.outputUri ?? ''];
+      return [witness.id, web(portrait?.outputUri) ?? ''];
     }),
   );
   const voiceModels = Object.fromEntries(
@@ -716,7 +748,7 @@ export function buildGameCasePackage(input: {
         {
           voiceMode: rosterEntry?.voiceMode ?? 'profile_fallback',
           providerVoiceId: voiceModel?.providerVoiceId,
-          sampleAssetUri: sampleLine?.outputUri,
+          sampleAssetUri: web(sampleLine?.outputUri),
         },
       ];
     }),
@@ -734,7 +766,7 @@ export function buildGameCasePackage(input: {
             asset.renderText === voiceRoster.find((entry) => entry.personId === witness.id)?.introText,
         ),
       );
-      return [witness.id, introAsset?.outputUri ?? ''];
+      return [witness.id, web(introAsset?.outputUri) ?? ''];
     }),
   );
   const callerRoster = voiceRoster.find((entry) => entry.characterRole === 'caller_911');
@@ -757,8 +789,8 @@ export function buildGameCasePackage(input: {
   )?.outputUri;
 
   return {
-    packageId: createId('pkg', `${input.caseRecord.caseId}:${new Date().toISOString()}`),
-    caseId: input.caseRecord.caseId,
+    packageId: createId('pkg', `${caseId}:${new Date().toISOString()}`),
+    caseId,
     title: input.caseRecord.canonicalTitle,
     runtimeCase,
     witnessPromptPacks,
@@ -769,12 +801,12 @@ export function buildGameCasePackage(input: {
       narratorRoster?.renderRevealText ??
       `The reconstructed truth points to ${runtimeCase.truth.killer}. ${runtimeCase.truth.motive} ${runtimeCase.truth.method}`,
     assetManifest: {
-      sceneImageUri: input.derivedAssets.find((asset) => asset.assetType === 'case_image')?.outputUri,
+      sceneImageUri: web(input.derivedAssets.find((asset) => asset.assetType === 'case_image')?.outputUri),
       witnessPortraits,
       voiceModels,
       renderedAudio: {
-        call911AudioUri,
-        revealNarrationAudioUri,
+        call911AudioUri: web(call911AudioUri),
+        revealNarrationAudioUri: web(revealNarrationAudioUri),
         witnessIntroUris,
       },
     },
@@ -820,15 +852,6 @@ export function buildVoiceProfilePrompt(person: PersonRecord): string {
   return `Natural conversational voice: ${profile}. Clear articulation, believable pacing, emotionally restrained, suitable for an interactive mystery character.`;
 }
 
-export function hasApprovedRealCloneReview(personId: string, reviews: Array<{ personId?: string; reviewType: string; status: string }>): boolean {
-  return reviews.some(
-    (review) =>
-      review.personId === personId &&
-      (review.reviewType === 'technical' || review.reviewType === 'likeness') &&
-      review.status === 'approved',
-  );
-}
-
 export function chooseVoiceMode(input: {
   person: PersonRecord;
   media: MediaCandidate[];
@@ -839,38 +862,15 @@ export function chooseVoiceMode(input: {
   selectedMedia?: MediaCandidate;
   decisionReason: string;
 } {
-  const selectedMedia = [...input.media]
-    .filter(
-      (media) =>
-        media.personId === input.person.personId &&
-        (media.mediaKind === 'audio' || media.mediaKind === 'video'),
-    )
-    .sort((a, b) => b.usableForCloneScore - a.usableForCloneScore)[0];
-  const approved = hasApprovedRealCloneReview(input.person.personId, input.reviews);
-  const strictGatePassed = Boolean(
-    selectedMedia &&
-      selectedMedia.voiceCloneEligibility === 'eligible' &&
-      (selectedMedia.speechDurationSec ?? 0) >= 60 &&
-      (selectedMedia.voiceIsolatedScore ?? 0) >= 75 &&
-      (selectedMedia.overlapRatio ?? 1) <= 0.2 &&
-      approved,
-  );
-
-  if (strictGatePassed) {
-    return {
-      voiceMode: 'real_clone',
-      strictGatePassed: true,
-      selectedMedia,
-      decisionReason: 'Selected real clone because documented speech passed the strict quality and review gate.',
-    };
-  }
+  void input.reviews;
+  void input.media;
 
   return {
     voiceMode: 'profile_fallback',
     strictGatePassed: false,
-    selectedMedia,
+    selectedMedia: undefined,
     decisionReason:
-      'Falling back to a profile-matched synthetic voice because the strict real-clone gate was not satisfied.',
+      'ElevenLabs profile voice: text-to-voice from character prompt (real-clone path disabled for this product build).',
   };
 }
 

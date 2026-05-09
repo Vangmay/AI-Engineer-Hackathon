@@ -231,11 +231,11 @@ export function InterrogationScreen() {
                 {witness.knows}
               </p>
               <div className="mt-2.5 text-[10px] tracking-[0.1em] opacity-60">
-                VOICE PROFILE · {voiceModel?.voiceMode === 'real_clone' ? 'REAL CLONE' : 'PROFILE FALLBACK'}
+                VOICE · ELEVENLABS PROFILE (TEXT-TO-VOICE)
               </div>
               {voiceModel?.providerVoiceId && (
                 <div className="mt-1 text-[10px] tracking-[0.08em] opacity-55">
-                  VOICE ID · {voiceModel.providerVoiceId}
+                  PROVIDER VOICE ID · {voiceModel.providerVoiceId}
                 </div>
               )}
             </div>

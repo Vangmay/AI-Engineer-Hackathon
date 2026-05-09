@@ -9,6 +9,7 @@ import {
   buildMediaCandidatesFromSearch,
   inferClipRole,
 } from './lib/pipeline.ts';
+import { scoreMediaUrlExtractionFitness } from './lib/mediaCandidateUrlQuality.ts';
 
 function mediaKey(entry: MediaCandidate): string {
   return `${entry.personId ?? 'none'}::${entry.mediaKind}::${entry.url}`;
@@ -38,6 +39,9 @@ function mergeMedia(existing: MediaCandidate[], generated: MediaCandidate[]): Me
       localRawMediaPath: entry.localRawMediaPath ?? prior.localRawMediaPath,
       localStoragePath: entry.localStoragePath ?? prior.localStoragePath,
       localAudioExtractPath: entry.localAudioExtractPath ?? prior.localAudioExtractPath,
+      extractionFitnessScore: prior.extractionFitnessScore ?? entry.extractionFitnessScore,
+      extractionFitnessTier: prior.extractionFitnessTier ?? entry.extractionFitnessTier,
+      extractionFitnessNotes: prior.extractionFitnessNotes ?? entry.extractionFitnessNotes,
     });
   }
 
@@ -96,12 +100,36 @@ async function main() {
       await pause(250);
     }
 
-    searchResultsByPerson[person.personId] = queryResults
+    const deduped = queryResults
       .flatMap((result) => result.results)
       .filter(
         (result, index, all) => all.findIndex((candidate) => candidate.url === result.url) === index,
-      )
-      .slice(0, maxPerPerson);
+      );
+
+    const withFitness = deduped.map((result) => ({
+      result,
+      fitness: scoreMediaUrlExtractionFitness({
+        url: result.url,
+        title: result.title,
+        textSnippet: result.text,
+        exaScore: result.score,
+        bundledSources: bundle.sources,
+      }),
+    }));
+
+    const nonAvoid = withFitness.filter((row) => row.fitness.tier !== 'avoid');
+    const rankingPool = nonAvoid.length >= Math.min(maxPerPerson, 3) ? nonAvoid : withFitness;
+
+    searchResultsByPerson[person.personId] = [...rankingPool]
+      .sort((a, b) => {
+        const byFit = b.fitness.score - a.fitness.score;
+        if (byFit !== 0) return byFit;
+        const exaA = typeof a.result.score === 'number' ? a.result.score : 0;
+        const exaB = typeof b.result.score === 'number' ? b.result.score : 0;
+        return exaB - exaA;
+      })
+      .slice(0, maxPerPerson)
+      .map((row) => row.result);
   }
   const generatedFromSearch = buildMediaCandidatesFromSearch({
     caseRecord: bundle.caseRecord,

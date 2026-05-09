@@ -30,7 +30,7 @@ export const raymondTeoPackage: GameCasePackage = {
     ),
     voiceModels: {
       w_marcus: {
-        voiceMode: 'real_clone',
+        voiceMode: 'profile_fallback',
         providerVoiceId: 'seed-marcus-voice',
         sampleAssetUri: AUDIO_PLACEHOLDER_URI,
       },

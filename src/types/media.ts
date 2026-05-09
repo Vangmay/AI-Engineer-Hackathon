@@ -50,6 +50,9 @@ export type VoiceCloneEligibility = 'eligible' | 'fallback_only' | 'reject';
 export type VoiceMode = 'real_clone' | 'profile_fallback';
 export type CharacterRole = 'criminal' | 'suspect' | 'witness' | 'caller_911' | 'narrator';
 
+/** Heuristic downloader / harvest fitness (pipeline-only UX; not authoritative). */
+export type ExtractionFitnessTier = 'strong' | 'ok' | 'weak' | 'avoid';
+
 export interface MediaCandidate {
   mediaId: string;
   caseId: string;
@@ -82,6 +85,9 @@ export interface MediaCandidate {
   rightsNotes?: string;
   sourceIds: string[];
   extractedAt: string;
+  extractionFitnessScore?: number;
+  extractionFitnessTier?: ExtractionFitnessTier;
+  extractionFitnessNotes?: string;
 }
 
 export interface DerivedAsset {

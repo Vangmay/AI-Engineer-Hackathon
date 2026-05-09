@@ -1,5 +1,7 @@
 import { raymondTeoPackage } from '@/data/raymondTeoPackage';
+import { normalizeCaseAssetUrl } from '@/lib/caseAssetUrls';
 import type { MysteryCase, TranscriptLine } from '@/types/case';
+import type { GameCasePackage } from '@/types/gamePackage';
 import type {
   AccusationResult,
   CaseMedia,
@@ -9,6 +11,8 @@ import type {
 } from './contracts';
 
 const STORAGE_KEY = 'crime-scene.local-backend.v1';
+
+const ACTIVE_CASE_ID = import.meta.env.VITE_ACTIVE_CASE_ID ?? 'case_raymond_teo_2026';
 
 interface LocalBackendState {
   session: GameSession;
@@ -29,22 +33,26 @@ function makeId(prefix: string) {
   return `${prefix}_${Math.random().toString(36).slice(2)}_${now()}`;
 }
 
-function cloneCase(): MysteryCase {
-  return structuredClone(raymondTeoPackage.runtimeCase);
-}
-
-function cloneMedia(): CaseMedia {
+function mediaFromPackage(pkg: GameCasePackage): CaseMedia {
+  const m = pkg.assetManifest;
+  const intros = m.renderedAudio.witnessIntroUris ?? {};
   return {
-    sceneImageUrl: raymondTeoPackage.assetManifest.sceneImageUri ?? null,
-    call911AudioUrl: raymondTeoPackage.assetManifest.renderedAudio.call911AudioUri ?? null,
-    revealNarrationAudioUrl:
-      raymondTeoPackage.assetManifest.renderedAudio.revealNarrationAudioUri ?? null,
-    ambientAudioUrl:
-      raymondTeoPackage.assetManifest.renderedAudio.ambientOrStingUris?.default ?? null,
-    witnessIntroAudioUrls: structuredClone(
-      raymondTeoPackage.assetManifest.renderedAudio.witnessIntroUris,
+    sceneImageUrl: normalizeCaseAssetUrl(m.sceneImageUri) ?? null,
+    call911AudioUrl: normalizeCaseAssetUrl(m.renderedAudio.call911AudioUri) ?? null,
+    revealNarrationAudioUrl: normalizeCaseAssetUrl(m.renderedAudio.revealNarrationAudioUri) ?? null,
+    ambientAudioUrl: normalizeCaseAssetUrl(m.renderedAudio.ambientOrStingUris?.default) ?? null,
+    witnessIntroAudioUrls: Object.fromEntries(
+      Object.entries(intros).map(([id, uri]) => [id, normalizeCaseAssetUrl(uri) ?? '']),
     ),
-    voiceModels: structuredClone(raymondTeoPackage.assetManifest.voiceModels),
+    voiceModels: Object.fromEntries(
+      Object.entries(m.voiceModels).map(([id, vm]) => [
+        id,
+        {
+          ...vm,
+          sampleAssetUri: normalizeCaseAssetUrl(vm.sampleAssetUri),
+        },
+      ]),
+    ),
   };
 }
 
@@ -57,8 +65,21 @@ function buildReveal(c: MysteryCase, correct: boolean): string {
   return `Wrong call. The killer was ${killerName}. ${c.truth.motive} ${c.truth.method} What you missed: ${c.truth.hidden_clue}`;
 }
 
-function createState(): LocalBackendState {
-  const caseData = cloneCase();
+async function loadCasePackage(): Promise<GameCasePackage> {
+  try {
+    const res = await fetch(`/case-assets/${ACTIVE_CASE_ID}/package.json`);
+    if (res.ok) {
+      return (await res.json()) as GameCasePackage;
+    }
+  } catch {
+    /* use embedded fallback */
+  }
+  return raymondTeoPackage;
+}
+
+async function createState(): Promise<LocalBackendState> {
+  const casePackage = await loadCasePackage();
+  const caseData = structuredClone(casePackage.runtimeCase);
   const timestamp = now();
   return {
     session: {
@@ -73,7 +94,7 @@ function createState(): LocalBackendState {
       updatedAt: timestamp,
     },
     caseData,
-    media: cloneMedia(),
+    media: mediaFromPackage(casePackage),
     transcript: [],
     generationMs: 8300,
   };
@@ -102,8 +123,11 @@ function writeState(state: LocalBackendState) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
-function updateState(edit: (state: LocalBackendState) => void): GameSnapshot {
-  const state = readState() ?? createState();
+async function updateState(edit: (state: LocalBackendState) => void): Promise<GameSnapshot> {
+  let state = readState();
+  if (!state) {
+    state = await createState();
+  }
   edit(state);
   state.session.updatedAt = now();
   writeState(state);
@@ -116,7 +140,7 @@ function transcriptKey(line: TranscriptLine) {
 
 export const localBackend: GameBackend = {
   async startNewCase() {
-    const state = createState();
+    const state = await createState();
     writeState(state);
     return toSnapshot(state);
   },
@@ -149,7 +173,7 @@ export const localBackend: GameBackend = {
   },
 
   async appendTranscriptLine(_sessionId, line) {
-    const snapshot = updateState((state) => {
+    const snapshot = await updateState((state) => {
       const seen = new Set(state.transcript.map(transcriptKey));
       if (!seen.has(transcriptKey(line))) {
         state.transcript.push(line);
@@ -159,7 +183,7 @@ export const localBackend: GameBackend = {
   },
 
   async evaluateAccusation(_sessionId, accusationText) {
-    const snapshot = updateState((state) => {
+    const snapshot = await updateState((state) => {
       const guess = accusationText.trim().toLowerCase();
       const killer = state.caseData.witnesses.find(
         (w) => w.id === state.caseData.truth.killer,

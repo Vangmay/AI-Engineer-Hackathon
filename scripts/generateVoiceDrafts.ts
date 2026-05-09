@@ -1,15 +1,8 @@
 import path from 'node:path';
-import fs from 'node:fs';
 import type { DerivedAsset, VoiceRosterEntry } from '../src/types/media.ts';
 import { loadCaseBundle, saveCaseBundle, getCaseDir } from './lib/caseFiles.ts';
 import { parseArgs } from './lib/cli.ts';
-import {
-  createVoiceCloneDraft,
-  createVoiceFromDesign,
-  designVoice,
-  listAvailableVoices,
-  synthesizeSpeech,
-} from './lib/elevenlabs.ts';
+import { createVoiceFromDesign, designVoice, listAvailableVoices, synthesizeSpeech } from './lib/elevenlabs.ts';
 import { loadLocalEnv, requireEnv } from './lib/env.ts';
 import { ensureDir, writeBinaryFile, writeTextFile } from './lib/fs.ts';
 import { createId } from './lib/ids.ts';
@@ -20,11 +13,6 @@ function upsertAssets(existing: DerivedAsset[], additions: DerivedAsset[]): Deri
     ...existing.filter((asset) => !additions.some((next) => next.assetId === asset.assetId)),
     ...additions,
   ];
-}
-
-function readBase64Audio(filePath: string | undefined): string | undefined {
-  if (!filePath || !fs.existsSync(filePath)) return undefined;
-  return fs.readFileSync(filePath).toString('base64');
 }
 
 function renderAssetPath(baseDir: string, roster: VoiceRosterEntry, kind: string): string {
@@ -70,7 +58,6 @@ function ensureVoiceDesignSampleText(roster: VoiceRosterEntry): string {
 async function resolveVoiceForRoster(
   apiKey: string,
   roster: VoiceRosterEntry,
-  sampleAudioBase64: string | undefined,
   modelId?: string,
 ): Promise<{ providerVoiceId?: string; providerVoiceName?: string; prompt: string; blocked?: boolean }> {
   const prompt = roster.fallbackPrompt;
@@ -86,26 +73,11 @@ async function resolveVoiceForRoster(
     };
   }
 
-  const preview = await createVoiceCloneDraft({
-    apiKey,
-    name: providerSafeName,
-    sampleText,
-    modelId,
-  });
-  if (preview.voiceId) {
-    return {
-      providerVoiceId: preview.voiceId,
-      providerVoiceName: providerSafeName,
-      prompt,
-    };
-  }
-
   const designed = await designVoice({
     apiKey,
     voiceDescription: prompt,
     sampleText,
     modelId,
-    referenceAudioBase64: roster.voiceMode === 'real_clone' ? sampleAudioBase64 : undefined,
   });
   if (designed.blocked) {
     const safeVoice = availableVoices.find((voice) => voice.category === 'premade') ?? availableVoices[0];
@@ -194,14 +166,10 @@ async function main() {
 
   const additions: DerivedAsset[] = [];
   for (const roster of bundle.voiceRoster) {
-    const selectedMedia = bundle.media.find((entry) => entry.mediaId === roster.selectedMediaId);
-    const sampleAudioBase64 = readBase64Audio(selectedMedia?.localAudioExtractPath ?? selectedMedia?.localRawMediaPath);
-    const resolved = await resolveVoiceForRoster(
-      env.ELEVENLABS_API_KEY!,
-      roster,
-      sampleAudioBase64,
-      env.ELEVENLABS_MODEL_ID,
-    );
+    const selectedMedia = roster.selectedMediaId
+      ? bundle.media.find((entry) => entry.mediaId === roster.selectedMediaId)
+      : undefined;
+    const resolved = await resolveVoiceForRoster(env.ELEVENLABS_API_KEY!, roster, env.ELEVENLABS_MODEL_ID);
 
     writeTextFile(
       path.join(outputDir, `${roster.rosterId}-voice-model.json`),
@@ -223,7 +191,7 @@ async function main() {
       assetId: createId('asset', `${caseId}:${roster.rosterId}:model`),
       caseId,
       personId: roster.personId,
-      assetType: roster.voiceMode === 'real_clone' ? 'voice_model' : 'voice_fallback_profile',
+      assetType: 'voice_fallback_profile',
       toolProvider: 'elevenlabs',
       voiceMode: roster.voiceMode,
       providerVoiceId: resolved.providerVoiceId,
