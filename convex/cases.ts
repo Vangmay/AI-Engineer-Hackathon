@@ -336,3 +336,160 @@ export const generateCase = mutation({
     };
   },
 });
+
+/**
+ * Admin cleanup: keep only fully rendered cases (target count), delete all other case trees.
+ * A case is considered fully rendered when it has scene + 911 + full witness intros + portraits + clue renders.
+ */
+export const pruneCasesKeepingRendered = mutation({
+  args: {
+    targetCount: v.optional(v.number()),
+    dryRun: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const targetCount = Math.max(1, Math.floor(args.targetCount ?? 5));
+    const dryRun = Boolean(args.dryRun);
+
+    const allCases = await ctx.db.query('cases').collect();
+    const evaluated: Array<{
+      caseRowId: Id<'cases'>;
+      caseId: string;
+      complete: boolean;
+      score: number;
+      createdAt: number;
+      witnessCount: number;
+      clueCount: number;
+      notes: string[];
+    }> = [];
+
+    for (const row of allCases) {
+      const [mediaDoc, witnessRows] = await Promise.all([
+        ctx.db
+          .query('media')
+          .withIndex('by_case', (q) => q.eq('caseId', row._id))
+          .first(),
+        ctx.db
+          .query('witnesses')
+          .withIndex('by_case', (q) => q.eq('caseId', row._id))
+          .collect(),
+      ]);
+
+      const publicCase = (row.publicCase ?? {}) as {
+        clues?: unknown[];
+      };
+      const clues = Array.isArray(publicCase.clues) ? publicCase.clues : [];
+
+      const portraits =
+        (mediaDoc?.witnessPortraitUrls as Record<string, string> | undefined) ?? {};
+      const renders =
+        (mediaDoc?.evidenceRenders as Record<string, string> | undefined) ?? {};
+
+      const sceneReady = Boolean(mediaDoc?.sceneImageUrl?.trim());
+      const callReady = Boolean(mediaDoc?.call911AudioUrl?.trim());
+      const introsReady = witnessRows.every((w) => Boolean(w.introAudioUrl?.trim()));
+      const portraitsReady = witnessRows.every((w) => Boolean(portraits[w.witnessId]?.trim()));
+      const evidenceReady =
+        clues.length > 0
+          ? clues.every((_, idx) => Boolean(renders[String(idx)]?.trim()))
+          : true;
+
+      const score =
+        (sceneReady ? 1 : 0) +
+        (callReady ? 1 : 0) +
+        (introsReady ? 1 : 0) +
+        (portraitsReady ? 1 : 0) +
+        (evidenceReady ? 1 : 0);
+
+      const notes: string[] = [];
+      if (!sceneReady) notes.push('missing_scene');
+      if (!callReady) notes.push('missing_911');
+      if (!introsReady) notes.push('missing_intro_audio');
+      if (!portraitsReady) notes.push('missing_witness_portraits');
+      if (!evidenceReady) notes.push('missing_evidence_renders');
+
+      evaluated.push({
+        caseRowId: row._id,
+        caseId: row.caseId,
+        complete: score === 5,
+        score,
+        createdAt: row.generation?.createdAt ?? 0,
+        witnessCount: witnessRows.length,
+        clueCount: clues.length,
+        notes,
+      });
+    }
+
+    const completeRows = evaluated
+      .filter((e) => e.complete)
+      .sort((a, b) => b.createdAt - a.createdAt);
+
+    if (completeRows.length < targetCount) {
+      return {
+        ok: false as const,
+        reason: 'not_enough_complete_cases',
+        totalCases: allCases.length,
+        completeCases: completeRows.length,
+        requested: targetCount,
+        examples: completeRows.slice(0, 10).map((e) => e.caseId),
+      };
+    }
+
+    const keepSet = new Set(completeRows.slice(0, targetCount).map((e) => e.caseRowId));
+    const deleteRows = evaluated.filter((e) => !keepSet.has(e.caseRowId));
+
+    if (dryRun) {
+      return {
+        ok: true as const,
+        dryRun: true as const,
+        targetCount,
+        keep: evaluated
+          .filter((e) => keepSet.has(e.caseRowId))
+          .map((e) => ({ caseId: e.caseId, score: e.score })),
+        deleteCount: deleteRows.length,
+      };
+    }
+
+    for (const row of deleteRows) {
+      const [mediaRows, witnessRows, audioRows, sessionRows] = await Promise.all([
+        ctx.db
+          .query('media')
+          .withIndex('by_case', (q) => q.eq('caseId', row.caseRowId))
+          .collect(),
+        ctx.db
+          .query('witnesses')
+          .withIndex('by_case', (q) => q.eq('caseId', row.caseRowId))
+          .collect(),
+        ctx.db
+          .query('audioAssets')
+          .withIndex('by_case', (q) => q.eq('caseId', row.caseRowId))
+          .collect(),
+        ctx.db.query('sessions').collect(),
+      ]);
+
+      const caseSessions = sessionRows.filter((s) => s.caseId === row.caseRowId);
+      for (const s of caseSessions) {
+        const lines = await ctx.db
+          .query('transcripts')
+          .withIndex('by_session_timestamp', (q) => q.eq('sessionId', s._id))
+          .collect();
+        for (const line of lines) await ctx.db.delete(line._id);
+        await ctx.db.delete(s._id);
+      }
+
+      for (const m of mediaRows) await ctx.db.delete(m._id);
+      for (const w of witnessRows) await ctx.db.delete(w._id);
+      for (const a of audioRows) await ctx.db.delete(a._id);
+      await ctx.db.delete(row.caseRowId);
+    }
+
+    return {
+      ok: true as const,
+      dryRun: false as const,
+      targetCount,
+      keptCaseIds: evaluated
+        .filter((e) => keepSet.has(e.caseRowId))
+        .map((e) => e.caseId),
+      deletedCaseIds: deleteRows.map((e) => e.caseId),
+    };
+  },
+});

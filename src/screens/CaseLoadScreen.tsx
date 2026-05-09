@@ -113,6 +113,7 @@ export function CaseLoadScreen() {
   const evidenceModelPreviewUrls = useGameStore((s) => s.evidenceModelPreviewUrls);
   const startInterrogation = useGameStore((s) => s.startInterrogation);
   const goToAccusation = useGameStore((s) => s.goToAccusation);
+  const investigateNewCase = useGameStore((s) => s.investigateNewCase);
 
   const [noted, setNoted] = useState<Set<number>>(() => new Set());
   const [activeModel, setActiveModel] = useState<number | null>(null);
@@ -180,6 +181,13 @@ export function CaseLoadScreen() {
             <div>FILE NO. {caseData.case_id}</div>
             <div>OPENED {caseData.victim.date.toUpperCase()}</div>
             <div>STATUS · ACTIVE</div>
+            <button
+              type="button"
+              onClick={() => void investigateNewCase()}
+              className="mt-2 border border-[var(--ink)] bg-[var(--paper)] px-3 py-1.5 text-[10px] tracking-[0.15em]"
+            >
+              INVESTIGATE NEW CASE
+            </button>
             <button
               type="button"
               onClick={goToAccusation}

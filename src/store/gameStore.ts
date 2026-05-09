@@ -4,6 +4,8 @@ import type { GameSnapshot, WitnessQuestionResult } from '@/backend/contracts';
 import type { GamePhase, MysteryCase, TranscriptLine } from '@/types/case';
 import type { AssetManifest } from '@/types/gamePackage';
 
+const DEFAULT_BOOT_CASE_ID = 'case_colonel_russell_williams_2010';
+
 interface GameState {
   sessionId: string | null;
   phase: GamePhase;
@@ -28,6 +30,7 @@ interface GameState {
   generationMs: number | null;
 
   loadStaticCase: () => Promise<void>;
+  investigateNewCase: () => Promise<void>;
   loadCase: (caseId: string) => Promise<void>;
   setConvexMedia: (media: {
     sceneImageUrl: string | null;
@@ -103,6 +106,13 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   /** Convex: new session for a random row in `cases` (no new case). Local: single bundled case. Empty DB: one `startNewCase` bootstrap. */
   loadStaticCase: async () => {
+    const snapshot =
+      (await gameBackend.loadCase(DEFAULT_BOOT_CASE_ID)) ??
+      (await gameBackend.startRandomExistingCase());
+    set(snapshotToState(snapshot));
+  },
+
+  investigateNewCase: async () => {
     const snapshot = await gameBackend.startRandomExistingCase();
     set(snapshotToState(snapshot));
   },
