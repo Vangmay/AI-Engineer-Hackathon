@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { gameBackend } from '@/backend/client';
 import type { GameSnapshot } from '@/backend/contracts';
+import { raymondTeoCase } from '@/data/raymondTeoCase';
 import type { GamePhase, MysteryCase, TranscriptLine } from '@/types/case';
 
 interface GameState {
@@ -17,6 +18,7 @@ interface GameState {
   generationMs: number | null;
 
   loadStaticCase: () => Promise<void>;
+  loadCase: (caseId: string) => Promise<void>;
   goToBrief: () => void;
   startInterrogation: (witnessId: string) => Promise<void>;
   endInterrogation: () => Promise<void>;
@@ -56,7 +58,27 @@ export const useGameStore = create<GameState>((set, get) => ({
   generationMs: null,
 
   loadStaticCase: async () => {
-    const snapshot = await gameBackend.startNewCase();
+    await get().loadCase(raymondTeoCase.case_id);
+  },
+
+  loadCase: async (caseId) => {
+    const snapshot = await gameBackend.loadCase(caseId);
+    if (!snapshot) {
+      set({
+        phase: 'LOADING',
+        sessionId: null,
+        caseData: null,
+        sceneImageUrl: null,
+        call911AudioUrl: null,
+        activeWitnessId: null,
+        accusation: null,
+        isCorrect: null,
+        revealNarration: null,
+        transcript: [],
+        generationMs: null,
+      });
+      return;
+    }
     set(snapshotToState(snapshot));
   },
 

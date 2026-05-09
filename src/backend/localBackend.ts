@@ -113,6 +113,13 @@ export const localBackend: GameBackend = {
     return toSnapshot(state);
   },
 
+  async loadCase(caseId) {
+    if (caseId !== raymondTeoCase.case_id) return null;
+    const state = createState();
+    writeState(state);
+    return toSnapshot(state);
+  },
+
   async resumeSession(sessionId) {
     const state = readState();
     if (!state || state.session.id !== sessionId) return null;

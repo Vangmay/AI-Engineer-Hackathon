@@ -29,7 +29,7 @@ This is the practical build list for turning the dossier UI into the actual game
   - [x] `media`: scene image URL, 911 audio URL, reveal narration URL, ambient audio URL.
 - [ ] Replace local-only Zustand state with backend-backed actions.
   - [x] `startNewCase()`
-  - [ ] `loadCase(caseId)`
+  - [x] `loadCase(caseId)`
   - [x] `startInterview(witnessId)`
   - [x] `appendTranscriptLine(line)`
   - [x] `submitAccusation(text)`
