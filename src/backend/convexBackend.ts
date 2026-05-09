@@ -68,6 +68,7 @@ function mapTranscriptRows(
     text: string;
     timestamp: number;
     witnessId?: string;
+    audioUrl?: string;
   }>,
 ): TranscriptLine[] {
   return [...rows]
@@ -77,6 +78,7 @@ function mapTranscriptRows(
       text: r.text,
       timestamp: r.timestamp,
       ...(r.witnessId ? { witnessId: r.witnessId } : {}),
+      ...(r.audioUrl ? { audioUrl: r.audioUrl } : {}),
     }));
 }
 
@@ -105,6 +107,7 @@ function snapshotFromConvexRow(row: {
     text: string;
     timestamp: number;
     witnessId?: string;
+    audioUrl?: string;
   }>;
 }): GameSnapshot {
   const { session, caseDoc, media, transcript, witnesses } = row;

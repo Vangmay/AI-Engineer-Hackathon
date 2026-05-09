@@ -11,6 +11,7 @@ export const appendWitnessInterrogationExchange = internalMutation({
     witnessId: v.string(),
     question: v.string(),
     witnessReply: v.string(),
+    witnessReplyAudioUrl: v.optional(v.string()),
     detectiveTimestamp: v.number(),
     witnessTimestamp: v.number(),
   },
@@ -45,6 +46,7 @@ export const appendWitnessInterrogationExchange = internalMutation({
       speaker: 'witness',
       text: reply,
       timestamp: args.witnessTimestamp,
+      audioUrl: args.witnessReplyAudioUrl,
     });
 
     return {
