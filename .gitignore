@@ -23,3 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Harvested / generated case audio (large binaries; JSON stays tracked)
+data/cases/*/assets/audio/raw/
+data/cases/*/assets/audio/clips/
+data/cases/*/assets/audio/renders/

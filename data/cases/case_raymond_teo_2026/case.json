@@ -19,7 +19,7 @@
   "castClarityScore": 86,
   "priorityScore": 76,
   "gameAdaptationStatus": "adapted",
-  "assetGenerationStatus": "reviewed",
+  "assetGenerationStatus": "generated",
   "primaryLocationLabel": "Marina One, Penthouse 47-B, Singapore",
   "tags": [
     "seed",
@@ -27,5 +27,5 @@
     "penthouse"
   ],
   "createdAt": "2026-05-09T00:00:00.000Z",
-  "updatedAt": "2026-05-09T03:27:40.220Z"
+  "updatedAt": "2026-05-09T03:52:32.585Z"
 }

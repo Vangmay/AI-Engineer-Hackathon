@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { gameBackend } from '@/backend/client';
 import type { GameSnapshot } from '@/backend/contracts';
 import type { GamePhase, MysteryCase, TranscriptLine } from '@/types/case';
+import type { AssetManifest } from '@/types/gamePackage';
 
 interface GameState {
   sessionId: string | null;
@@ -9,6 +10,9 @@ interface GameState {
   caseData: MysteryCase | null;
   sceneImageUrl: string | null;
   call911AudioUrl: string | null;
+  revealNarrationAudioUrl: string | null;
+  witnessIntroAudioUrls: Record<string, string>;
+  voiceModels: AssetManifest['voiceModels'];
   activeWitnessId: string | null;
   accusation: string | null;
   isCorrect: boolean | null;
@@ -33,6 +37,9 @@ function snapshotToState(snapshot: GameSnapshot) {
     caseData: snapshot.caseData,
     sceneImageUrl: snapshot.media.sceneImageUrl,
     call911AudioUrl: snapshot.media.call911AudioUrl,
+    revealNarrationAudioUrl: snapshot.media.revealNarrationAudioUrl,
+    witnessIntroAudioUrls: snapshot.media.witnessIntroAudioUrls,
+    voiceModels: snapshot.media.voiceModels,
     generationMs: snapshot.generationMs,
     transcript: snapshot.transcript,
     activeWitnessId: snapshot.session.activeWitnessId,
@@ -48,6 +55,9 @@ export const useGameStore = create<GameState>((set, get) => ({
   caseData: null,
   sceneImageUrl: null,
   call911AudioUrl: null,
+  revealNarrationAudioUrl: null,
+  witnessIntroAudioUrls: {},
+  voiceModels: {},
   activeWitnessId: null,
   accusation: null,
   isCorrect: null,

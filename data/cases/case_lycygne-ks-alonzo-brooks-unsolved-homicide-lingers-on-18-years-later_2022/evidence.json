@@ -1,0 +1,62 @@
+[
+  {
+    "evidenceId": "evidence_be85118ff8",
+    "caseId": "case_lycygne-ks-alonzo-brooks-unsolved-homicide-lingers-on-18-years-later_2022",
+    "label": "Lead 1",
+    "evidenceType": "testimonial",
+    "description": "LyCygne, KS: Alonzo Brooks' unsolved homicide lingers on 18 years later",
+    "supports": [],
+    "contradicts": [],
+    "isPubliclyDocumented": true,
+    "gameplayValue": "core_clue",
+    "sourceIds": [
+      "source_ae8cd930f5"
+    ],
+    "confidenceScore": 84
+  },
+  {
+    "evidenceId": "evidence_ac85e4a1bb",
+    "caseId": "case_lycygne-ks-alonzo-brooks-unsolved-homicide-lingers-on-18-years-later_2022",
+    "label": "Lead 2",
+    "evidenceType": "document",
+    "description": "The FBI ruled this 17-year cold case in Kansas a homicide, but still no answers for Alonzo Brooks’ family",
+    "supports": [],
+    "contradicts": [],
+    "isPubliclyDocumented": true,
+    "gameplayValue": "core_clue",
+    "sourceIds": [
+      "source_23921b66e0"
+    ],
+    "confidenceScore": 77
+  },
+  {
+    "evidenceId": "evidence_f33e8203ff",
+    "caseId": "case_lycygne-ks-alonzo-brooks-unsolved-homicide-lingers-on-18-years-later_2022",
+    "label": "Lead 3",
+    "evidenceType": "digital",
+    "description": "New Autopsy Determines Death of Alonzo Brooks was a Homicide",
+    "supports": [],
+    "contradicts": [],
+    "isPubliclyDocumented": true,
+    "gameplayValue": "secondary_clue",
+    "sourceIds": [
+      "source_820ae02b02"
+    ],
+    "confidenceScore": 70
+  },
+  {
+    "evidenceId": "evidence_4335dcde5e",
+    "caseId": "case_lycygne-ks-alonzo-brooks-unsolved-homicide-lingers-on-18-years-later_2022",
+    "label": "Lead 4",
+    "evidenceType": "digital",
+    "description": "Family continues to seek answers as FBI, US Attorney announce $100,000 reward in murder of Alonzo Brooks, who was found dead in rural Kansas after attending a party in 2004",
+    "supports": [],
+    "contradicts": [],
+    "isPubliclyDocumented": true,
+    "gameplayValue": "red_herring",
+    "sourceIds": [
+      "source_9955c31fff"
+    ],
+    "confidenceScore": 63
+  }
+]

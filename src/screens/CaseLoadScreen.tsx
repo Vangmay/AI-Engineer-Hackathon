@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '@/store/gameStore';
 
 const CALL_911_TRANSCRIPT = [
@@ -100,9 +100,40 @@ export function CaseLoadScreen() {
   const generationMs = useGameStore((s) => s.generationMs);
   const startInterrogation = useGameStore((s) => s.startInterrogation);
   const goToAccusation = useGameStore((s) => s.goToAccusation);
+  const call911AudioUrl = useGameStore((s) => s.call911AudioUrl);
   const [noted, setNoted] = useState<Set<number>>(() => new Set());
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPlaying911, setIsPlaying911] = useState(false);
 
   const generatedIn = `${((generationMs ?? 8300) / 1000).toFixed(1)}s`;
+
+  useEffect(() => {
+    if (!call911AudioUrl) return;
+    const audio = new Audio(call911AudioUrl);
+    audioRef.current = audio;
+    audio.addEventListener('play', () => setIsPlaying911(true));
+    audio.addEventListener('pause', () => setIsPlaying911(false));
+    audio.addEventListener('ended', () => setIsPlaying911(false));
+    void audio.play().catch(() => {
+      setIsPlaying911(false);
+    });
+
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+      audioRef.current = null;
+    };
+  }, [call911AudioUrl]);
+
+  const toggle911Audio = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (audio.paused) {
+      void audio.play();
+    } else {
+      audio.pause();
+    }
+  };
 
   return (
     <main className="dossier-page">
@@ -158,13 +189,16 @@ export function CaseLoadScreen() {
               <div className="flex items-center gap-2.5 py-[10px] pb-1.5">
                 <button
                   type="button"
+                  onClick={toggle911Audio}
                   className="grid h-7 w-7 place-items-center rounded-full bg-[var(--ink)] text-[11px] text-[var(--cream-on-dark)]"
                   aria-label="Play 911 call"
                 >
-                  ▶
+                  {isPlaying911 ? '❚❚' : '▶'}
                 </button>
                 <Waveform />
-                <div className="text-[10px] opacity-70">0:48 / 1:42</div>
+                <div className="text-[10px] opacity-70">
+                  {call911AudioUrl ? (isPlaying911 ? 'LIVE' : 'READY') : 'NO AUDIO'}
+                </div>
               </div>
               <div className="text-[12px] leading-[23px]">
                 {CALL_911_TRANSCRIPT.map((line, i) => (

@@ -1,4 +1,4 @@
-import { raymondTeoCase } from '@/data/raymondTeoCase';
+import { raymondTeoPackage } from '@/data/raymondTeoPackage';
 import type { MysteryCase, TranscriptLine } from '@/types/case';
 import type {
   AccusationResult,
@@ -18,13 +18,6 @@ interface LocalBackendState {
   generationMs: number | null;
 }
 
-const emptyMedia: CaseMedia = {
-  sceneImageUrl: null,
-  call911AudioUrl: null,
-  revealNarrationAudioUrl: null,
-  ambientAudioUrl: null,
-};
-
 function now() {
   return Date.now();
 }
@@ -37,7 +30,22 @@ function makeId(prefix: string) {
 }
 
 function cloneCase(): MysteryCase {
-  return structuredClone(raymondTeoCase);
+  return structuredClone(raymondTeoPackage.runtimeCase);
+}
+
+function cloneMedia(): CaseMedia {
+  return {
+    sceneImageUrl: raymondTeoPackage.assetManifest.sceneImageUri ?? null,
+    call911AudioUrl: raymondTeoPackage.assetManifest.renderedAudio.call911AudioUri ?? null,
+    revealNarrationAudioUrl:
+      raymondTeoPackage.assetManifest.renderedAudio.revealNarrationAudioUri ?? null,
+    ambientAudioUrl:
+      raymondTeoPackage.assetManifest.renderedAudio.ambientOrStingUris?.default ?? null,
+    witnessIntroAudioUrls: structuredClone(
+      raymondTeoPackage.assetManifest.renderedAudio.witnessIntroUris,
+    ),
+    voiceModels: structuredClone(raymondTeoPackage.assetManifest.voiceModels),
+  };
 }
 
 function buildReveal(c: MysteryCase, correct: boolean): string {
@@ -65,7 +73,7 @@ function createState(): LocalBackendState {
       updatedAt: timestamp,
     },
     caseData,
-    media: { ...emptyMedia },
+    media: cloneMedia(),
     transcript: [],
     generationMs: 8300,
   };

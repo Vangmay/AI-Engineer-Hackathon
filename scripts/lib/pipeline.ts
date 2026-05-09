@@ -16,6 +16,7 @@ import type {
   SourceRecord,
   TimelineEvent,
 } from '../../src/types/research.ts';
+import type { ExaSearchResult } from './exa.ts';
 import { writeTextFile } from './fs.ts';
 import { createId, createCaseId, hashText } from './ids.ts';
 import { computeCloneUsabilityScore, computePriorityScore } from './scoring.ts';
@@ -209,6 +210,46 @@ export function inferSourceType(title: string, url: string): SourceRecord['sourc
   return 'news';
 }
 
+export function inferMediaKindFromUrl(title: string, url: string): MediaCandidate['mediaKind'] {
+  const haystack = `${title} ${url}`.toLowerCase();
+  if (
+    haystack.includes('.mp3') ||
+    haystack.includes('.wav') ||
+    haystack.includes('audio') ||
+    haystack.includes('podcast')
+  ) {
+    return 'audio';
+  }
+  if (
+    haystack.includes('youtube') ||
+    haystack.includes('youtu.be') ||
+    haystack.includes('video') ||
+    haystack.includes('.mp4') ||
+    haystack.includes('watch?v=')
+  ) {
+    return 'video';
+  }
+  return 'image';
+}
+
+function inferOriginTypeFromResult(title: string, url: string): MediaCandidate['originType'] {
+  const haystack = `${title} ${url}`.toLowerCase();
+  if (haystack.includes('documentary')) return 'documentary';
+  if (haystack.includes('court')) return 'courtroom';
+  if (haystack.includes('mugshot')) return 'mugshot';
+  if (haystack.includes('archive')) return 'archive_photo';
+  if (haystack.includes('interview') || haystack.includes('podcast')) return 'interview';
+  if (haystack.includes('social')) return 'social';
+  return 'news_clip';
+}
+
+function scoreMediaCandidateShape(mediaKind: MediaCandidate['mediaKind'], text: string | undefined) {
+  const normalized = (text ?? '').toLowerCase();
+  const signalQuality = mediaKind === 'image' ? 82 : normalized.includes('interview') ? 78 : 68;
+  const transcriptRichness = normalized.length > 180 ? 76 : normalized.length > 80 ? 58 : 40;
+  return { signalQuality, transcriptRichness };
+}
+
 export function inferCredibilityTier(
   sourceType: SourceRecord['sourceType'],
 ): SourceRecord['credibilityTier'] {
@@ -269,6 +310,7 @@ export function makeSourceRecord(input: {
   publishedDate?: string;
 }): SourceRecord {
   const sourceType = inferSourceType(input.title, input.url);
+  const excerpt = (input.text ?? '').trim() || input.title;
   return {
     sourceId: createId('source', `${input.caseId}:${input.url}`),
     caseId: input.caseId,
@@ -278,7 +320,7 @@ export function makeSourceRecord(input: {
     publicationDate: input.publishedDate,
     url: input.url,
     retrievedAt: new Date().toISOString(),
-    excerpt: (input.text ?? '').slice(0, 500),
+    excerpt: excerpt.slice(0, 500),
     credibilityTier: inferCredibilityTier(sourceType),
     exaQueryId: input.exaQueryId,
     dedupeHash: hashText(input.url),
@@ -289,12 +331,46 @@ export function makeSourceRecord(input: {
 export function derivePeopleFromSources(caseRecord: CaseRecord, sources: SourceRecord[]): PersonRecord[] {
   const names = new Map<string, number>();
   const namePattern = /\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,2})\b/gu;
+  const blockedPhrases = new Set([
+    'Unsolved Mysteries',
+    'Kansas City Star',
+    'ABC News',
+    'NBC News',
+    'CNN',
+    'Rolling Stone',
+    'People',
+    'Kansas News Service',
+    'New Autopsy',
+    'After New Autopsy',
+    'Death Ruled Homicide',
+    'Search Location',
+    'Topeka High',
+  ]);
+  const blockedWords = new Set([
+    'news',
+    'mysteries',
+    'autopsy',
+    'homicide',
+    'investigation',
+    'reward',
+    'death',
+    'body',
+    'further',
+    'murder',
+    'crime',
+    'case',
+    'episode',
+    'season',
+  ]);
 
   for (const source of sources) {
-    const sample = source.excerpt;
+    const sample = `${source.title}\n${source.excerpt}`;
     for (const match of sample.matchAll(namePattern)) {
       const name = match[1]?.trim();
       if (!name || name === caseRecord.canonicalTitle) continue;
+      if (blockedPhrases.has(name)) continue;
+      const words = name.toLowerCase().split(/\s+/u);
+      if (words.some((word) => blockedWords.has(word))) continue;
       names.set(name, (names.get(name) ?? 0) + 1);
     }
   }
@@ -424,6 +500,79 @@ export function buildMediaCandidates(
     );
 }
 
+export function buildMediaCandidatesFromSearch(input: {
+  caseRecord: CaseRecord;
+  people: PersonRecord[];
+  sources?: SourceRecord[];
+  searchResultsByPerson: Record<string, ExaSearchResult[]>;
+}): MediaCandidate[] {
+  return input.people
+    .filter((person) => person.isPrimaryCharacter)
+    .flatMap((person) => {
+      const results = input.searchResultsByPerson[person.personId] ?? [];
+      return results.map((result, index) => {
+        const mediaKind = inferMediaKindFromUrl(result.title, result.url);
+        const { signalQuality, transcriptRichness } = scoreMediaCandidateShape(mediaKind, result.text);
+        const personCertainty = mediaKind === 'image' ? 64 : 78 - Math.min(index * 3, 18);
+        const sourceCredibility = mediaKind === 'video' || mediaKind === 'audio' ? 82 : 68;
+        const relatedSourceIds =
+          input.sources
+            ?.filter((source) => {
+              const haystack = `${source.title}\n${source.excerpt}`.toLowerCase();
+              const personName = person.fullName.toLowerCase();
+              return (
+                haystack.includes(personName) ||
+                source.url === result.url ||
+                source.title.toLowerCase().includes(personName.split(' ')[0] ?? '')
+              );
+            })
+            .slice(0, 3)
+            .map((source) => source.sourceId) ?? [];
+        const usableForCloneScore = computeCloneUsabilityScore({
+          signalQuality,
+          personCertainty,
+          transcriptRichness,
+          sourceCredibility: relatedSourceIds.length > 0 ? sourceCredibility : 40,
+        });
+
+        return {
+          mediaId: createId('media', `${input.caseRecord.caseId}:${person.personId}:${result.url}`),
+          caseId: input.caseRecord.caseId,
+          personId: person.personId,
+          mediaKind,
+          originType: inferOriginTypeFromResult(result.title, result.url),
+          url: result.url,
+          downloadStatus: 'not_downloaded',
+          transcriptAvailable: Boolean(result.text),
+          transcriptSource: result.text ? 'source_text' : 'none',
+          clipRole: inferClipRole(person.roleType),
+          voiceCloneEligibility: mediaKind === 'image' ? 'fallback_only' : 'fallback_only',
+          containsTargetPerson: true,
+          speakerLabel: mediaKind === 'image' ? undefined : person.fullName,
+          speakerConfidence: mediaKind === 'image' ? undefined : Math.max(50, personCertainty),
+          faceVisibilityScore: mediaKind === 'image' ? 85 : 62,
+          voiceIsolatedScore: mediaKind === 'audio' ? 76 : mediaKind === 'video' ? 70 : 0,
+          backgroundNoiseScore: mediaKind === 'audio' ? 18 : mediaKind === 'video' ? 24 : 0,
+          speechDurationSec: mediaKind === 'image' ? 0 : normalizedDurationFromText(result.text),
+          overlapRatio: mediaKind === 'image' ? 0 : mediaKind === 'audio' ? 0.12 : 0.18,
+          usableForCloneScore,
+          rightsNotes: `Harvested from Exa result: ${result.title}`,
+          sourceIds: relatedSourceIds,
+          extractedAt: new Date().toISOString(),
+          durationSec: mediaKind === 'image' ? undefined : normalizedDurationFromText(result.text),
+        } satisfies MediaCandidate;
+      });
+    });
+}
+
+function normalizedDurationFromText(text: string | undefined): number {
+  const chars = (text ?? '').length;
+  if (chars >= 800) return 150;
+  if (chars >= 400) return 95;
+  if (chars >= 200) return 65;
+  return 40;
+}
+
 export function chooseTruthWitness(people: PersonRecord[]): PersonRecord | undefined {
   return [...people]
     .filter((person) => person.isPrimaryCharacter)
@@ -523,10 +672,22 @@ export function buildGameCasePackage(input: {
   const runtimeCase = buildRuntimeCase(input);
   const witnessPromptPacks = buildWitnessPromptPacks(runtimeCase, input.people);
   const voiceRoster = input.voiceRoster ?? [];
+  const pickBestAsset = (assets: DerivedAsset[]) =>
+    [...assets].sort((a, b) => {
+      const playableA = a.outputUri.endsWith('.mp3') || a.outputUri.endsWith('.wav') ? 1 : 0;
+      const playableB = b.outputUri.endsWith('.mp3') || b.outputUri.endsWith('.wav') ? 1 : 0;
+      return (
+        playableB - playableA ||
+        b.generationDate.localeCompare(a.generationDate) ||
+        b.assetId.localeCompare(a.assetId)
+      );
+    })[0];
   const witnessPortraits = Object.fromEntries(
     runtimeCase.witnesses.map((witness) => {
-      const portrait = input.derivedAssets.find(
-        (asset) => asset.personId === witness.id && asset.assetType === 'portrait',
+      const portrait = pickBestAsset(
+        input.derivedAssets.filter(
+          (asset) => asset.personId === witness.id && asset.assetType === 'portrait',
+        ),
       );
       return [witness.id, portrait?.outputUri ?? ''];
     }),
@@ -534,14 +695,20 @@ export function buildGameCasePackage(input: {
   const voiceModels = Object.fromEntries(
     runtimeCase.witnesses.map((witness) => {
       const rosterEntry = voiceRoster.find((entry) => entry.personId === witness.id);
-      const voiceModel = input.derivedAssets.find(
-        (asset) => asset.personId === witness.id && asset.assetType === 'voice_model',
+      const voiceModel = pickBestAsset(
+        input.derivedAssets.filter(
+          (asset) =>
+            asset.personId === witness.id &&
+            (asset.assetType === 'voice_model' || asset.assetType === 'voice_fallback_profile'),
+        ),
       );
-      const sampleLine = input.derivedAssets.find(
-        (asset) =>
-          asset.personId === witness.id &&
-          asset.assetType === 'voice_line' &&
-          asset.renderText === rosterEntry?.qcSampleText,
+      const sampleLine = pickBestAsset(
+        input.derivedAssets.filter(
+          (asset) =>
+            asset.personId === witness.id &&
+            asset.assetType === 'voice_line' &&
+            asset.renderText === rosterEntry?.qcSampleText,
+        ),
       );
 
       return [
@@ -556,26 +723,38 @@ export function buildGameCasePackage(input: {
   );
   const witnessIntroUris = Object.fromEntries(
     runtimeCase.witnesses.map((witness) => {
-      const introAsset = input.derivedAssets.find(
-        (asset) =>
-          asset.personId === witness.id &&
-          asset.assetType === 'voice_line' &&
-          asset.characterRole &&
-          asset.characterRole !== 'caller_911' &&
-          asset.characterRole !== 'narrator' &&
-          asset.renderText === voiceRoster.find((entry) => entry.personId === witness.id)?.introText,
+      const introAsset = pickBestAsset(
+        input.derivedAssets.filter(
+          (asset) =>
+            asset.personId === witness.id &&
+            asset.assetType === 'voice_line' &&
+            asset.characterRole &&
+            asset.characterRole !== 'caller_911' &&
+            asset.characterRole !== 'narrator' &&
+            asset.renderText === voiceRoster.find((entry) => entry.personId === witness.id)?.introText,
+        ),
       );
       return [witness.id, introAsset?.outputUri ?? ''];
     }),
   );
-  const call911AudioUri = input.derivedAssets.find(
-    (asset) => asset.characterRole === 'caller_911' && asset.assetType === 'voice_line',
-  )?.outputUri;
-  const revealNarrationAudioUri = input.derivedAssets.find(
-    (asset) => asset.characterRole === 'narrator' && asset.assetType === 'voice_line',
-  )?.outputUri;
   const callerRoster = voiceRoster.find((entry) => entry.characterRole === 'caller_911');
   const narratorRoster = voiceRoster.find((entry) => entry.characterRole === 'narrator');
+  const call911AudioUri = pickBestAsset(
+    input.derivedAssets.filter(
+      (asset) =>
+        asset.characterRole === 'caller_911' &&
+        asset.assetType === 'voice_line' &&
+        asset.renderText === callerRoster?.render911Text,
+    ),
+  )?.outputUri;
+  const revealNarrationAudioUri = pickBestAsset(
+    input.derivedAssets.filter(
+      (asset) =>
+        asset.characterRole === 'narrator' &&
+        asset.assetType === 'voice_line' &&
+        asset.renderText === narratorRoster?.renderRevealText,
+    ),
+  )?.outputUri;
 
   return {
     packageId: createId('pkg', `${input.caseRecord.caseId}:${new Date().toISOString()}`),
@@ -637,8 +816,8 @@ export function buildVoiceProfilePrompt(person: PersonRecord): string {
     person.voiceProfile?.speakingStyle,
     person.voiceProfile?.demeanor,
   ].filter(Boolean);
-  const profile = parts.length > 0 ? parts.join(', ') : 'measured, realistic, documentary-style';
-  return `${person.fullName}, ${profile}. Realistic speech for a true-crime interrogation game.`;
+  const profile = parts.length > 0 ? parts.join(', ') : 'adult, measured, grounded';
+  return `Natural conversational voice: ${profile}. Clear articulation, believable pacing, emotionally restrained, suitable for an interactive mystery character.`;
 }
 
 export function hasApprovedRealCloneReview(personId: string, reviews: Array<{ personId?: string; reviewType: string; status: string }>): boolean {
@@ -661,7 +840,11 @@ export function chooseVoiceMode(input: {
   decisionReason: string;
 } {
   const selectedMedia = [...input.media]
-    .filter((media) => media.personId === input.person.personId)
+    .filter(
+      (media) =>
+        media.personId === input.person.personId &&
+        (media.mediaKind === 'audio' || media.mediaKind === 'video'),
+    )
     .sort((a, b) => b.usableForCloneScore - a.usableForCloneScore)[0];
   const approved = hasApprovedRealCloneReview(input.person.personId, input.reviews);
   const strictGatePassed = Boolean(
@@ -724,9 +907,10 @@ export function buildVoiceRoster(input: {
       decisionReason: decision.decisionReason,
       strictGatePassed: decision.strictGatePassed,
       fallbackPrompt: buildVoiceProfilePrompt(person),
-      introText: `I'm ${person.fullName}. Ask what you need to know about the case.`,
+      introText: `I can answer your questions. Ask what you need to know about the case.`,
       defaultAnswerText: `I already told you what I know. Be specific if you want something else.`,
-      qcSampleText: `This is ${person.fullName}. I am giving a controlled voice sample for case review.`,
+      qcSampleText:
+        'This controlled sample uses natural conversational speech with clear articulation, steady pacing, and enough variation in phrasing to evaluate audio quality, accent consistency, and overall suitability for interactive dialogue playback.',
       reviewerApprovalRequired: true,
       approvedForRealClone: decision.strictGatePassed,
     };
@@ -743,10 +927,12 @@ export function buildVoiceRoster(input: {
       voiceMode: 'profile_fallback',
       decisionReason: 'Case-level 911 narration uses a controlled fallback voice by default.',
       strictGatePassed: false,
-      fallbackPrompt: 'Panicked emergency caller, realistic, urgent but intelligible, documentary true-crime tone.',
+      fallbackPrompt:
+        'Panicked emergency caller, realistic, urgent but intelligible, natural emergency delivery, clear articulation, emotionally heightened but controlled.',
       introText: '',
       defaultAnswerText: '',
-      qcSampleText: 'Emergency, please send help immediately.',
+      qcSampleText:
+        'Emergency, please send help immediately. Someone has collapsed and is not breathing. The caller sounds frightened, urgent, and intelligible, with enough expressive variation to evaluate delivery quality and emotional control.',
       render911Text: `Emergency dispatch, please respond to ${input.caseRecord.primaryLocationLabel ?? 'the scene'}. Someone has been found unresponsive.`,
       reviewerApprovalRequired: false,
       approvedForRealClone: false,
@@ -760,10 +946,12 @@ export function buildVoiceRoster(input: {
       voiceMode: 'profile_fallback',
       decisionReason: 'Reveal narration uses a controlled fallback narrator voice.',
       strictGatePassed: false,
-      fallbackPrompt: 'Calm investigative narrator, clear pacing, cinematic but grounded.',
+      fallbackPrompt:
+        'Calm narrator, clear pacing, natural and precise delivery, measured dramatic control, cinematic but grounded.',
       introText: '',
       defaultAnswerText: '',
-      qcSampleText: 'The reconstructed truth is now clear.',
+      qcSampleText:
+        'The reconstructed truth is now clear. This narrator should sound calm, investigative, cinematic, and precise, with steady pacing and enough variation in phrasing to evaluate quality for reveal narration and case-closing audio.',
       renderRevealText: `The reconstructed truth points to the highest-confidence suspect in ${input.caseRecord.canonicalTitle}.`,
       reviewerApprovalRequired: false,
       approvedForRealClone: false,

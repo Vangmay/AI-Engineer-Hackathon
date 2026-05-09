@@ -1,10 +1,13 @@
 import type { GamePhase, MysteryCase, TranscriptLine } from '@/types/case';
+import type { AssetManifest } from '@/types/gamePackage';
 
 export interface CaseMedia {
   sceneImageUrl: string | null;
   call911AudioUrl: string | null;
   revealNarrationAudioUrl: string | null;
   ambientAudioUrl: string | null;
+  witnessIntroAudioUrls: Record<string, string>;
+  voiceModels: AssetManifest['voiceModels'];
 }
 
 export interface GameSession {

@@ -7,6 +7,7 @@ import {
   createVoiceCloneDraft,
   createVoiceFromDesign,
   designVoice,
+  listAvailableVoices,
   synthesizeSpeech,
 } from './lib/elevenlabs.ts';
 import { loadLocalEnv, requireEnv } from './lib/env.ts';
@@ -42,23 +43,59 @@ function createPlaceholderAsset(
   );
 }
 
+function makeProviderSafeVoiceName(roster: VoiceRosterEntry): string {
+  return `case-${roster.caseId}-${roster.characterRole}-${roster.rosterId.slice(-6)}`;
+}
+
+function ensureVoiceDesignSampleText(roster: VoiceRosterEntry): string {
+  const minimumLength = 100;
+  const base =
+    roster.qcSampleText ||
+    `${roster.displayName} is delivering a controlled review sample for gameplay voice generation.`;
+  if (base.length >= minimumLength) {
+    return base.slice(0, 1000);
+  }
+
+  const supplemental =
+    ` The voice should sound appropriate for the role of ${roster.characterRole}, maintain natural pacing, and provide enough spoken variation to assess quality, identity consistency, and suitability for interactive interrogation scenes.`;
+  const expanded = `${base}${supplemental}`;
+  return expanded.length >= minimumLength
+    ? expanded.slice(0, 1000)
+    : `${expanded} Additional review speech is included to satisfy minimum sample length requirements.`.slice(
+        0,
+        1000,
+      );
+}
+
 async function resolveVoiceForRoster(
   apiKey: string,
   roster: VoiceRosterEntry,
   sampleAudioBase64: string | undefined,
   modelId?: string,
-): Promise<{ providerVoiceId?: string; providerVoiceName?: string; prompt: string }> {
+): Promise<{ providerVoiceId?: string; providerVoiceName?: string; prompt: string; blocked?: boolean }> {
   const prompt = roster.fallbackPrompt;
+  const sampleText = ensureVoiceDesignSampleText(roster);
+  const providerSafeName = makeProviderSafeVoiceName(roster);
+  const availableVoices = await listAvailableVoices(apiKey);
+  const existingSafeVoice = availableVoices.find((voice) => voice.name === providerSafeName);
+  if (existingSafeVoice) {
+    return {
+      providerVoiceId: existingSafeVoice.voiceId,
+      providerVoiceName: existingSafeVoice.name,
+      prompt,
+    };
+  }
+
   const preview = await createVoiceCloneDraft({
     apiKey,
-    name: roster.displayName,
-    sampleText: roster.qcSampleText,
+    name: providerSafeName,
+    sampleText,
     modelId,
   });
   if (preview.voiceId) {
     return {
       providerVoiceId: preview.voiceId,
-      providerVoiceName: roster.displayName,
+      providerVoiceName: providerSafeName,
       prompt,
     };
   }
@@ -66,24 +103,47 @@ async function resolveVoiceForRoster(
   const designed = await designVoice({
     apiKey,
     voiceDescription: prompt,
-    sampleText: roster.qcSampleText,
+    sampleText,
     modelId,
     referenceAudioBase64: roster.voiceMode === 'real_clone' ? sampleAudioBase64 : undefined,
   });
+  if (designed.blocked) {
+    const safeVoice = availableVoices.find((voice) => voice.category === 'premade') ?? availableVoices[0];
+    return {
+      providerVoiceId: safeVoice?.voiceId,
+      providerVoiceName: safeVoice?.name,
+      prompt,
+      blocked: true,
+    };
+  }
   if (!designed.voiceId) {
-    return { prompt };
+    const safeVoice = availableVoices.find((voice) => voice.category === 'premade') ?? availableVoices[0];
+    return {
+      providerVoiceId: safeVoice?.voiceId,
+      providerVoiceName: safeVoice?.name,
+      prompt,
+    };
   }
 
   const created = await createVoiceFromDesign({
     apiKey,
-    voiceName: roster.displayName,
+    voiceName: providerSafeName,
     voiceDescription: prompt,
     generatedVoiceId: designed.voiceId,
   });
+  if (created.blocked) {
+    const safeVoice = availableVoices.find((voice) => voice.category === 'premade') ?? availableVoices[0];
+    return {
+      providerVoiceId: safeVoice?.voiceId,
+      providerVoiceName: safeVoice?.name,
+      prompt,
+      blocked: true,
+    };
+  }
 
   return {
     providerVoiceId: created.voiceId,
-    providerVoiceName: created.voiceName ?? roster.displayName,
+    providerVoiceName: created.voiceName ?? providerSafeName,
     prompt,
   };
 }
@@ -215,7 +275,9 @@ async function main() {
         generationDate: new Date().toISOString(),
         qualityScore: selectedMedia?.usableForCloneScore ?? 65,
         approvalStatus: 'needs_review',
-        reviewNotes: roster.decisionReason,
+        reviewNotes: resolved.blocked
+          ? `${roster.decisionReason} ElevenLabs blocked prompt generation; placeholder asset written.`
+          : roster.decisionReason,
       });
     }
   }

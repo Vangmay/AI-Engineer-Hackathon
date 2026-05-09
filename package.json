@@ -24,11 +24,13 @@
     "convex:deploy": "convex deploy"
   },
   "dependencies": {
+    "@distube/ytdl-core": "^4.16.12",
     "@tailwindcss/vite": "^4.3.0",
     "convex": "^1.38.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "tailwindcss": "^4.3.0",
+    "ytdl-core": "^4.11.5",
     "zustand": "^5.0.13"
   },
   "devDependencies": {

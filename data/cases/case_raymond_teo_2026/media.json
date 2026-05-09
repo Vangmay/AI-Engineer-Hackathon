@@ -11,12 +11,15 @@
     "faceVisibilityScore": 77,
     "voiceIsolatedScore": 75,
     "backgroundNoiseScore": 18,
-    "usableForCloneScore": 79,
+    "usableForCloneScore": 67,
     "sourceIds": [
       "source_seed_concierge"
     ],
     "extractedAt": "2026-05-09T00:00:00.000Z",
-    "durationSec": 134
+    "durationSec": 134,
+    "voiceCloneEligibility": "fallback_only",
+    "downloadStatus": "failed",
+    "rightsNotes": "Source URL is placeholder or unsupported for automated audio collection."
   },
   {
     "mediaId": "media_priya_photo",
