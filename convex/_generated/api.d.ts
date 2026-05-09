@@ -9,8 +9,11 @@
  */
 
 import type * as accusations from "../accusations.js";
+import type * as caseEngine from "../caseEngine.js";
 import type * as cases from "../cases.js";
+import type * as exaSearch from "../exaSearch.js";
 import type * as media from "../media.js";
+import type * as openaiJson from "../openaiJson.js";
 import type * as sessions from "../sessions.js";
 
 import type {
@@ -21,8 +24,11 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   accusations: typeof accusations;
+  caseEngine: typeof caseEngine;
   cases: typeof cases;
+  exaSearch: typeof exaSearch;
   media: typeof media;
+  openaiJson: typeof openaiJson;
   sessions: typeof sessions;
 }>;
 

@@ -29,9 +29,9 @@ export default defineSchema({
       promptVersion: v.string(),
       generationMs: v.optional(v.number()),
       createdAt: v.number(),
-      researchQuery: v.optional(v.string()),
       researchSourceUrls: v.optional(v.array(v.string())),
       researchSourceTitles: v.optional(v.array(v.string())),
+      researchQuery: v.optional(v.string()),
     }),
   }).index('by_case_id', ['caseId']),
 

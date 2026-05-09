@@ -1,80 +1,232 @@
-import { mutation, query } from './_generated/server';
+import { action, internalMutation, mutation, query } from './_generated/server';
+import type { MutationCtx } from './_generated/server';
+import type { Id } from './_generated/dataModel';
+import { internal } from './_generated/api';
 import { v } from 'convex/values';
+import {
+  buildCorpusBackedUserPrompt,
+  generateCaseBundle,
+  LLM_CASE_SYSTEM,
+  LLM_CASE_USER,
+  LLM_CORPUS_SYSTEM_NOTE,
+  tryParseLLMCaseBundle,
+  type GeneratedCaseBundle,
+} from './caseEngine';
+import {
+  buildResearchCorpus,
+  pickQuery,
+  rankResearchResults,
+  searchExa,
+} from './exaSearch';
+import { fetchOpenAiJson } from './openaiJson';
 
-const staticPublicCase = {
-  case_id: 'CS-2026-0509-001',
-  title: 'The Marina One Penthouse',
-  victim: {
-    name: 'Raymond Teo',
-    age: 47,
-    occupation: 'Property developer',
-    time_of_death: '02:47 SGT',
-    location: 'Marina One, Penthouse 47-B, Singapore',
-    date: '2026-05-09',
+type GenerationResearchMeta = {
+  researchSourceUrls?: string[];
+  researchSourceTitles?: string[];
+  researchQuery?: string;
+};
+
+type PersistCaseResult = { sessionId: Id<'sessions'>; caseIdUsed: string };
+
+function researchArgsFromState(input: {
+  sourceUrls: string[];
+  sourceTitles: string[];
+  researchQuery: string;
+}): GenerationResearchMeta {
+  const out: GenerationResearchMeta = {};
+  if (input.sourceUrls.length > 0) out.researchSourceUrls = input.sourceUrls;
+  if (input.sourceTitles.length > 0) out.researchSourceTitles = input.sourceTitles;
+  if (input.researchQuery) out.researchQuery = input.researchQuery;
+  return out;
+}
+
+async function persistCaseAndSession(
+  ctx: MutationCtx,
+  generated: GeneratedCaseBundle,
+  timestamp: number,
+  generationMeta: {
+    model: string;
+    promptVersion: string;
+  } & GenerationResearchMeta,
+): Promise<{ sessionId: Id<'sessions'>; caseIdUsed: string }> {
+  const convexCaseRowId = await ctx.db.insert('cases', {
+    caseId: generated.publicCase.case_id,
+    title: generated.publicCase.title,
+    publicCase: generated.publicCase,
+    hiddenTruth: generated.hiddenTruth,
+    generation: {
+      model: generationMeta.model,
+      promptVersion: generationMeta.promptVersion,
+      generationMs: generated.generationMs,
+      createdAt: timestamp,
+      ...(generationMeta.researchSourceUrls?.length
+        ? { researchSourceUrls: generationMeta.researchSourceUrls }
+        : {}),
+      ...(generationMeta.researchSourceTitles?.length
+        ? { researchSourceTitles: generationMeta.researchSourceTitles }
+        : {}),
+      ...(generationMeta.researchQuery ? { researchQuery: generationMeta.researchQuery } : {}),
+    },
+  });
+  await ctx.db.insert('media', { caseId: convexCaseRowId, updatedAt: timestamp });
+
+  for (const witness of generated.publicCase.witnesses) {
+    await ctx.db.insert('witnesses', {
+      caseId: convexCaseRowId,
+      witnessId: witness.id,
+      publicProfile: witness,
+      hiddenFacts: { hiding: witness.hiding, lies: witness.lies },
+      voiceId: witness.voice_id,
+      lieStrategy: witness.lies
+        ? 'Deny being present during the exact murder window unless confronted with hard evidence.'
+        : undefined,
+    });
+  }
+
+  const sessionId = await ctx.db.insert('sessions', {
+    caseId: convexCaseRowId,
+    phase: 'CASE_BRIEF',
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  });
+
+  return { sessionId, caseIdUsed: generated.publicCase.case_id };
+}
+
+export const persistGeneratedCaseInternal = internalMutation({
+  args: {
+    publicCase: v.any(),
+    hiddenTruth: v.any(),
+    generationMs: v.number(),
+    createdAt: v.number(),
+    model: v.string(),
+    promptVersion: v.string(),
+    researchSourceUrls: v.optional(v.array(v.string())),
+    researchSourceTitles: v.optional(v.array(v.string())),
+    researchQuery: v.optional(v.string()),
   },
-  witnesses: [
-    {
-      id: 'w_marcus',
-      name: 'Marcus Lim',
-      role: 'Building concierge',
-      age: 34,
-      knows:
-        'Saw Priya leave the lobby at 03:12, much later than her usual departure.',
-      hiding:
-        'Was asleep at his desk between 01:30 and 02:30 and is afraid of losing his job.',
-      lies: false,
-      voice_id: 'pNInz6obpgDQGcFmaJgB',
-      portrait_prompt:
-        'Singaporean man in his mid-30s, navy concierge uniform, polite but tired eyes',
-    },
-    {
-      id: 'w_priya',
-      name: 'Priya Naidu',
-      role: 'Personal assistant to the victim',
-      age: 29,
-      knows:
-        'Knows the full schedule, access codes, and that Raymond had pulled wire-transfer logs.',
-      hiding: 'Embezzlement of S$340,000 over eight months. The murder itself.',
-      lies: true,
-      voice_id: 'EXAVITQu4vr4xnSDxMaL',
-      portrait_prompt:
-        'Singaporean Indian woman, late 20s, sharp blazer, composed but eyes that do not settle',
-    },
-    {
-      id: 'w_eleanor',
-      name: 'Eleanor Teo',
-      role: 'Estranged wife',
-      age: 44,
-      knows:
-        'Raymond mentioned a staff problem he was finally going to deal with this week.',
-      hiding:
-        'A pending divorce filing she planned to serve on Monday, unrelated to the death.',
-      lies: false,
-      voice_id: 'ThT5KcBeYPX3keUQqHPh',
-      portrait_prompt:
-        'Singaporean Chinese woman, mid-40s, cream blouse, controlled grief',
-    },
-  ],
-  clues: [
-    'Tumbler on the nightstand contains residue of a benzodiazepine not prescribed to the victim.',
-    'Penthouse access log shows door opened from the inside at 02:51, three minutes after estimated TOD.',
-    'A second wine glass in the kitchen sink -- lipstick on rim matches no one in the building.',
-  ],
-  scene_prompt:
-    'Top-down forensic photograph of a luxury Singapore penthouse bedroom at night, single male victim on a king-size bed, silk pillow displaced beside him, half-empty tumbler on nightstand.',
-  brief:
-    'Raymond Teo, 47, founder of Teo Holdings, was found unresponsive in the master bedroom of his Marina One penthouse at 04:22 by his housekeeper.',
-};
+  handler: async (ctx, args): Promise<PersistCaseResult> => {
+    const bundle: GeneratedCaseBundle = {
+      publicCase: args.publicCase,
+      hiddenTruth: args.hiddenTruth,
+      generationMs: args.generationMs,
+    };
+    return await persistCaseAndSession(ctx, bundle, args.createdAt, {
+      model: args.model,
+      promptVersion: args.promptVersion,
+      ...(args.researchSourceUrls?.length
+        ? { researchSourceUrls: args.researchSourceUrls }
+        : {}),
+      ...(args.researchSourceTitles?.length
+        ? { researchSourceTitles: args.researchSourceTitles }
+        : {}),
+      ...(args.researchQuery ? { researchQuery: args.researchQuery } : {}),
+    });
+  },
+});
 
-const staticHiddenTruth = {
-  killer: 'w_priya',
-  motive:
-    'Raymond was about to fire her and report unauthorised wire transfers she had made to cover family debts.',
-  method:
-    'Sedative slipped into the victim’s nightcap, then suffocation with a silk pillow once he was unconscious.',
-  hidden_clue:
-    'A deleted calendar entry titled "P. -- termination + audit" scheduled for 09:00 the morning of the death.',
-};
+const CORPUS_PROMPT_THRESHOLD = 220;
+
+/** Primary entry: Exa retrieves real-case text (prefer Wikipedia via query hints) → LLM drafts fiction dossier → validate → persist. Falls back cleanly. */
+export const startNewCase = action({
+  args: {},
+  handler: async (ctx): Promise<PersistCaseResult> => {
+    const timestamp = Date.now();
+    const openaiKey = process.env.OPENAI_API_KEY;
+    const llmModel = process.env.OPENAI_MODEL ?? 'gpt-4o-mini';
+    const exaKey = process.env.EXA_API_KEY;
+
+    let researchQuery = '';
+    let corpusMarkdown = '';
+    const sourceUrls: string[] = [];
+    const sourceTitles: string[] = [];
+
+    if (exaKey) {
+      researchQuery = pickQuery();
+      try {
+        const exaResp = await searchExa({
+          apiKey: exaKey,
+          query: researchQuery,
+          numResults: 8,
+        });
+        const ranked = rankResearchResults(exaResp.results);
+        const built = buildResearchCorpus(ranked, { maxArticles: 4, maxTotalChars: 12000 });
+        corpusMarkdown = built.corpus;
+        sourceUrls.push(...built.sourceUrls);
+        sourceTitles.push(...built.titles);
+      } catch {
+        /* continue without corpus */
+      }
+    }
+
+    const researchPayload = researchArgsFromState({
+      sourceUrls,
+      sourceTitles,
+      researchQuery,
+    });
+
+    const persistMutation = async (
+      bundle: GeneratedCaseBundle,
+      model: string,
+      promptVersion: string,
+    ): Promise<PersistCaseResult> =>
+      ctx.runMutation(internal.cases.persistGeneratedCaseInternal, {
+        publicCase: bundle.publicCase,
+        hiddenTruth: bundle.hiddenTruth,
+        generationMs: bundle.generationMs,
+        createdAt: timestamp,
+        model,
+        promptVersion,
+        ...researchPayload,
+      });
+
+    if (openaiKey) {
+      const useCorpus = corpusMarkdown.length >= CORPUS_PROMPT_THRESHOLD;
+      const userPrompt = useCorpus
+        ? buildCorpusBackedUserPrompt(
+            corpusMarkdown,
+            sourceTitles.slice(0, 6).join(' | ').slice(0, 480),
+          )
+        : LLM_CASE_USER;
+      const systemPrompt = useCorpus ? `${LLM_CASE_SYSTEM}${LLM_CORPUS_SYSTEM_NOTE}` : LLM_CASE_SYSTEM;
+
+      const llmStarted = Date.now();
+      try {
+        const raw = await fetchOpenAiJson<Record<string, unknown>>({
+          apiKey: openaiKey,
+          model: llmModel,
+          system: systemPrompt,
+          user: userPrompt,
+        });
+        const parsed = tryParseLLMCaseBundle(raw, Date.now() - llmStarted);
+        if (parsed) {
+          const promptVersion = useCorpus ? 'llm-exa-corpora-v1' : 'llm-v1';
+          return await persistMutation(parsed, llmModel, promptVersion);
+        }
+      } catch {
+        /* template fallback */
+      }
+    }
+
+    const bundle = generateCaseBundle();
+    const modelLabel = openaiKey ? 'template-fallback' : 'template-v1';
+    const promptVersion = openaiKey ? 'template-fallback' : 'template-v1';
+    return await persistMutation(bundle, modelLabel, promptVersion);
+  },
+});
+
+/** Same as legacy mutation: deterministic template/local generator (tests, pipelines without latency). */
+export const startNewCaseFromTemplate = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const timestamp = Date.now();
+    const generated = generateCaseBundle();
+    return await persistCaseAndSession(ctx, generated, timestamp, {
+      model: 'template-v1',
+      promptVersion: 'template-v1',
+    });
+  },
+});
 
 export const getCaseByCaseId = query({
   args: { caseId: v.string() },
@@ -106,42 +258,44 @@ export const getSessionSnapshot = query({
   },
 });
 
-export const startNewCase = mutation({
+/** Lookup Convex `cases` row by public dossier slug (`publicCase.case_id`). */
+export const getCaseBySlug = query({
+  args: { slug: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query('cases')
+      .withIndex('by_case_id', (q) => q.eq('caseId', args.slug))
+      .first();
+  },
+});
+
+/** New session for an existing case row (e.g. frontend `loadCase(slug)`). */
+export const createSessionForCase = mutation({
+  args: { caseConvexId: v.id('cases') },
+  handler: async (ctx, args) => {
+    const ts = Date.now();
+    return await ctx.db.insert('sessions', {
+      caseId: args.caseConvexId,
+      phase: 'CASE_BRIEF',
+      createdAt: ts,
+      updatedAt: ts,
+    });
+  },
+});
+
+export const generateCase = mutation({
   args: {},
   handler: async (ctx) => {
     const timestamp = Date.now();
-    const caseId = await ctx.db.insert('cases', {
-      caseId: staticPublicCase.case_id,
-      title: staticPublicCase.title,
-      publicCase: staticPublicCase,
-      hiddenTruth: staticHiddenTruth,
-      generation: {
-        model: 'static-fallback',
-        promptVersion: 'v0',
-        generationMs: 8300,
-        createdAt: timestamp,
-      },
+    const generated = generateCaseBundle();
+    const { sessionId } = await persistCaseAndSession(ctx, generated, timestamp, {
+      model: 'template-v1',
+      promptVersion: 'generated-mutation-v1',
     });
-    await ctx.db.insert('media', { caseId, updatedAt: timestamp });
-
-    for (const witness of staticPublicCase.witnesses) {
-      await ctx.db.insert('witnesses', {
-        caseId,
-        witnessId: witness.id,
-        publicProfile: witness,
-        hiddenFacts: { hiding: witness.hiding, lies: witness.lies },
-        voiceId: witness.voice_id,
-        lieStrategy: witness.lies
-          ? 'Deny returning to the penthouse until confronted with access logs.'
-          : undefined,
-      });
-    }
-
-    return await ctx.db.insert('sessions', {
-      caseId,
-      phase: 'CASE_BRIEF',
-      createdAt: timestamp,
-      updatedAt: timestamp,
-    });
+    return {
+      sessionId,
+      caseId: generated.publicCase.case_id,
+      generationMs: generated.generationMs,
+    };
   },
 });

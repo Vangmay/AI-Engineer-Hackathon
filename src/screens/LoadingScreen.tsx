@@ -12,24 +12,23 @@ const STAGES = [
 ];
 
 export function LoadingScreen() {
-  const loadDataCase = useGameStore((s) => s.loadDataCase);
+  const loadStaticCase = useGameStore((s) => s.loadStaticCase);
   const casePackage = getCurrentCasePackage();
   const [stage, setStage] = useState(0);
   const [t, setT] = useState(0);
 
   useEffect(() => {
+    void loadStaticCase();
     const start = performance.now();
     const tick = setInterval(() => setT(performance.now() - start), 80);
     const stages = setInterval(() => {
       setStage((s) => Math.min(STAGES.length - 1, s + 1));
     }, 700);
-    const done = setTimeout(() => loadDataCase(), 4500);
     return () => {
       clearInterval(tick);
       clearInterval(stages);
-      clearTimeout(done);
     };
-  }, [loadDataCase]);
+  }, [loadStaticCase]);
 
   return (
     <main className="dossier-page grid min-h-screen place-items-center px-6">
