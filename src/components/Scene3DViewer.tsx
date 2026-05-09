@@ -27,13 +27,12 @@ export function Scene3DViewer({ glbUrl, previewUrl }: Props) {
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
+    renderer.toneMappingExposure = 2.2;
     container.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    // Night sky gradient for the farmhouse exterior
-    scene.background = new THREE.Color(0x0b0f1a);
-    scene.fog = new THREE.FogExp2(0x0b0f1a, 0.035);
+    scene.background = new THREE.Color(0x1a2236);
+    scene.fog = new THREE.FogExp2(0x1a2236, 0.018);
 
     const camera = new THREE.PerspectiveCamera(55, w / h, 0.01, 200);
     camera.position.set(0, 2, 7);
@@ -47,42 +46,53 @@ export function Scene3DViewer({ glbUrl, previewUrl }: Props) {
     controls.autoRotateSpeed = 0.5;
     controls.maxPolarAngle = Math.PI * 0.72;
 
-    // Night sky ambient
-    const ambient = new THREE.AmbientLight(0x1a2a4a, 0.9);
-    scene.add(ambient);
+    // Sky/ground hemisphere — fills shadows with cool sky bounce
+    const hemi = new THREE.HemisphereLight(0x8aaed4, 0x3d5c2a, 1.6);
+    scene.add(hemi);
 
-    // Moonlight
-    const moon = new THREE.DirectionalLight(0xb0c8e8, 1.4);
+    // Bright moonlight key
+    const moon = new THREE.DirectionalLight(0xd8eaff, 3.5);
     moon.position.set(-6, 10, 5);
     moon.castShadow = true;
-    moon.shadow.mapSize.set(2048, 2048);
+    moon.shadow.mapSize.set(4096, 4096);
     moon.shadow.camera.near = 0.5;
     moon.shadow.camera.far = 80;
     moon.shadow.camera.left = -20;
     moon.shadow.camera.right = 20;
     moon.shadow.camera.top = 20;
     moon.shadow.camera.bottom = -20;
+    moon.shadow.bias = -0.0005;
     scene.add(moon);
 
-    // Police car blue-red lights
-    const blueLight = new THREE.PointLight(0x2244ff, 3, 15);
+    // Soft fill from opposite side to reveal shadow detail
+    const fill = new THREE.DirectionalLight(0x6080c0, 1.2);
+    fill.position.set(6, 4, -4);
+    scene.add(fill);
+
+    // Police car blue-red strobes
+    const blueLight = new THREE.PointLight(0x4488ff, 5, 18);
     blueLight.position.set(-4, 1.5, 4);
     scene.add(blueLight);
 
-    const redLight = new THREE.PointLight(0xff2200, 2.5, 15);
+    const redLight = new THREE.PointLight(0xff3300, 4, 18);
     redLight.position.set(4, 1.5, 3);
     scene.add(redLight);
 
+    // Warm forensic work-light
+    const workLight = new THREE.PointLight(0xffe8a0, 3.5, 10);
+    workLight.position.set(0, 3, 2);
+    scene.add(workLight);
+
     // Warm window glow
-    const windowLight = new THREE.PointLight(0xffcc44, 1.8, 8);
+    const windowLight = new THREE.PointLight(0xffcc44, 2.5, 8);
     windowLight.position.set(0, 2, -1);
     scene.add(windowLight);
 
     // Ground plane
     const groundGeo = new THREE.PlaneGeometry(60, 60);
     const groundMat = new THREE.MeshStandardMaterial({
-      color: 0x0d1808,
-      roughness: 0.95,
+      color: 0x2a3820,
+      roughness: 0.9,
       metalness: 0,
     });
     const ground = new THREE.Mesh(groundGeo, groundMat);
@@ -114,9 +124,17 @@ export function Scene3DViewer({ glbUrl, previewUrl }: Props) {
         ground.position.y = scaledBox.min.y - 0.02;
 
         model.traverse((node) => {
-          if ((node as THREE.Mesh).isMesh) {
-            node.castShadow = true;
-            node.receiveShadow = true;
+          const mesh = node as THREE.Mesh;
+          if (!mesh.isMesh) return;
+          mesh.castShadow = true;
+          mesh.receiveShadow = true;
+          // Boost material brightness so dark-baked textures read clearly
+          const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+          for (const mat of mats) {
+            if (mat instanceof THREE.MeshStandardMaterial) {
+              mat.roughness = Math.min(mat.roughness, 0.82);
+              mat.envMapIntensity = 1.4;
+            }
           }
         });
 
