@@ -301,6 +301,7 @@ export const patchMedia = internalMutation({
   args: {
     caseId: v.id('cases'),
     sceneImageUrl: v.optional(v.string()),
+    sceneModelUrl: v.optional(v.string()),
     call911AudioUrl: v.optional(v.string()),
     revealNarrationAudioUrl: v.optional(v.string()),
     ambientAudioUrl: v.optional(v.string()),
@@ -308,6 +309,7 @@ export const patchMedia = internalMutation({
     evidenceModels: v.optional(v.any()),
     evidenceModelPreviews: v.optional(v.any()),
     witnessPortraitUrls: v.optional(v.any()),
+    witnessModelUrls: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
     const { caseId, ...fields } = args;
@@ -496,9 +498,12 @@ export const seedMediaForCaseStringId = action({
     caseId: v.string(),
     title: v.optional(v.string()),
     sceneImageUrl: v.optional(v.string()),
+    sceneModelUrl: v.optional(v.string()),
     evidenceRenders: v.optional(v.any()),
     evidenceModels: v.optional(v.any()),
     evidenceModelPreviews: v.optional(v.any()),
+    witnessPortraitUrls: v.optional(v.any()),
+    witnessModelUrls: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
     let caseDoc = await ctx.runQuery(
@@ -516,9 +521,12 @@ export const seedMediaForCaseStringId = action({
 
     const patch: Record<string, unknown> = {};
     if (args.sceneImageUrl) patch.sceneImageUrl = args.sceneImageUrl;
+    if (args.sceneModelUrl) patch.sceneModelUrl = args.sceneModelUrl;
     if (args.evidenceRenders) patch.evidenceRenders = args.evidenceRenders;
     if (args.evidenceModels) patch.evidenceModels = args.evidenceModels;
     if (args.evidenceModelPreviews) patch.evidenceModelPreviews = args.evidenceModelPreviews;
+    if (args.witnessPortraitUrls) patch.witnessPortraitUrls = args.witnessPortraitUrls;
+    if (args.witnessModelUrls) patch.witnessModelUrls = args.witnessModelUrls;
 
     if (Object.keys(patch).length > 0) {
       await ctx.runMutation(mediaInternals.patchMedia as any, {
@@ -579,9 +587,11 @@ export const getLobbyMediaHydration = query({
 
     return {
       sceneImageUrl: mediaDoc?.sceneImageUrl ?? null,
+      sceneModelUrl: mediaDoc?.sceneModelUrl ?? null,
       call911AudioUrl: mediaDoc?.call911AudioUrl ?? null,
       witnessIntroAudioUrls,
       witnessPortraitUrls: (mediaDoc?.witnessPortraitUrls as Record<string, string> | undefined) ?? {},
+      witnessModelUrls: (mediaDoc?.witnessModelUrls as Record<string, string> | undefined) ?? {},
       evidenceImageUrls: (mediaDoc?.evidenceRenders as Record<string, string> | undefined) ?? {},
       evidenceModels: (mediaDoc?.evidenceModels as Record<string, string> | undefined) ?? {},
       evidenceModelPreviewUrls: (mediaDoc?.evidenceModelPreviews as Record<string, string> | undefined) ?? {},

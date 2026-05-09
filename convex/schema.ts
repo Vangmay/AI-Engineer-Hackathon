@@ -63,6 +63,7 @@ export default defineSchema({
   media: defineTable({
     caseId: v.id('cases'),
     sceneImageUrl: v.optional(v.string()),
+    sceneModelUrl: v.optional(v.string()),
     call911AudioUrl: v.optional(v.string()),
     revealNarrationAudioUrl: v.optional(v.string()),
     ambientAudioUrl: v.optional(v.string()),
@@ -70,6 +71,7 @@ export default defineSchema({
     evidenceModels: v.optional(v.any()),
     evidenceModelPreviews: v.optional(v.any()),
     witnessPortraitUrls: v.optional(v.any()),
+    witnessModelUrls: v.optional(v.any()),
     updatedAt: v.number(),
   }).index('by_case', ['caseId']),
 
