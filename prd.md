@@ -201,6 +201,8 @@ If time runs short, ship in this order:
 
 The game is playable and impressive at step 3. Everything after is polish.
 
+For the engineering task breakdown, see [`TODO.md`](./TODO.md). It covers the backend, generated case pipeline, live witness interrogation, persisted transcripts, accusation evaluation, reveal flow, environment variables, and MVP acceptance criteria.
+
 ---
 
 ## Risk Register

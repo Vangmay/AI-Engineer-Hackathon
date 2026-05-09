@@ -1,8 +1,66 @@
+import type { CSSProperties } from 'react';
 import { useEffect, useState } from 'react';
 import { useGameStore } from '@/store/gameStore';
-import { StatusBar } from '@/components/ui/StatusBar';
-import { ConsolePanel } from '@/components/ui/ConsolePanel';
-import { CornerTicks } from '@/components/ui/CornerTicks';
+
+function Stamp({
+  text,
+  top,
+  left,
+  rotate,
+  color,
+  size,
+}: {
+  text: string;
+  top: number;
+  left: number;
+  rotate: number;
+  color?: string;
+  size?: number;
+}) {
+  return (
+    <div
+      className="dossier-stamp"
+      style={
+        {
+          top,
+          left,
+          '--stamp-rotate': `${rotate}deg`,
+          '--stamp-color': color ?? 'var(--oxblood)',
+          '--stamp-size': size ? `${size}px` : undefined,
+        } as CSSProperties
+      }
+    >
+      {text}
+    </div>
+  );
+}
+
+function PaperClip({
+  left,
+  top,
+  rotate,
+}: {
+  left: number;
+  top: number;
+  rotate: number;
+}) {
+  return (
+    <div
+      className="absolute drop-shadow-[0_2px_1px_rgba(0,0,0,0.25)]"
+      style={{ left, top, transform: `rotate(${rotate}deg)` }}
+    >
+      <svg width="36" height="80" viewBox="0 0 36 80" aria-hidden="true">
+        <path
+          d="M18 6 Q28 6 28 18 L28 62 Q28 74 18 74 Q8 74 8 62 L8 24 Q8 14 18 14 Q22 14 22 18 L22 60"
+          fill="none"
+          stroke="var(--clip-grey)"
+          strokeLinecap="round"
+          strokeWidth="3"
+        />
+      </svg>
+    </div>
+  );
+}
 
 export function RevealScreen() {
   const caseData = useGameStore((s) => s.caseData)!;
@@ -10,104 +68,145 @@ export function RevealScreen() {
   const accusation = useGameStore((s) => s.accusation);
   const revealNarration = useGameStore((s) => s.revealNarration);
   const resetCase = useGameStore((s) => s.resetCase);
+  const goToBrief = useGameStore((s) => s.goToBrief);
 
   const [flash, setFlash] = useState(true);
   useEffect(() => {
-    const t = setTimeout(() => setFlash(false), 900);
-    return () => clearTimeout(t);
+    const t = window.setTimeout(() => setFlash(false), 650);
+    return () => window.clearTimeout(t);
   }, []);
 
   const killer = caseData.witnesses.find((w) => w.id === caseData.truth.killer);
-  const verdictColor = isCorrect ? 'var(--accent-yellow)' : 'var(--accent-red)';
-  const verdictLabel = isCorrect ? 'CASE CLOSED' : 'INCORRECT';
+  const verdictLabel = isCorrect ? 'CASE CLOSED' : 'WRONG CALL';
+  const verdictColor = isCorrect ? 'var(--ink)' : 'var(--oxblood)';
 
   return (
-    <div className="h-full flex flex-col bg-[var(--bg-base)] relative overflow-hidden">
-      <StatusBar caseId={caseData.case_id} phase={`REVEAL // ${verdictLabel}`} />
-
+    <main className="dossier-page">
+      <div className="dossier-tab" />
       {flash && (
         <div
           className="pointer-events-none fixed inset-0 z-50"
           style={{
-            background: verdictColor,
-            opacity: 0.85,
-            animation: 'flash-overlay 0.9s ease-out forwards',
+            background: isCorrect ? 'var(--paper-warm-base)' : 'var(--oxblood)',
+            opacity: 0.75,
+            animation: 'flash-overlay 0.65s ease-out forwards',
           }}
         />
       )}
 
-      <div className="flex-1 grid grid-cols-[55%_45%] overflow-hidden">
-        {/* Left: verdict stamp */}
-        <div className="relative grid place-items-center p-8 border-r border-[var(--border-yellow)]">
-          <div className="relative">
-            <CornerTicks size={20} />
+      <div className="dossier-artboard">
+        <header className="dossier-header">
+          <div>
+            <div className="dossier-overline">Final Determination · {caseData.case_id}</div>
+            <h1 className="dossier-title">REVEAL — {caseData.title.toUpperCase()}</h1>
+          </div>
+          <div className="text-right text-[12px] leading-normal">
+            <div>ACCUSED · {accusation || 'NO STATEMENT'}</div>
+            <div>STATUS · {verdictLabel}</div>
+            <div>{new Date().toISOString().slice(0, 10)}</div>
+          </div>
+        </header>
+
+        <section className="mt-[22px] grid grid-cols-[0.9fr_1.1fr] gap-8 max-[900px]:grid-cols-1">
+          <section className="paper-card lifted relative min-h-[560px] p-6">
+            <div className="tape-corner left" />
+            <div className="tape-corner right" />
+            <PaperClip left={-8} top={64} rotate={-10} />
+
+            <div className="dossier-overline">Filed Verdict</div>
             <div
-              className="px-12 py-8 border-4"
+              className="mx-auto mt-12 max-w-[420px] border-[5px] p-8 text-center"
               style={{
                 borderColor: verdictColor,
                 color: verdictColor,
                 transform: 'rotate(-4deg)',
               }}
             >
-              <div className="text-[10px] uppercase tracking-[0.32em] mb-2 opacity-70">
+              <div className="text-[11px] tracking-[0.28em] opacity-70">
                 FINAL DETERMINATION
               </div>
-              <div className="text-[56px] font-medium tracking-[0.12em] uppercase leading-none">
+              <div className="mt-3 text-[52px] font-bold leading-none tracking-[0.1em]">
                 {verdictLabel}
               </div>
-              <div className="text-[10px] uppercase tracking-[0.32em] mt-3 opacity-70">
-                {new Date().toISOString().slice(0, 10)} · CRIME//SCENE
+              <div className="mt-4 text-[10px] tracking-[0.25em] opacity-70">
+                CRIME SCENE · CID SINGAPORE
               </div>
             </div>
-          </div>
 
-          <div className="absolute bottom-8 left-8 right-8">
-            <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--text-faint)] mb-1">
-              YOUR ACCUSATION
+            <div className="lined-paper mt-12 p-[14px_18px] shadow-[0_4px_12px_rgba(0,0,0,0.12)]">
+              <div className="border-b border-dashed border-[var(--ink)] pb-1 text-[11px] tracking-[0.15em] opacity-70">
+                YOUR ACCUSATION
+              </div>
+              <p className="mt-2 text-[15px] italic leading-[24px]">
+                "{accusation || 'No accusation recorded.'}"
+              </p>
             </div>
-            <div className="text-[15px] text-[var(--text-primary)] italic">
-              “{accusation || '—'}”
-            </div>
-          </div>
-        </div>
 
-        {/* Right: full reveal */}
-        <div className="p-6 flex flex-col gap-4 overflow-y-auto">
-          <ConsolePanel label="THE TRUTH" rightSlot="DECLASSIFIED">
-            <div className="space-y-3 text-[13px] leading-relaxed">
-              <div>
-                <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-faint)]">Killer</div>
-                <div className="text-[var(--accent-yellow)] text-base">{killer?.name} — {killer?.role}</div>
-              </div>
-              <div>
-                <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-faint)]">Motive</div>
-                <div className="text-[var(--text-primary)]">{caseData.truth.motive}</div>
-              </div>
-              <div>
-                <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-faint)]">Method</div>
-                <div className="text-[var(--text-primary)]">{caseData.truth.method}</div>
-              </div>
-              <div>
-                <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-faint)]">Hidden detail</div>
-                <div className="text-[var(--text-primary)]">{caseData.truth.hidden_clue}</div>
-              </div>
-            </div>
-          </ConsolePanel>
+            <Stamp
+              text={verdictLabel}
+              top={24}
+              left={260}
+              rotate={6}
+              color={verdictColor}
+              size={12}
+            />
+          </section>
 
-          <ConsolePanel label="NARRATION">
-            <p className="text-[13px] leading-relaxed text-[var(--text-primary)]">
-              {revealNarration}
-            </p>
-          </ConsolePanel>
+          <section className="flex flex-col gap-[18px]">
+            <section className="paper-card p-[16px_18px]">
+              <PaperClip left={300} top={-22} rotate={8} />
+              <div className="dossier-overline">The Truth · Declassified</div>
+              <h2 className="mt-2 text-[28px] leading-tight">
+                {killer?.name ?? 'Unknown'} — {killer?.role ?? 'No role recorded'}
+              </h2>
+              <dl className="mt-5 grid grid-cols-[90px_1fr] gap-x-4 gap-y-3 text-[13px] leading-relaxed">
+                <dt className="opacity-[0.65]">MOTIVE</dt>
+                <dd>{caseData.truth.motive}</dd>
+                <dt className="opacity-[0.65]">METHOD</dt>
+                <dd>{caseData.truth.method}</dd>
+                <dt className="opacity-[0.65]">MISSED</dt>
+                <dd className="text-[var(--oxblood)]">{caseData.truth.hidden_clue}</dd>
+              </dl>
+            </section>
 
-          <button
-            onClick={resetCase}
-            className="self-start px-4 py-2 bg-[var(--accent-yellow)] text-[var(--bg-base)] text-[11px] uppercase tracking-[0.22em] font-medium hover:bg-[var(--accent-yellow)]/85"
-          >
-            Open new case →
-          </button>
+            <section className="paper-card lined-paper flex-1 p-[16px_18px]">
+              <div className="border-b border-dashed border-[var(--ink)] pb-1 text-[12px] tracking-[0.12em]">
+                RECONSTRUCTION NOTES
+              </div>
+              <p className="mt-3 text-[13px] leading-[24px]">
+                {revealNarration}
+              </p>
+            </section>
+
+            <section className="paper-card p-[14px_16px]">
+              <div className="dossier-overline mb-3">Next Filing</div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={goToBrief}
+                  className="border border-[var(--ink)] px-3 py-2 text-[11px] tracking-[0.15em]"
+                >
+                  REVIEW CASE FILE
+                </button>
+                <button
+                  type="button"
+                  onClick={resetCase}
+                  className="bg-[var(--ink)] px-3 py-2 text-[11px] tracking-[0.15em] text-[var(--cream-on-dark)]"
+                >
+                  OPEN NEW CASE →
+                </button>
+              </div>
+            </section>
+          </section>
+        </section>
+
+        <div className="dossier-footer mt-7">
+          <span>DECLASSIFIED AFTER ACCUSATION · CHAIN OF CUSTODY {caseData.case_id}</span>
+          <span>PAGE 04 / 04</span>
         </div>
       </div>
-    </div>
+
+      <div className="dossier-grain" />
+    </main>
   );
 }

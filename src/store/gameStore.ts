@@ -1,8 +1,10 @@
 import { create } from 'zustand';
+import { gameBackend } from '@/backend/client';
+import type { GameSnapshot } from '@/backend/contracts';
 import type { GamePhase, MysteryCase, TranscriptLine } from '@/types/case';
-import { raymondTeoCase } from '@/data/raymondTeoCase';
 
 interface GameState {
+  sessionId: string | null;
   phase: GamePhase;
   caseData: MysteryCase | null;
   sceneImageUrl: string | null;
@@ -14,17 +16,34 @@ interface GameState {
   transcript: TranscriptLine[];
   generationMs: number | null;
 
-  loadStaticCase: () => void;
+  loadStaticCase: () => Promise<void>;
   goToBrief: () => void;
-  startInterrogation: (witnessId: string) => void;
-  endInterrogation: () => void;
-  goToAccusation: () => void;
-  submitAccusation: (text: string) => void;
-  resetCase: () => void;
+  startInterrogation: (witnessId: string) => Promise<void>;
+  endInterrogation: () => Promise<void>;
+  goToAccusation: () => Promise<void>;
+  submitAccusation: (text: string) => Promise<void>;
+  resetCase: () => Promise<void>;
   appendTranscript: (line: TranscriptLine) => void;
 }
 
+function snapshotToState(snapshot: GameSnapshot) {
+  return {
+    sessionId: snapshot.session.id,
+    phase: snapshot.session.phase,
+    caseData: snapshot.caseData,
+    sceneImageUrl: snapshot.media.sceneImageUrl,
+    call911AudioUrl: snapshot.media.call911AudioUrl,
+    generationMs: snapshot.generationMs,
+    transcript: snapshot.transcript,
+    activeWitnessId: snapshot.session.activeWitnessId,
+    accusation: snapshot.session.accusation,
+    isCorrect: snapshot.session.isCorrect,
+    revealNarration: snapshot.session.revealNarration,
+  };
+}
+
 export const useGameStore = create<GameState>((set, get) => ({
+  sessionId: null,
   phase: 'LOADING',
   caseData: null,
   sceneImageUrl: null,
@@ -36,66 +55,65 @@ export const useGameStore = create<GameState>((set, get) => ({
   transcript: [],
   generationMs: null,
 
-  loadStaticCase: () => {
-    set({
-      phase: 'CASE_BRIEF',
-      caseData: raymondTeoCase,
-      sceneImageUrl: null,
-      call911AudioUrl: null,
-      generationMs: 8300,
-      transcript: [],
-      activeWitnessId: null,
-      accusation: null,
-      isCorrect: null,
-      revealNarration: null,
-    });
+  loadStaticCase: async () => {
+    const snapshot = await gameBackend.startNewCase();
+    set(snapshotToState(snapshot));
   },
 
   goToBrief: () => set({ phase: 'CASE_BRIEF', activeWitnessId: null }),
 
-  startInterrogation: (witnessId) =>
-    set({ phase: 'INTERROGATING', activeWitnessId: witnessId, transcript: [] }),
-
-  endInterrogation: () => set({ phase: 'CASE_BRIEF', activeWitnessId: null }),
-
-  goToAccusation: () => set({ phase: 'ACCUSING' }),
-
-  submitAccusation: (text) => {
-    const { caseData } = get();
-    if (!caseData) return;
-    const guess = text.trim().toLowerCase();
-    const killer = caseData.witnesses.find(
-      (w) => w.id === caseData.truth.killer,
-    );
-    const correct = !!killer && guess.includes(killer.name.toLowerCase().split(' ')[0]);
-    set({
-      phase: 'REVEAL',
-      accusation: text,
-      isCorrect: correct,
-      revealNarration: buildReveal(caseData, correct),
-    });
+  startInterrogation: async (witnessId) => {
+    const { sessionId } = get();
+    if (!sessionId) return;
+    const snapshot = await gameBackend.startInterview(sessionId, witnessId);
+    set(snapshotToState(snapshot));
   },
 
-  resetCase: () => {
-    set({
-      phase: 'CASE_BRIEF',
-      activeWitnessId: null,
-      accusation: null,
-      isCorrect: null,
-      revealNarration: null,
-      transcript: [],
-    });
+  endInterrogation: async () => {
+    const { sessionId } = get();
+    if (!sessionId) {
+      set({ phase: 'CASE_BRIEF', activeWitnessId: null });
+      return;
+    }
+    const snapshot = await gameBackend.endInterview(sessionId);
+    set(snapshotToState(snapshot));
   },
 
-  appendTranscript: (line) =>
-    set((s) => ({ transcript: [...s.transcript, line] })),
+  goToAccusation: async () => {
+    const { sessionId } = get();
+    if (!sessionId) {
+      set({ phase: 'ACCUSING' });
+      return;
+    }
+    const snapshot = await gameBackend.goToAccusation(sessionId);
+    set(snapshotToState(snapshot));
+  },
+
+  submitAccusation: async (text) => {
+    const { sessionId } = get();
+    if (!sessionId) return;
+    const snapshot = await gameBackend.evaluateAccusation(sessionId, text);
+    set(snapshotToState(snapshot));
+  },
+
+  resetCase: async () => {
+    const { sessionId } = get();
+    if (!sessionId) return;
+    const snapshot = await gameBackend.resetSession(sessionId);
+    set(snapshotToState(snapshot));
+  },
+
+  appendTranscript: (line) => {
+    const { sessionId } = get();
+    set((s) => {
+      const key = `${line.speaker}:${line.timestamp}:${line.text}`;
+      const exists = s.transcript.some(
+        (item) => `${item.speaker}:${item.timestamp}:${item.text}` === key,
+      );
+      return exists ? s : { transcript: [...s.transcript, line] };
+    });
+    if (sessionId) {
+      void gameBackend.appendTranscriptLine(sessionId, line);
+    }
+  },
 }));
-
-function buildReveal(c: MysteryCase, correct: boolean): string {
-  const killer = c.witnesses.find((w) => w.id === c.truth.killer);
-  const killerName = killer?.name ?? 'Unknown';
-  if (correct) {
-    return `Case closed. ${killerName} killed ${c.victim.name}. ${c.truth.motive} ${c.truth.method} The hidden detail you may have missed: ${c.truth.hidden_clue}`;
-  }
-  return `Wrong call. The killer was ${killerName}. ${c.truth.motive} ${c.truth.method} What you missed: ${c.truth.hidden_clue}`;
-}
