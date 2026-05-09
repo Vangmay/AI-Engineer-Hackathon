@@ -5,11 +5,16 @@
     "label": "Boot Tread Cast",
     "evidenceType": "physical",
     "description": "Plaster forensic cast of a boot impression taken from the muddy ground at the farmhouse rear entrance — tread pattern consistent with size 10.5 Canadian Forces parade boots recovered from the suspect's Tweed residence.",
-    "supports": ["person_russell_williams"],
+    "supports": [
+      "person_russell_williams"
+    ],
     "contradicts": [],
     "isPubliclyDocumented": true,
     "gameplayValue": "core_clue",
-    "sourceIds": ["source_globe_tire_track", "source_cbc_timeline"],
+    "sourceIds": [
+      "source_globe_tire_track",
+      "source_cbc_timeline"
+    ],
     "confidenceScore": 95
   },
   {
@@ -18,11 +23,16 @@
     "label": "Crime Scene: Farmhouse",
     "evidenceType": "physical",
     "description": "Isolated 1920s limestone farmhouse along the Highway 37 corridor, Hastings County — victim's residence and primary scene. Remote location with cleared fields and no neighbours within 800 metres; multiple unforced external entry points documented.",
-    "supports": ["person_russell_williams"],
+    "supports": [
+      "person_russell_williams"
+    ],
     "contradicts": [],
     "isPubliclyDocumented": true,
     "gameplayValue": "core_clue",
-    "sourceIds": ["source_transcript_interview", "source_cbc_timeline"],
+    "sourceIds": [
+      "source_transcript_interview",
+      "source_cbc_timeline"
+    ],
     "confidenceScore": 91
   },
   {
@@ -31,11 +41,16 @@
     "label": "Recovered Trophy Box",
     "evidenceType": "physical",
     "description": "Dark mahogany wooden box with a brass hasp lock, recovered under the floorboards of the suspect's Tweed property during search warrant execution — contents include personal articles traced to multiple victims.",
-    "supports": ["person_russell_williams"],
+    "supports": [
+      "person_russell_williams"
+    ],
     "contradicts": [],
     "isPubliclyDocumented": true,
     "gameplayValue": "secondary_clue",
-    "sourceIds": ["source_globe_case_against", "source_wikipedia_overview"],
+    "sourceIds": [
+      "source_globe_case_against",
+      "source_wikipedia_overview"
+    ],
     "confidenceScore": 89
   },
   {
@@ -45,10 +60,15 @@
     "evidenceType": "physical",
     "description": "Canadian Forces dark-blue officer's beret bearing Colonel rank insignia and CFB Trenton unit badge — found in the suspect's personal effects. Williams's command role had initially created the impression of an alibi too visible to permit the offences.",
     "supports": [],
-    "contradicts": ["person_russell_williams"],
+    "contradicts": [
+      "person_russell_williams"
+    ],
     "isPubliclyDocumented": true,
     "gameplayValue": "red_herring",
-    "sourceIds": ["source_wikipedia_overview", "source_cbc_timeline"],
+    "sourceIds": [
+      "source_wikipedia_overview",
+      "source_cbc_timeline"
+    ],
     "confidenceScore": 58
   }
 ]

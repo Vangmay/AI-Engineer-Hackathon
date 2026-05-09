@@ -217,8 +217,8 @@
   "call911Script": "Emergency dispatch, please respond to Jessica Lloyd residence area, Belleville, Ontario. Someone has been found unresponsive.",
   "revealNarrationText": "The reconstructed truth points to the highest-confidence suspect in The Belleville Vanishing.",
   "assetManifest": {
-    "sceneImageUri": "https://v3b.fal.media/files/b/0a997bcf/jCi2qxTZ2_70-gRfU3zf4_3df31a30cf234135a4ca6444633d8183.jpg",
-    "sceneModelUri": "https://v3b.fal.media/files/b/0a997bd8/89oiXPk-7rC_9abBd5J1H_base_basic_pbr.glb",
+    "sceneImageUri": "https://v3b.fal.media/files/b/0a997c75/6L3k9ZRXXYF1bCrWTWeDl_10dff6ed5b5347eda6355b96374f72b7.jpg",
+    "sceneModelUri": "https://v3b.fal.media/files/b/0a997c7d/0BHicDfSSCg_WikO5ILYj_base_basic_pbr.glb",
     "call911AudioUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/caller_911-roster_c9e30cca64-911.mp3",
     "revealNarrationAudioUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/narrator-roster_7a087e2407-reveal.mp3",
     "witnessPortraits": {

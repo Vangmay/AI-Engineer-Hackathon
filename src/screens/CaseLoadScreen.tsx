@@ -116,7 +116,6 @@ export function CaseLoadScreen() {
   const goToAccusation = useGameStore((s) => s.goToAccusation);
   const investigateNewCase = useGameStore((s) => s.investigateNewCase);
 
-  const [noted, setNoted] = useState<Set<number>>(() => new Set());
   const [activeModel, setActiveModel] = useState<number | null>(null);
   const [isPlaying911, setIsPlaying911] = useState(false);
   const [scenePhotoBroken, setScenePhotoBroken] = useState(false);
@@ -300,57 +299,36 @@ export function CaseLoadScreen() {
             <section className="paper-card p-[14px_16px]">
               <div className="dossier-overline mb-2">Evidence Collected</div>
               {caseData.clues.map((clue, i) => {
-                const renderUrl = evidenceImageUrls[String(i)];
+                const imgUrl = evidenceImageUrls[String(i)];
                 const modelUrl = evidenceModelUrls[String(i)];
                 const previewUrl = evidenceModelPreviewUrls[String(i)];
-                const thumbnailUrl = renderUrl || previewUrl;
                 return (
                   <div
                     key={clue}
-                    className="flex w-full items-start gap-2.5 border-t border-dashed border-[rgba(26,20,16,0.3)] py-2 text-left first:border-t-0"
+                    className="flex w-full items-start gap-2.5 border-t border-dashed border-[rgba(26,20,16,0.3)] py-2 first:border-t-0"
                   >
-                    <span className="w-[26px] text-[11px] opacity-70">
+                    <span className="w-[26px] shrink-0 text-[11px] opacity-70">
                       EX-{String.fromCharCode(65 + i)}
                     </span>
-                    {thumbnailUrl && (
+                    {(imgUrl || previewUrl) && (
                       <img
-                        src={thumbnailUrl}
-                        alt={`Rendered evidence ${String.fromCharCode(65 + i)}`}
-                        className="h-[52px] w-[68px] shrink-0 object-cover"
+                        src={imgUrl || previewUrl}
+                        alt={`Evidence ${String.fromCharCode(65 + i)}`}
+                        className="h-[56px] w-[72px] shrink-0 object-cover grayscale"
                       />
                     )}
                     <span className="min-w-0 flex-1">
-                      <span className="block text-[13px]">{clue}</span>
-                      {(renderUrl || modelUrl) && (
-                        <span className="mt-1 flex gap-2 text-[9px] tracking-[0.14em] opacity-70">
-                          {renderUrl && <span>FAL RENDER</span>}
-                          {modelUrl && (
-                            <button
-                              type="button"
-                              onClick={() => setActiveModel(i)}
-                              className="cursor-pointer underline decoration-dashed underline-offset-2 hover:opacity-100"
-                            >
-                              VIEW 3D ↗
-                            </button>
-                          )}
-                        </span>
+                      <span className="block text-[12px] leading-[1.55]">{clue}</span>
+                      {modelUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setActiveModel(i)}
+                          className="mt-1 text-[9px] tracking-[0.14em] opacity-70 underline decoration-dashed underline-offset-2 hover:opacity-100"
+                        >
+                          VIEW 3D ↗
+                        </button>
                       )}
                     </span>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setNoted((prev) => {
-                          const next = new Set(prev);
-                          if (next.has(i)) next.delete(i);
-                          else next.add(i);
-                          return next;
-                        })
-                      }
-                      className="mt-0.5 grid h-3.5 w-3.5 place-items-center border border-[var(--ink)] text-[10px]"
-                      aria-label={`Toggle evidence ${String.fromCharCode(65 + i)} note`}
-                    >
-                      {noted.has(i) ? '×' : ''}
-                    </button>
                   </div>
                 );
               })}
@@ -465,10 +443,7 @@ export function CaseLoadScreen() {
       {activeModel !== null && evidenceModelUrls[String(activeModel)] && (
         <Evidence3DViewer
           glbUrl={evidenceModelUrls[String(activeModel)]}
-          previewUrl={
-            evidenceModelPreviewUrls[String(activeModel)] ||
-            evidenceImageUrls[String(activeModel)]
-          }
+          previewUrl={evidenceModelPreviewUrls[String(activeModel)] || evidenceImageUrls[String(activeModel)]}
           label={`Exhibit ${String.fromCharCode(65 + activeModel)}`}
           description={caseData.clues[activeModel] ?? ''}
           onClose={() => setActiveModel(null)}
