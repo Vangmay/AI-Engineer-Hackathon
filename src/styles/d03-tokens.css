@@ -1,0 +1,17 @@
+:root {
+  --bg-base:        #0a0d0b;
+  --bg-panel:       #0e110e;
+  --bg-statusbar:   #080a08;
+  --border-yellow:  rgba(214, 196, 64, 0.18);
+  --border-strong:  rgba(214, 196, 64, 0.4);
+  --accent-yellow:  #d6c440;
+  --accent-yellow-dim: rgba(214, 196, 64, 0.6);
+  --accent-red:     #c64338;
+  --accent-green:   #5cae6f;
+  --text-primary:   #d4d4c8;
+  --text-muted:     rgba(212, 212, 200, 0.55);
+  --text-faint:     rgba(212, 212, 200, 0.3);
+  --font-mono:      'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', ui-monospace, Consolas, monospace;
+  --grain-opacity:  0.18;
+  --scanline-opacity: 0.55;
+}
