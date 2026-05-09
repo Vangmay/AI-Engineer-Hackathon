@@ -199,14 +199,20 @@ async function main() {
       caseRecord: bundle.caseRecord,
     })) as { caseId: string };
 
-    await client.action(generateCaseMediaRef, {
-      caseId: imported.caseId,
-      force,
-      sceneImageUrl: packageRecord.assetManifest.sceneImageUri ?? undefined,
-      evidenceRenders: normalizeRecord(packageRecord.assetManifest.evidenceRenders),
-      evidenceModels: normalizeRecord(packageRecord.assetManifest.evidenceModels),
-      evidenceModelPreviews: normalizeRecord(packageRecord.assetManifest.evidenceModelPreviews),
-    });
+    try {
+      await client.action(generateCaseMediaRef, {
+        caseId: imported.caseId,
+        force,
+        sceneImageUrl: packageRecord.assetManifest.sceneImageUri ?? undefined,
+        evidenceRenders: normalizeRecord(packageRecord.assetManifest.evidenceRenders),
+        evidenceModels: normalizeRecord(packageRecord.assetManifest.evidenceModels),
+        evidenceModelPreviews: normalizeRecord(packageRecord.assetManifest.evidenceModelPreviews),
+      });
+    } catch (error) {
+      console.warn(
+        `Continuing without generateCaseMedia refresh for ${localCaseId}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
 
     const existingAssets = (await client.query(listCaseAudioAssetsRef, {
       caseId: imported.caseId,

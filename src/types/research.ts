@@ -103,6 +103,10 @@ export interface CaseRecord {
   gameAdaptationStatus: GameAdaptationStatus;
   assetGenerationStatus: AssetGenerationStatus;
   primaryLocationLabel?: string;
+  call911Transcript?: Array<{
+    who: 'DISP' | 'CALL';
+    text: string;
+  }>;
   tags: string[];
   createdAt: string;
   updatedAt: string;

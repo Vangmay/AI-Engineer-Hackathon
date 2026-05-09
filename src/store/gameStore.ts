@@ -46,7 +46,7 @@ interface GameState {
   startInterrogation: (witnessId: string) => Promise<void>;
   endInterrogation: () => Promise<void>;
   goToAccusation: () => Promise<void>;
-  submitAccusation: (text: string) => Promise<void>;
+  submitAccusation: (suspectId: string) => Promise<void>;
   resetCase: () => Promise<void>;
   appendTranscript: (line: TranscriptLine) => void;
   sendWitnessQuestion: (witnessId: string, text: string) => Promise<WitnessQuestionResult>;
@@ -208,10 +208,12 @@ export const useGameStore = create<GameState>((set, get) => ({
     set(snapshotToState(snapshot));
   },
 
-  submitAccusation: async (text) => {
+  submitAccusation: async (suspectId) => {
     const { sessionId } = get();
-    if (!sessionId) return;
-    const snapshot = await gameBackend.evaluateAccusation(sessionId, text);
+    if (!sessionId) {
+      throw new Error('No active session for accusation submission.');
+    }
+    const snapshot = await gameBackend.evaluateAccusation(sessionId, suspectId);
     set(snapshotToState(snapshot));
   },
 

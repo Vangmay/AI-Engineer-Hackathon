@@ -106,6 +106,7 @@ export function RevealScreen() {
 
   const killer = caseData.witnesses.find((w) => w.id === caseData.truth.killer);
   const verdictLabel = isCorrect ? 'CASE CLOSED' : 'WRONG CALL';
+  const resultLabel = isCorrect ? 'CORRECT' : 'INCORRECT';
   const verdictColor = isCorrect ? 'var(--ink)' : 'var(--oxblood)';
   const killerPortraitUrl = killer ? witnessPortraitUrls[killer.id] : undefined;
 
@@ -131,6 +132,7 @@ export function RevealScreen() {
           </div>
           <div className="text-right text-[12px] leading-normal">
             <div>ACCUSED · {accusation || 'NO STATEMENT'}</div>
+            <div>RESULT · {resultLabel}</div>
             <div>STATUS · {verdictLabel}</div>
             <div>{new Date().toISOString().slice(0, 10)}</div>
           </div>
@@ -160,6 +162,9 @@ export function RevealScreen() {
               <div className="mt-4 text-[10px] tracking-[0.25em] opacity-70">
                 CRIME SCENE · CID SINGAPORE
               </div>
+              <div className="mt-5 text-[16px] font-bold tracking-[0.18em]">
+                {resultLabel}
+              </div>
             </div>
 
             <div className="lined-paper mt-12 p-[14px_18px] shadow-[0_4px_12px_rgba(0,0,0,0.12)]">
@@ -168,6 +173,11 @@ export function RevealScreen() {
               </div>
               <p className="mt-2 text-[15px] italic leading-[24px]">
                 "{accusation || 'No accusation recorded.'}"
+              </p>
+              <p className="mt-3 text-[13px] font-semibold leading-[22px]">
+                {isCorrect
+                  ? 'Your final selection was correct.'
+                  : 'Your final selection was incorrect.'}
               </p>
             </div>
 

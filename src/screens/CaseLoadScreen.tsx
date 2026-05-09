@@ -119,15 +119,7 @@ export function CaseLoadScreen() {
   const [noted, setNoted] = useState<Set<number>>(() => new Set());
   const [activeModel, setActiveModel] = useState<number | null>(null);
   const [isPlaying911, setIsPlaying911] = useState(false);
-  const [scenePhotoBroken, setScenePhotoBroken] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  const resolvedSceneUrl = sceneImageUrl?.trim() ?? '';
-  const showScenePhoto = resolvedSceneUrl.length > 0 && !scenePhotoBroken;
-
-  useEffect(() => {
-    setScenePhotoBroken(false);
-  }, [resolvedSceneUrl]);
 
   const generatedIn = `${((generationMs ?? 8300) / 1000).toFixed(1)}s`;
   const suspects = caseData.witnesses.filter((entry) => entry.category === 'suspect');

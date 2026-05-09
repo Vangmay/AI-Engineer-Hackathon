@@ -22,6 +22,32 @@
   "gameAdaptationStatus": "adapted",
   "assetGenerationStatus": "generated",
   "primaryLocationLabel": "Jessica Lloyd residence area, Belleville, Ontario",
+  "call911Transcript": [
+    {
+      "who": "DISP",
+      "text": "Nine-one-one, what is your emergency?"
+    },
+    {
+      "who": "CALL",
+      "text": "Jessica Lloyd is missing. Her car is still outside her place and she is not answering her phone. Something is wrong."
+    },
+    {
+      "who": "DISP",
+      "text": "What is the address where you are calling from?"
+    },
+    {
+      "who": "CALL",
+      "text": "I am at Jessica's residence area in Belleville. Please send officers right away."
+    },
+    {
+      "who": "DISP",
+      "text": "When did anyone last hear from her, and do you see any sign of forced entry?"
+    },
+    {
+      "who": "CALL",
+      "text": "Last night. This is not like her at all. Her phone goes straight to voicemail and I do not want to go inside alone."
+    }
+  ],
   "tags": [
     "canada",
     "ontario",
@@ -30,5 +56,5 @@
     "transcript"
   ],
   "createdAt": "2026-05-09T13:30:00.000Z",
-  "updatedAt": "2026-05-09T06:37:51.489Z"
+  "updatedAt": "2026-05-09T07:00:08.741Z"
 }
