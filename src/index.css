@@ -202,11 +202,11 @@ body {
 
 .case-scene-frame {
   background: #171310;
-  overflow: hidden;
 }
 
+/* Film still look when a real scene URL is loaded */
 .case-scene-frame img {
-  filter: sepia(0.18) contrast(1.08) saturate(0.82);
+  filter: sepia(0.12) contrast(1.05) saturate(0.88);
 }
 
 .tape-corner {

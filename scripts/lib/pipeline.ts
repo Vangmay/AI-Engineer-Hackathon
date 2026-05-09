@@ -626,18 +626,34 @@ export function buildRuntimeCase(input: {
     };
   const witnessesSource = input.people
     .filter((person) => person.isPrimaryCharacter && person.roleType !== 'victim')
-    .slice(0, 5);
+    .slice(0, 7);
   const killer = chooseTruthWitness(witnessesSource);
 
   const witnesses: Witness[] = witnessesSource.map((person, index) => ({
     id: person.personId,
     name: person.fullName,
-    role: person.roleType === 'suspect' ? 'Primary suspect' : person.shortBio,
+    category:
+      person.roleType === 'suspect' || person.roleType === 'offender'
+        ? 'suspect'
+        : 'witness',
+    role: person.roleType === 'suspect' ? '' : person.shortBio,
     age: person.birthYear ? referenceYear - person.birthYear : 40 - index,
+    profile: person.profileSummary ?? person.shortBio,
+    persona:
+      person.personaSummary ??
+      [
+        person.voiceProfile?.demeanor,
+        person.voiceProfile?.speakingStyle,
+        person.voiceProfile?.accentRegion,
+      ]
+        .filter(Boolean)
+        .join(', '),
     knows:
+      person.knownInfo ??
       input.timeline[index]?.description ??
       `Knows key details about ${input.caseRecord.canonicalTitle}.`,
     hiding:
+      person.hiddenInfo ??
       person.notes ??
       (person.personId === killer?.personId
         ? 'Is hiding the strongest contradiction in the case timeline.'
@@ -683,13 +699,16 @@ export function buildWitnessPromptPacks(
     const person = people.find((entry) => entry.personId === witness.id);
     return {
       witnessId: witness.id,
-      systemPrompt: `You are ${witness.name}. Stay grounded in documented case facts, answer in character, and do not reveal the hidden truth outright.`,
-      openingLine: `I'm ${witness.name}. What do you want to know about that night?`,
+      systemPrompt: `You are ${witness.name}.${witness.persona ? ` Persona: ${witness.persona}.` : ''} Stay grounded in documented case facts, answer in character, and do not reveal the hidden truth outright.`,
+      openingLine:
+        witness.category === 'suspect'
+          ? `I've already answered questions once. Ask what you need to ask.`
+          : `I'll tell you what I can. Ask what you need to know.`,
       truthsTheyKnow: [witness.knows],
       secretsTheyHide: [witness.hiding],
       lieStrategy: witness.lies
         ? 'Deflect blame, narrow your time window, and answer only what was asked.'
-        : person?.notes,
+        : person?.personaSummary ?? person?.notes,
     };
   });
 }
@@ -901,7 +920,8 @@ export function buildVoiceProfilePrompt(person: PersonRecord): string {
     person.voiceProfile?.demeanor,
   ].filter(Boolean);
   const profile = parts.length > 0 ? parts.join(', ') : 'adult, measured, grounded';
-  return `Natural conversational voice: ${profile}. Clear articulation, believable pacing, emotionally restrained, suitable for an interactive mystery character.`;
+  const characterBrief = [person.profileSummary, person.personaSummary].filter(Boolean).join(' ');
+  return `Natural conversational voice: ${profile}.${characterBrief ? ` Character brief: ${characterBrief}` : ''} Clear articulation, believable pacing, emotionally restrained, suitable for an interactive mystery character.`;
 }
 
 export function chooseVoiceMode(input: {

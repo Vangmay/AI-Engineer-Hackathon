@@ -7,8 +7,31 @@ import type {
   GameBackend,
   GameSession,
   GameSnapshot,
+  WitnessQuestionResult,
 } from './contracts';
-import type { MysteryCase, TranscriptLine } from '@/types/case';
+import type { Call911Line, MysteryCase, TranscriptLine } from '@/types/case';
+
+function staleCase911Lines(caseData: MysteryCase): Call911Line[] {
+  const victim = caseData.victim;
+  const loc = victim.location.slice(0, 120);
+  const firstWitness = caseData.witnesses[0];
+  const firstClue = (caseData.clues[0] ?? '').slice(0, 110);
+  const secondClue = (caseData.clues[1] ?? '').slice(0, 90);
+  return [
+    { who: 'DISP', text: "Nine-one-one, what's your emergency?" },
+    {
+      who: 'CALL',
+      text: `I found ${victim.name} unresponsive at ${loc}. Send police and EMS now.`,
+    },
+    { who: 'DISP', text: 'Units are dispatching. What do you see and is anyone else still there?' },
+    {
+      who: 'CALL',
+      text: `${firstWitness ? `${firstWitness.knows.slice(0, 80)}. ` : ''}${firstClue || 'No forced entry that I can see.'}`,
+    },
+    { who: 'DISP', text: 'Do not touch the room. Stay with me and report unusual details.' },
+    { who: 'CALL', text: `${secondClue || 'There are signs someone moved around after the incident window.'} Please hurry.` },
+  ];
+}
 
 const emptyMedia: CaseMedia = {
   sceneImageUrl: null,
@@ -40,14 +63,25 @@ function mergeCaseDocToMystery(
 }
 
 function mapTranscriptRows(
-  rows: Array<{ speaker: TranscriptLine['speaker']; text: string; timestamp: number }>,
+  rows: Array<{
+    speaker: TranscriptLine['speaker'];
+    text: string;
+    timestamp: number;
+    witnessId?: string;
+  }>,
 ): TranscriptLine[] {
   return [...rows]
     .sort((a, b) => a.timestamp - b.timestamp)
-    .map((r) => ({ speaker: r.speaker, text: r.text, timestamp: r.timestamp }));
+    .map((r) => ({
+      speaker: r.speaker,
+      text: r.text,
+      timestamp: r.timestamp,
+      ...(r.witnessId ? { witnessId: r.witnessId } : {}),
+    }));
 }
 
 function snapshotFromConvexRow(row: {
+  witnesses?: Array<{ witnessId: string; introAudioUrl?: string }>;
   session: {
     _id: string;
     phase: GameSession['phase'];
@@ -55,6 +89,7 @@ function snapshotFromConvexRow(row: {
     accusation?: string;
     isCorrect?: boolean;
     revealNarration?: string;
+    witnessQuestionCounts?: Record<string, number>;
     createdAt: number;
     updatedAt: number;
   };
@@ -64,29 +99,29 @@ function snapshotFromConvexRow(row: {
     hiddenTruth: Record<string, unknown>;
     generation?: { generationMs?: number };
   };
-  media: {
-    sceneImageUrl?: string;
-    sceneModelUrl?: string;
-    call911AudioUrl?: string;
-    revealNarrationAudioUrl?: string;
-    ambientAudioUrl?: string;
-    witnessIntroAudioUrls?: Record<string, string>;
-    voiceModels?: CaseMedia['voiceModels'];
-    witnessPortraitUrls?: Record<string, string>;
-    witnessVoiceSampleUrls?: Record<string, string>;
-    evidenceImageUrls?: Record<string, string>;
-    evidenceModelUrls?: Record<string, string>;
-    evidenceModelPreviewUrls?: Record<string, string>;
-  } | null;
+  media: Record<string, unknown> | null;
   transcript: Array<{
     speaker: TranscriptLine['speaker'];
     text: string;
     timestamp: number;
+    witnessId?: string;
   }>;
 }): GameSnapshot {
-  const { session, caseDoc, media, transcript } = row;
+  const { session, caseDoc, media, transcript, witnesses } = row;
 
-  const caseData = mergeCaseDocToMystery(caseDoc.publicCase, caseDoc.hiddenTruth);
+  let caseData = mergeCaseDocToMystery(caseDoc.publicCase, caseDoc.hiddenTruth);
+
+  const rawLines = (
+    caseData as unknown as {
+      call911_transcript?: Array<{ who: 'DISP' | 'CALL'; text: string }>;
+    }
+  ).call911_transcript;
+  if ((!rawLines || rawLines.length < 6) && caseData.victim?.name && caseData.victim?.location) {
+    caseData = {
+      ...caseData,
+      call911_transcript: staleCase911Lines(caseData),
+    };
+  }
 
   const gameSession: GameSession = {
     id: session._id,
@@ -96,30 +131,49 @@ function snapshotFromConvexRow(row: {
     accusation: session.accusation ?? null,
     isCorrect: session.isCorrect ?? null,
     revealNarration: session.revealNarration ?? null,
+    witnessQuestionCounts:
+      session.witnessQuestionCounts && Object.keys(session.witnessQuestionCounts).length > 0
+        ? { ...session.witnessQuestionCounts }
+        : undefined,
     createdAt: session.createdAt,
     updatedAt: session.updatedAt,
   };
 
-  const mediaOut: CaseMedia = {
-    ...emptyMedia,
-    ...(media
-      ? {
-          sceneImageUrl: media.sceneImageUrl ?? null,
-          sceneModelUrl: media.sceneModelUrl ?? null,
-          call911AudioUrl: media.call911AudioUrl ?? null,
-          revealNarrationAudioUrl: media.revealNarrationAudioUrl ?? null,
-          ambientAudioUrl: media.ambientAudioUrl ?? null,
-          witnessIntroAudioUrls: media.witnessIntroAudioUrls ?? {},
-          voiceModels: media.voiceModels ?? {},
-          witnessPortraitUrls: media.witnessPortraitUrls ?? {},
-          witnessModelUrls: {},
-          witnessVoiceSampleUrls: media.witnessVoiceSampleUrls ?? {},
-          evidenceImageUrls: media.evidenceImageUrls ?? {},
-          evidenceModelUrls: media.evidenceModelUrls ?? {},
-          evidenceModelPreviewUrls: media.evidenceModelPreviewUrls ?? {},
-        }
-      : {}),
-  };
+  const mediaOut: CaseMedia = (() => {
+    if (!media) return { ...emptyMedia };
+    const m = media as Record<string, unknown>;
+    const asRecord = (v: unknown): Record<string, string> =>
+      v && typeof v === 'object' && !Array.isArray(v)
+        ? (v as Record<string, string>)
+        : {};
+    return {
+      ...emptyMedia,
+      sceneImageUrl: (m.sceneImageUrl as string | undefined) ?? null,
+      sceneModelUrl: (m.sceneModelUrl as string | undefined) ?? null,
+      call911AudioUrl: (m.call911AudioUrl as string | undefined) ?? null,
+      revealNarrationAudioUrl:
+        (m.revealNarrationAudioUrl as string | undefined) ?? null,
+      ambientAudioUrl: (m.ambientAudioUrl as string | undefined) ?? null,
+      witnessIntroAudioUrls: {
+        ...asRecord(m.witnessIntroAudioUrls),
+        ...Object.fromEntries(
+          (witnesses ?? [])
+            .filter((w) => w.introAudioUrl)
+            .map((w) => [w.witnessId, w.introAudioUrl!]),
+        ),
+      },
+      voiceModels:
+        (m.voiceModels as CaseMedia['voiceModels']) ?? ({} as CaseMedia['voiceModels']),
+      witnessPortraitUrls: asRecord(m.witnessPortraitUrls),
+      witnessModelUrls: {},
+      witnessVoiceSampleUrls: asRecord(m.witnessVoiceSampleUrls),
+      evidenceImageUrls: asRecord(m.evidenceImageUrls ?? m.evidenceRenders),
+      evidenceModelUrls: asRecord(m.evidenceModelUrls ?? m.evidenceModels),
+      evidenceModelPreviewUrls: asRecord(
+        m.evidenceModelPreviewUrls ?? m.evidenceModelPreviews,
+      ),
+    };
+  })();
 
   return {
     session: gameSession,
@@ -144,6 +198,19 @@ export function createConvexGameBackend(client: ConvexReactClient): GameBackend 
       const out = await client.action(api.cases.startNewCase, {});
       const sessionId = (out as { sessionId: string }).sessionId;
       return fetchSnapshot(sessionId);
+    },
+
+    async startRandomExistingCase() {
+      const ids = await client.query(api.cases.listCaseConvexIds, {});
+      if (ids.length === 0) {
+        const out = await client.action(api.cases.startNewCase, {});
+        return fetchSnapshot((out as { sessionId: string }).sessionId);
+      }
+      const pick = ids[Math.floor(Math.random() * ids.length)]!;
+      const sessionId = await client.mutation(api.cases.createSessionForCase, {
+        caseConvexId: pick,
+      });
+      return fetchSnapshot(sessionId as unknown as string);
     },
 
     async loadCase(caseIdSlug: string) {
@@ -190,9 +257,27 @@ export function createConvexGameBackend(client: ConvexReactClient): GameBackend 
         speaker: line.speaker,
         text: line.text,
         timestamp: line.timestamp,
+        ...(line.witnessId ? { witnessId: line.witnessId } : {}),
       });
       const snap = await fetchSnapshot(sessionId);
       return snap.transcript;
+    },
+
+    async sendWitnessQuestion(sessionId, witnessId, question) {
+      const result = await client.action(api.interrogation.sendWitnessQuestion, {
+        sessionId: asSessionId(sessionId),
+        witnessId,
+        question,
+      });
+      if (!result.ok) {
+        return result as WitnessQuestionResult;
+      }
+      const snap = await fetchSnapshot(sessionId);
+      return {
+        ok: true,
+        snapshot: snap,
+        remainingQuestions: result.remainingQuestions,
+      };
     },
 
     async evaluateAccusation(sessionId, accusationText) {

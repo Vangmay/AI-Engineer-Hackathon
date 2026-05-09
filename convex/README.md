@@ -2,9 +2,7 @@
 
 This directory is the Convex backend target for Crime Scene.
 
-The frontend currently talks to `src/backend/client.ts`, which uses a local
-adapter implementing the same backend contract. Once Convex is configured, swap
-that client to call these server functions through the generated Convex API.
+When **`VITE_CONVEX_URL`** is set, **`main.tsx`** installs **`createConvexGameBackend`** so the app uses Convex for **`startNewCase`**, sessions, transcripts, and accusations. Without it, **`localBackend`** reads the packaged case under **`data/cases`**.
 
 ## Files
 
@@ -21,6 +19,5 @@ that client to call these server functions through the generated Convex API.
 1. Run `npm run convex:dev` (or `npx convex dev`) to generate `convex/_generated/*`.
 2. In **Convex Dashboard → Settings → Environment variables**, set `OPENAI_API_KEY` and **`EXA_API_KEY`** for real-case–inspired generation. Optionally set `OPENAI_MODEL` (defaults to `gpt-4o-mini` in code). Never put these behind `VITE_`.
 3. From the frontend, set **`VITE_CONVEX_URL`** in `.env.local` (restart Vite). `src/main.tsx` creates **`ConvexReactClient`**, calls **`setGameBackend(createConvexGameBackend(client))` synchronously** (so the loading screen does not hit local Raymond first), then wraps **`ConvexProvider`**. **`loadStaticCase`** calls **`cases.startNewCase`**. Without `VITE_CONVEX_URL`, the app keeps the local Raymond adapter.
-4. Add server-side provider calls for image/audio/live voice when ready.
-5. Replace `src/backend/client.ts` with a Convex-backed adapter.
-6. Only `VITE_CONVEX_URL` should be exposed to the browser for Convex connectivity.
+4. Optional: call **`media.generateForCase`** after **`startNewCase`** (or use uploads) so scene/evidence URLs populate `media`.
+5. Only **`VITE_CONVEX_URL`** should be exposed to the browser for Convex connectivity (provider keys stay on the deployment).

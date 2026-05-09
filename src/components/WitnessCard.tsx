@@ -47,9 +47,6 @@ export function WitnessCard({ witness, index, onSelect }: Props) {
         </span>
         <span className="text-[10px] text-[var(--text-faint)]">{witness.age}</span>
       </div>
-      <div className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider truncate">
-        {witness.role}
-      </div>
       <div className="mt-3 pt-2 border-t border-[var(--border-yellow)] flex items-center justify-between text-[10px]">
         <span className="text-[var(--text-faint)] uppercase tracking-wider">
           interview

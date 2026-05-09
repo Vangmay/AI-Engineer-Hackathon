@@ -44,7 +44,7 @@
     "suspicionScore": 96,
     "documentationScore": 94,
     "mediaRichnessScore": 86,
-    "voiceCloneCandidate": true,
+    "voiceCloneCandidate": false,
     "faceCloneCandidate": true,
     "identityUseMode": "real",
     "preferredVoiceMode": "profile_fallback",
@@ -55,8 +55,117 @@
       "genderPresentation": "male",
       "demeanor": "controlled and defensive"
     },
-    "shortBio": "Former commander of CFB Trenton interviewed as evidence converged on him.",
+    "shortBio": "Former commander of CFB Trenton whose discipline and rank make him seem almost untouchable.",
+    "profileSummary": "Air force colonel with access to vehicles, strict routines, and the kind of public credibility that initially shields him from suspicion.",
+    "personaSummary": "Controlled, meticulous, status-conscious, and careful with every sentence; he sounds calm because he wants control, not because he feels safe.",
+    "knownInfo": "He presents himself as fully cooperative and insists the investigation is confusing professionalism for guilt.",
+    "hiddenInfo": "His composure fractures whenever investigators close in on the vehicle evidence, his timeline, and the search around Jessica Lloyd.",
     "notes": "Maintains composure early in the interview, but the case closes around his vehicle, movements, and the forensic trail."
+  },
+  {
+    "personId": "person_graham_reid",
+    "caseId": "case_colonel_russell_williams_2010",
+    "fullName": "Graham Reid",
+    "aliases": [
+      "former boyfriend composite"
+    ],
+    "roleType": "suspect",
+    "isPrimaryCharacter": true,
+    "isLiving": "yes",
+    "birthYear": 1984,
+    "nationality": "Canadian",
+    "publicProfileLevel": "low",
+    "narrativeValueScore": 77,
+    "suspicionScore": 68,
+    "documentationScore": 42,
+    "mediaRichnessScore": 22,
+    "voiceCloneCandidate": false,
+    "faceCloneCandidate": false,
+    "identityUseMode": "transformed",
+    "preferredVoiceMode": "profile_fallback",
+    "voiceProfile": {
+      "ageBand": "young-adult",
+      "accentRegion": "Ontario",
+      "speakingStyle": "fast, defensive, reactive",
+      "genderPresentation": "male",
+      "demeanor": "restless"
+    },
+    "shortBio": "Composite of an ex-boyfriend and recent social contact who would have drawn early investigative attention.",
+    "profileSummary": "Young local man with emotional history, enough proximity to Jessica's routines to matter, and the kind of personal friction detectives would check first.",
+    "personaSummary": "Restless, defensive, and eager to distance himself from the case; he sounds more rattled than calculating.",
+    "knownInfo": "He can account for most of the night but resents being treated as the obvious first-round suspect.",
+    "hiddenInfo": "He left out a late argument with Jessica because he knew it would make him sound volatile, even though it is not the real answer.",
+    "notes": "A believable early suspect whose omissions create tension without pointing to the true offender."
+  },
+  {
+    "personId": "person_colin_fraser",
+    "caseId": "case_colonel_russell_williams_2010",
+    "fullName": "Colin Fraser",
+    "aliases": [
+      "local contractor composite"
+    ],
+    "roleType": "suspect",
+    "isPrimaryCharacter": true,
+    "isLiving": "yes",
+    "birthYear": 1973,
+    "nationality": "Canadian",
+    "publicProfileLevel": "low",
+    "narrativeValueScore": 72,
+    "suspicionScore": 61,
+    "documentationScore": 38,
+    "mediaRichnessScore": 16,
+    "voiceCloneCandidate": false,
+    "faceCloneCandidate": false,
+    "identityUseMode": "transformed",
+    "preferredVoiceMode": "profile_fallback",
+    "voiceProfile": {
+      "ageBand": "middle-aged",
+      "accentRegion": "rural Ontario",
+      "speakingStyle": "plainspoken and blunt",
+      "genderPresentation": "male",
+      "demeanor": "irritated"
+    },
+    "shortBio": "Composite rural contractor whose truck routes and off-book jobs put him near the area at awkward hours.",
+    "profileSummary": "Tradesman familiar with back roads, late-night driving, and the kind of alibi gaps police naturally pull on in a disappearance case.",
+    "personaSummary": "Blunt, proud, and irritated by police attention; he sounds rough but not strategically polished.",
+    "knownInfo": "He knew the roads around Belleville and had a practical reason to be moving around after dark.",
+    "hiddenInfo": "He concealed an off-book job because he feared tax and licensing trouble, turning a bad decision into suspicious behaviour.",
+    "notes": "Functions as a grounded logistics suspect whose secrecy is self-protective rather than murderous."
+  },
+  {
+    "personId": "person_adam_doyle",
+    "caseId": "case_colonel_russell_williams_2010",
+    "fullName": "Adam Doyle",
+    "aliases": [
+      "base logistics composite"
+    ],
+    "roleType": "suspect",
+    "isPrimaryCharacter": true,
+    "isLiving": "yes",
+    "birthYear": 1976,
+    "nationality": "Canadian",
+    "publicProfileLevel": "low",
+    "narrativeValueScore": 74,
+    "suspicionScore": 57,
+    "documentationScore": 36,
+    "mediaRichnessScore": 18,
+    "voiceCloneCandidate": false,
+    "faceCloneCandidate": false,
+    "identityUseMode": "transformed",
+    "preferredVoiceMode": "profile_fallback",
+    "voiceProfile": {
+      "ageBand": "middle-aged",
+      "accentRegion": "Ontario",
+      "speakingStyle": "careful and deferential",
+      "genderPresentation": "male",
+      "demeanor": "anxious"
+    },
+    "shortBio": "Composite base logistics sergeant who understood vehicle access, paperwork, and how easily institutional embarrassment can distort a timeline.",
+    "profileSummary": "Support-side military insider with enough access to know what should and should not appear in vehicle and movement records.",
+    "personaSummary": "Careful, deferential, and anxious about exposing institutional embarrassment; he sounds like someone trying not to implicate himself in a scandal.",
+    "knownInfo": "He can explain how vehicle access and paperwork worked around the base during the search window.",
+    "hiddenInfo": "He touched paperwork after the fact to avoid bringing military humiliation onto himself and his chain of command.",
+    "notes": "A plausible procedural suspect whose fear is reputational collapse rather than homicide."
   },
   {
     "personId": "person_jim_smyth",
@@ -74,8 +183,8 @@
     "suspicionScore": 8,
     "documentationScore": 78,
     "mediaRichnessScore": 58,
-    "voiceCloneCandidate": true,
-    "faceCloneCandidate": true,
+    "voiceCloneCandidate": false,
+    "faceCloneCandidate": false,
     "identityUseMode": "real",
     "preferredVoiceMode": "profile_fallback",
     "voiceProfile": {
@@ -86,6 +195,10 @@
       "demeanor": "steady and probing"
     },
     "shortBio": "OPP detective sergeant leading the interview strategy in Ottawa.",
+    "profileSummary": "Lead interviewer who understands that the confession only lands because the facts are already trapping the subject from every direction.",
+    "personaSummary": "Steady, probing, patient, and strategic; he sounds calm because he wants the suspect to fill the silence.",
+    "knownInfo": "He can explain how the tire evidence, routine-building, and interview pressure converged on the same person.",
+    "hiddenInfo": "He knows which moments in the interview mattered most, but he is careful not to turn the truth into theatre.",
     "notes": "Keeps the pressure on timelines, vehicle details, and the urgency surrounding Jessica Lloyd's disappearance."
   },
   {
@@ -104,8 +217,8 @@
     "suspicionScore": 4,
     "documentationScore": 67,
     "mediaRichnessScore": 49,
-    "voiceCloneCandidate": true,
-    "faceCloneCandidate": true,
+    "voiceCloneCandidate": false,
+    "faceCloneCandidate": false,
     "identityUseMode": "transformed",
     "preferredVoiceMode": "profile_fallback",
     "voiceProfile": {
@@ -116,6 +229,45 @@
       "demeanor": "grieving and direct"
     },
     "shortBio": "Family-side witness composite grounded in Jessica Lloyd coverage and memorial reporting.",
+    "profileSummary": "Family representative who keeps the victim at the center of the story and resists letting the investigation collapse into gossip or spectacle.",
+    "personaSummary": "Grieving, direct, and emotionally controlled; she speaks with moral clarity rather than investigative certainty.",
+    "knownInfo": "She can speak to Jessica's routines, what mattered in the early search, and how the family experienced the case pressure.",
+    "hiddenInfo": "She deliberately withholds some of the family's anger because she wants facts on the record before emotion takes over.",
     "notes": "Carries details about Jessica's routines, the urgency of the search, and how quickly the case shifted once investigators focused on Williams."
+  },
+  {
+    "personId": "person_erin_mcallister",
+    "caseId": "case_colonel_russell_williams_2010",
+    "fullName": "Erin McAllister",
+    "aliases": [
+      "coworker composite"
+    ],
+    "roleType": "witness",
+    "isPrimaryCharacter": true,
+    "isLiving": "yes",
+    "birthYear": 1983,
+    "nationality": "Canadian",
+    "publicProfileLevel": "low",
+    "narrativeValueScore": 69,
+    "suspicionScore": 11,
+    "documentationScore": 35,
+    "mediaRichnessScore": 14,
+    "voiceCloneCandidate": false,
+    "faceCloneCandidate": false,
+    "identityUseMode": "transformed",
+    "preferredVoiceMode": "profile_fallback",
+    "voiceProfile": {
+      "ageBand": "young-adult",
+      "accentRegion": "Ontario",
+      "speakingStyle": "observant and candid",
+      "genderPresentation": "female",
+      "demeanor": "concerned"
+    },
+    "shortBio": "Composite coworker and friend who can separate rumour from the small routine details Jessica actually shared.",
+    "profileSummary": "Close enough to know changes in Jessica's mood and schedule, but not so close that every memory is warped by panic.",
+    "personaSummary": "Observant, emotionally direct, and less guarded than the suspects; she sounds like someone trying to be useful, not impressive.",
+    "knownInfo": "She noticed subtle changes in Jessica's routine and can distinguish what was real from what people only claimed after the fact.",
+    "hiddenInfo": "She initially kept back an awkward conversation because she did not want police to reduce Jessica to dating gossip.",
+    "notes": "Useful for grounding the case in lived routine rather than just evidence and interrogation technique."
   }
 ]

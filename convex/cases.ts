@@ -1,7 +1,7 @@
 import { action, internalMutation, mutation, query } from './_generated/server';
 import type { MutationCtx } from './_generated/server';
 import type { Id } from './_generated/dataModel';
-import { internal } from './_generated/api';
+import { api, internal } from './_generated/api';
 import { v } from 'convex/values';
 import {
   buildCorpusBackedUserPrompt,
@@ -9,6 +9,7 @@ import {
   LLM_CASE_SYSTEM,
   LLM_CASE_USER,
   LLM_CORPUS_SYSTEM_NOTE,
+  normalize911Transcript,
   tryParseLLMCaseBundle,
   type GeneratedCaseBundle,
 } from './caseEngine';
@@ -26,7 +27,11 @@ type GenerationResearchMeta = {
   researchQuery?: string;
 };
 
-type PersistCaseResult = { sessionId: Id<'sessions'>; caseIdUsed: string };
+export type PersistCaseResult = {
+  sessionId: Id<'sessions'>;
+  caseIdUsed: string;
+  caseConvexId: Id<'cases'>;
+};
 
 function researchArgsFromState(input: {
   sourceUrls: string[];
@@ -48,7 +53,9 @@ async function persistCaseAndSession(
     model: string;
     promptVersion: string;
   } & GenerationResearchMeta,
-): Promise<{ sessionId: Id<'sessions'>; caseIdUsed: string }> {
+): Promise<PersistCaseResult> {
+  normalize911Transcript(generated.publicCase);
+
   const convexCaseRowId = await ctx.db.insert('cases', {
     caseId: generated.publicCase.case_id,
     title: generated.publicCase.title,
@@ -90,7 +97,7 @@ async function persistCaseAndSession(
     updatedAt: timestamp,
   });
 
-  return { sessionId, caseIdUsed: generated.publicCase.case_id };
+  return { sessionId, caseIdUsed: generated.publicCase.case_id, caseConvexId: convexCaseRowId };
 }
 
 export const persistGeneratedCaseInternal = internalMutation({
@@ -124,6 +131,19 @@ export const persistGeneratedCaseInternal = internalMutation({
     });
   },
 });
+
+async function hydrateCaseMediaArtifacts(
+  ctx: {
+    runAction: (ref: typeof api.media.generateForCase, args: { caseId: Id<'cases'> }) => Promise<unknown>;
+  },
+  caseConvexId: Id<'cases'>,
+): Promise<void> {
+  try {
+    await ctx.runAction(api.media.generateForCase, { caseId: caseConvexId });
+  } catch (err) {
+    console.error('[cases] generateForCase:', err);
+  }
+}
 
 const CORPUS_PROMPT_THRESHOLD = 220;
 
@@ -201,7 +221,9 @@ export const startNewCase = action({
         const parsed = tryParseLLMCaseBundle(raw, Date.now() - llmStarted);
         if (parsed) {
           const promptVersion = useCorpus ? 'llm-exa-corpora-v1' : 'llm-v1';
-          return await persistMutation(parsed, llmModel, promptVersion);
+          const result = await persistMutation(parsed, llmModel, promptVersion);
+          await hydrateCaseMediaArtifacts(ctx, result.caseConvexId);
+          return result;
         }
       } catch {
         /* template fallback */
@@ -211,7 +233,9 @@ export const startNewCase = action({
     const bundle = generateCaseBundle();
     const modelLabel = openaiKey ? 'template-fallback' : 'template-v1';
     const promptVersion = openaiKey ? 'template-fallback' : 'template-v1';
-    return await persistMutation(bundle, modelLabel, promptVersion);
+    const result = await persistMutation(bundle, modelLabel, promptVersion);
+    await hydrateCaseMediaArtifacts(ctx, result.caseConvexId);
+    return result;
   },
 });
 
@@ -225,6 +249,15 @@ export const startNewCaseFromTemplate = mutation({
       model: 'template-v1',
       promptVersion: 'template-v1',
     });
+  },
+});
+
+/** All persisted case row ids (for lobby: pick one client-side without non-deterministic mutations). */
+export const listCaseConvexIds = query({
+  args: {},
+  handler: async (ctx) => {
+    const docs = await ctx.db.query('cases').collect();
+    return docs.map((d) => d._id);
   },
 });
 
@@ -253,8 +286,12 @@ export const getSessionSnapshot = query({
       .query('transcripts')
       .withIndex('by_session_timestamp', (q) => q.eq('sessionId', args.sessionId))
       .collect();
+    const witnesses = await ctx.db
+      .query('witnesses')
+      .withIndex('by_case', (q) => q.eq('caseId', session.caseId))
+      .collect();
 
-    return { session, caseDoc, media, transcript };
+    return { session, caseDoc, media, transcript, witnesses };
   },
 });
 

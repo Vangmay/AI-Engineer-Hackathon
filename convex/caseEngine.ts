@@ -1,3 +1,8 @@
+export interface GeneratedCall911Line {
+  who: 'DISP' | 'CALL';
+  text: string;
+}
+
 export interface GeneratedWitness {
   id: string;
   name: string;
@@ -25,6 +30,7 @@ export interface GeneratedPublicCase {
   clues: string[];
   scene_prompt: string;
   brief: string;
+  call911_transcript: GeneratedCall911Line[];
 }
 
 export interface GeneratedHiddenTruth {
@@ -103,6 +109,17 @@ export const staticPublicCase: GeneratedPublicCase = {
     'Top-down forensic photograph of a luxury Singapore penthouse bedroom at night, single male victim on a king-size bed, silk pillow displaced beside him, half-empty tumbler on nightstand.',
   brief:
     'Raymond Teo, 47, founder of Teo Holdings, was found unresponsive in the master bedroom of his Marina One penthouse at 04:22 by his housekeeper.',
+  call911_transcript: [
+    { who: 'DISP', text: "Nine-one-one, what's your emergency?" },
+    { who: 'CALL', text: "I-- I think Ray is dead. He's not breathing. Oh god." },
+    { who: 'DISP', text: "Ma'am, where are you?" },
+    {
+      who: 'CALL',
+      text: 'Marina One penthouse. Forty-seventh floor. Please hurry.',
+    },
+    { who: 'DISP', text: 'Stay on the line. Is anyone else with you?' },
+    { who: 'CALL', text: 'No. The apartment is empty. Everyone left hours ago.' },
+  ],
 };
 
 export const staticHiddenTruth: GeneratedHiddenTruth = {
@@ -184,6 +201,104 @@ const CLUE_TEMPLATES = [
 ];
 const VOICE_IDS = ['pNInz6obpgDQGcFmaJgB', 'EXAVITQu4vr4xnSDxMaL', 'ThT5KcBeYPX3keUQqHPh'];
 
+function trimSentence(input: string, max = 140): string {
+  const out = input.replace(/\s+/g, ' ').trim();
+  if (!out) return '';
+  return out.length <= max ? out : `${out.slice(0, max - 1).trimEnd()}…`;
+}
+
+function firstPhrase(input: string, max = 110): string {
+  const clean = input.replace(/\s+/g, ' ').trim();
+  if (!clean) return '';
+  const stop = clean.search(/[.?!]/);
+  const first = stop >= 0 ? clean.slice(0, stop + 1) : clean;
+  return trimSentence(first, max);
+}
+
+function inferCallerRole(publicCase: GeneratedPublicCase): string {
+  const lower = publicCase.brief.toLowerCase();
+  if (lower.includes('housekeeper')) return 'the housekeeper';
+  if (lower.includes('assistant')) return 'an assistant';
+  if (lower.includes('concierge')) return 'the building concierge';
+  return 'a witness at the residence';
+}
+
+export function synthesizeFallback911Lines(publicCase: GeneratedPublicCase): GeneratedCall911Line[] {
+  const victim = publicCase.victim;
+  const loc = trimSentence(victim.location, 120);
+  const nameWord = victim.name.split(/\s+/)[0] ?? 'They';
+  const callerRole = inferCallerRole(publicCase);
+  const topClue = firstPhrase(publicCase.clues[0] ?? '', 110);
+  const secondClue = firstPhrase(publicCase.clues[1] ?? '', 100);
+  const witnessHint = firstPhrase(publicCase.witnesses[0]?.knows ?? '', 96);
+  const tod = trimSentence(victim.time_of_death, 26);
+  return [
+    { who: 'DISP', text: "Nine-one-one, what's your emergency?" },
+    {
+      who: 'CALL',
+      text: `I found ${victim.name} unresponsive at ${loc}. I'm ${callerRole}. Send police and EMS now.`,
+    },
+    { who: 'DISP', text: 'Units are dispatching. Confirm exact floor/unit and what you can see right now.' },
+    {
+      who: 'CALL',
+      text: `Top floor private residence at ${loc}. No forced entry that I can see. ${nameWord} is cold and not breathing.`,
+    },
+    { who: 'DISP', text: 'Do not touch anything else. Any sign this happened recently, or anyone still inside?' },
+    {
+      who: 'CALL',
+      text: `${tod ? `Possible window around ${tod}. ` : ''}${witnessHint || 'Most staff already left for the night.'} I do not see anyone else in the unit.`,
+    },
+    { who: 'DISP', text: 'Understood. Keep visual on exits. Anything unusual near the victim for responders?' },
+    {
+      who: 'CALL',
+      text: `${topClue || 'There is a disturbed drink setup near the bed.'}${secondClue ? ` Also: ${secondClue}` : ''}`,
+    },
+    { who: 'DISP', text: 'Stay on the line. Officers and medics are arriving now.' },
+  ];
+}
+
+/** Ensures call911_transcript exists and is valid (mutates publicCase). */
+export function normalize911Transcript(publicCase: GeneratedPublicCase): void {
+  if (!publicCase.victim?.name || !publicCase.victim?.location) {
+    publicCase.call911_transcript = [
+      { who: 'DISP', text: "Nine-one-one, what's your emergency?" },
+      { who: 'CALL', text: 'Please — send help immediately. Someone is hurt.' },
+      { who: 'DISP', text: 'What is your address or location?' },
+      {
+        who: 'CALL',
+        text: 'I am at the scene. I need police and EMS right away.',
+      },
+      { who: 'DISP', text: 'Stay on the line—are you safe?' },
+      { who: 'CALL', text: "Yes—please hurry. I don't know what's happening." },
+    ];
+    return;
+  }
+
+  let lines =
+    Array.isArray(publicCase.call911_transcript) && publicCase.call911_transcript.length > 0
+      ? [...publicCase.call911_transcript]
+      : synthesizeFallback911Lines(publicCase);
+
+  lines = lines.map((line) => {
+    const raw = typeof line?.who === 'string' ? line.who.toUpperCase() : '';
+    const who: GeneratedCall911Line['who'] = raw.includes('DISP') ? 'DISP' : 'CALL';
+    const text = typeof line?.text === 'string' ? line.text.trim() : '';
+    return { who, text };
+  }).filter((l) => l.text.length > 0);
+
+  if (lines.length < 6) {
+    lines = synthesizeFallback911Lines(publicCase);
+  }
+
+  const hasDisp = lines.some((l) => l.who === 'DISP');
+  const hasCall = lines.some((l) => l.who === 'CALL');
+  if (!hasDisp || !hasCall) {
+    lines = synthesizeFallback911Lines(publicCase);
+  }
+
+  publicCase.call911_transcript = lines.slice(0, 16);
+}
+
 function pick<T>(items: T[]): T {
   return items[Math.floor(Math.random() * items.length)];
 }
@@ -247,6 +362,14 @@ export function validateCaseBundle(bundle: GeneratedCaseBundle): boolean {
 
   if (publicCase.witnesses.length !== 3) return false;
   if (publicCase.clues.length !== 3) return false;
+
+  if (!Array.isArray(publicCase.call911_transcript) || publicCase.call911_transcript.length < 6)
+    return false;
+  if (!publicCase.call911_transcript.some((l) => l.who === 'DISP')) return false;
+  if (!publicCase.call911_transcript.some((l) => l.who === 'CALL')) return false;
+  for (const line of publicCase.call911_transcript) {
+    if ((line.who !== 'DISP' && line.who !== 'CALL') || !line?.text?.trim()) return false;
+  }
   if (
     typeof hiddenTruth?.killer !== 'string' ||
     !hiddenTruth?.motive ||
@@ -299,6 +422,7 @@ export function tryParseLLMCaseBundle(
   if (!ht || !pc) return null;
 
   normalizeVoiceAssignments(pc);
+  normalize911Transcript(pc);
 
   const bundle: GeneratedCaseBundle = {
     publicCase: pc,
@@ -330,7 +454,8 @@ export const LLM_CASE_USER = `Define the CASE TRUTH FIRST, then expose only what
   "witnesses": array of exactly 3 objects: { "id","name","role","age"(number),"knows","hiding","lies"(boolean),"voice_id":"stub","portrait_prompt" },
   "clues": array of exactly 3 strings — first two substantive; clue[2] MUST be plausible but misleading (red herring),
   "scene_prompt": string — cinematic forensic image prompt,
-  "brief": string — 3–5 tense sentences for the dossier opener
+  "brief": string — 3–5 tense sentences for the dossier opener,
+  "call911_transcript": array of exactly 6–12 objects alternating { "who":"DISP"|"CALL", "text": string } starting with DISP; caller panic; reference victim LOCATION by name/context; plausible dispatch questions
 }
 
 HARD RULES:
@@ -339,7 +464,8 @@ HARD RULES:
 3. Witness ids MUST be lowercase with prefix w_ and alphanumeric/underscore only, unique among the three (e.g. w_morgan_reed).
 4. Do NOT put hiddenTruth anywhere inside publicCase. Do NOT contradict hiddenTruth.method when writing accessible clues versus brief.
 5. Set voice_id on each witness to literal "stub" — the server overwrites voices.
-6. Make it original (not Raymond Teo / Marina One / Singapore cliché unless organically fitting). Variety in motive and setting is good.`;
+6. call911_transcript must have at least 6 lines mixed DISP and CALL voices; grounded in victim.name and victim.location; no spoilers naming the culprit.
+7. Make it original (not Raymond Teo / Marina One / Singapore cliché unless organically fitting). Variety in motive and setting is good.`;
 
 export const LLM_CORPUS_SYSTEM_NOTE = `
 When corpus excerpts below are included: they summarize real documented events from encyclopedic or news retrieval (via Exa, often Wikipedia). Your JSON is gameplay FICTION—invent plausible character names for all witnesses/victim titles, avoid directly accusing named real civilians, and do not claim factual legal findings. Hidden truth defines the game's designated culprit only.`;
@@ -358,8 +484,8 @@ Reference document for provenance logging (summarize only; avoid pasting URLs in
 ${corpusMarkdown}
 
 CORPUS-SPECIFIC RULES (additive):
-7. Ground tone, timelines, contradiction patterns, and setting on excerpts—but characters in publicCase MUST use invented or clearly fictionalised names suited to playable interrogation (no copying full real names from excerpts).
-8. The killer you encode in hiddenTruth.killer MUST be ONE of exactly three fictional witnesses reflecting tension implied by excerpts; this may contradict real-world adjudication when the excerpt describes an unsolved matter—this mystery is deliberately closed for the game loop.
+9. Ground tone, timelines, contradiction patterns, and setting on excerpts—but characters in publicCase MUST use invented or clearly fictionalised names suited to playable interrogation (no copying full real names from excerpts).
+10. The killer you encode in hiddenTruth.killer MUST be ONE of exactly three fictional witnesses reflecting tension implied by excerpts; this may contradict real-world adjudication when the excerpt describes an unsolved matter—this mystery is deliberately closed for the game loop.
 `;
   return LLM_CASE_USER + appendix;
 
@@ -371,24 +497,27 @@ export function generateCaseBundle(): GeneratedCaseBundle {
   const killerIndex = Math.floor(Math.random() * 3);
   const witnesses = generateWitnesses(killerIndex);
   const victimName = makePersonName();
+  const victim = {
+    name: victimName,
+    age: 35 + Math.floor(Math.random() * 21),
+    occupation: pick(OCCUPATIONS),
+    time_of_death: `${String(1 + Math.floor(Math.random() * 4)).padStart(2, '0')}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')} SGT`,
+    location: pick(LOCATIONS),
+    date: new Date(timestamp).toISOString().slice(0, 10),
+  };
   const publicCase: GeneratedPublicCase = {
     case_id: makeCaseId(timestamp),
     title: `The ${pick(['Midnight Ledger', 'Silent Penthouse', 'Last Signature', 'Broken Alibi'])}`,
-    victim: {
-      name: victimName,
-      age: 35 + Math.floor(Math.random() * 21),
-      occupation: pick(OCCUPATIONS),
-      time_of_death: `${String(1 + Math.floor(Math.random() * 4)).padStart(2, '0')}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')} SGT`,
-      location: pick(LOCATIONS),
-      date: new Date(timestamp).toISOString().slice(0, 10),
-    },
+    victim,
     witnesses,
     clues: CLUE_TEMPLATES,
     scene_prompt:
       'Forensic photo of a high-end residence at night, victim in bedroom, overturned glass, evidence markers.',
     brief:
       'The victim was found unresponsive in a private residence before dawn. No forced entry was reported, but timeline inconsistencies suggest homicide.',
+    call911_transcript: [],
   };
+  publicCase.call911_transcript = synthesizeFallback911Lines(publicCase);
 
   const hiddenTruth: GeneratedHiddenTruth = {
     killer: witnesses[killerIndex].id,

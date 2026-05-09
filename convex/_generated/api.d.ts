@@ -13,6 +13,7 @@ import type * as caseEngine from "../caseEngine.js";
 import type * as cases from "../cases.js";
 import type * as exaSearch from "../exaSearch.js";
 import type * as imports from "../imports.js";
+import type * as interrogation from "../interrogation.js";
 import type * as media from "../media.js";
 import type * as openaiJson from "../openaiJson.js";
 import type * as sessions from "../sessions.js";
@@ -29,6 +30,7 @@ declare const fullApi: ApiFromModules<{
   cases: typeof cases;
   exaSearch: typeof exaSearch;
   imports: typeof imports;
+  interrogation: typeof interrogation;
   media: typeof media;
   openaiJson: typeof openaiJson;
   sessions: typeof sessions;

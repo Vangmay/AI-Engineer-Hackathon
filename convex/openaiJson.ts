@@ -56,3 +56,52 @@ export async function fetchOpenAiJson<T>(params: {
 
   return JSON.parse(text) as T;
 }
+
+type ChatCompletionPayload = {
+  choices?: Array<{
+    message?: { role?: string; content?: string | Array<{ text?: string }> };
+    finish_reason?: string;
+  }>;
+};
+
+/** Plain conversational reply (Chat Completions) for witness personas. */
+export async function fetchOpenAiChatText(params: {
+  apiKey: string;
+  model: string;
+  messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>;
+}): Promise<string> {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      authorization: `Bearer ${params.apiKey}`,
+    },
+    body: JSON.stringify({
+      model: params.model,
+      messages: params.messages,
+      temperature: 0.75,
+      max_tokens: 400,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`OpenAI chat ${response.status}: ${await response.text()}`);
+  }
+
+  const payload = (await response.json()) as ChatCompletionPayload;
+  const raw = payload.choices?.[0]?.message?.content;
+
+  const text =
+    typeof raw === 'string'
+      ? raw.trim()
+      : Array.isArray(raw)
+        ? raw
+            .filter((chunk) => typeof chunk?.text === 'string')
+            .map((chunk) => chunk.text as string)
+            .join('')
+            .trim()
+        : '';
+
+  if (!text) throw new Error('OpenAI returned no chat text.');
+  return text;
+}
