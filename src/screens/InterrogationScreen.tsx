@@ -6,6 +6,7 @@ import type { TranscriptLine } from '@/types/case';
 function stubConversation(witnessId: string): TranscriptLine[] {
   const base = Date.now();
   switch (witnessId) {
+    case 'person_w_priya':
     case 'w_priya':
       return [
         { speaker: 'detective', text: 'Where were you between two and three this morning?', timestamp: base },
@@ -13,6 +14,7 @@ function stubConversation(witnessId: string): TranscriptLine[] {
         { speaker: 'detective', text: 'The lobby cam puts you in the building at three twelve.', timestamp: base + 2 },
         { speaker: 'witness', text: '... I came back. He texted me. He wanted his calendar updated.', timestamp: base + 3 },
       ];
+    case 'person_w_marcus':
     case 'w_marcus':
       return [
         { speaker: 'detective', text: 'Anything unusual on your shift?', timestamp: base },
@@ -94,6 +96,7 @@ export function InterrogationScreen() {
   const caseData = useGameStore((s) => s.caseData)!;
   const witnessId = useGameStore((s) => s.activeWitnessId)!;
   const transcript = useGameStore((s) => s.transcript);
+  const witnessPortraitUrls = useGameStore((s) => s.witnessPortraitUrls);
   const appendTranscript = useGameStore((s) => s.appendTranscript);
   const endInterrogation = useGameStore((s) => s.endInterrogation);
   const goToAccusation = useGameStore((s) => s.goToAccusation);
@@ -122,6 +125,7 @@ export function InterrogationScreen() {
   }, [witnessId, appendTranscript]);
 
   const firstName = witness.name.split(' ')[0].toUpperCase();
+  const portraitUrl = witnessPortraitUrls[witness.id];
 
   return (
     <main className="dossier-page">
@@ -145,9 +149,17 @@ export function InterrogationScreen() {
           <section className="paper-card lifted p-3.5">
             <div className="tape-corner left" />
             <div className="tape-corner right" />
-            <div className="photo-ph h-[380px] p-3 text-[11px]">
-              PORTRAIT — {witness.portrait_prompt}
-            </div>
+            {portraitUrl ? (
+              <img
+                src={portraitUrl}
+                alt={`${witness.name} generated witness portrait`}
+                className="h-[380px] w-full object-cover grayscale"
+              />
+            ) : (
+              <div className="photo-ph h-[380px] p-3 text-[11px]">
+                PORTRAIT — {witness.portrait_prompt}
+              </div>
+            )}
             <Stamp
               text={witness.lies ? 'INCONSISTENT' : 'COOPERATIVE'}
               top={20}

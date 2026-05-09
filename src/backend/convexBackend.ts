@@ -12,9 +12,15 @@ import type { MysteryCase, TranscriptLine } from '@/types/case';
 
 const emptyMedia: CaseMedia = {
   sceneImageUrl: null,
+  sceneModelUrl: null,
   call911AudioUrl: null,
   revealNarrationAudioUrl: null,
   ambientAudioUrl: null,
+  witnessPortraitUrls: {},
+  witnessVoiceSampleUrls: {},
+  evidenceImageUrls: {},
+  evidenceModelUrls: {},
+  evidenceModelPreviewUrls: {},
 };
 
 function asSessionId(id: string): Id<'sessions'> {
@@ -83,14 +89,17 @@ function snapshotFromConvexRow(row: {
     updatedAt: session.updatedAt,
   };
 
-  const mediaOut: CaseMedia = media
-    ? {
-        sceneImageUrl: media.sceneImageUrl ?? null,
-        call911AudioUrl: media.call911AudioUrl ?? null,
-        revealNarrationAudioUrl: media.revealNarrationAudioUrl ?? null,
-        ambientAudioUrl: media.ambientAudioUrl ?? null,
-      }
-    : { ...emptyMedia };
+  const mediaOut: CaseMedia = {
+    ...emptyMedia,
+    ...(media
+      ? {
+          sceneImageUrl: media.sceneImageUrl ?? null,
+          call911AudioUrl: media.call911AudioUrl ?? null,
+          revealNarrationAudioUrl: media.revealNarrationAudioUrl ?? null,
+          ambientAudioUrl: media.ambientAudioUrl ?? null,
+        }
+      : {}),
+  };
 
   return {
     session: gameSession,

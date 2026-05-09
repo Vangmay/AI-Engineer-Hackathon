@@ -61,6 +61,9 @@ export default defineSchema({
     call911AudioUrl: v.optional(v.string()),
     revealNarrationAudioUrl: v.optional(v.string()),
     ambientAudioUrl: v.optional(v.string()),
+    evidenceRenders: v.optional(v.any()),
+    evidenceModels: v.optional(v.any()),
+    evidenceModelPreviews: v.optional(v.any()),
     updatedAt: v.number(),
   }).index('by_case', ['caseId']),
 });

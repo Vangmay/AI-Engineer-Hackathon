@@ -67,6 +67,7 @@ export function RevealScreen() {
   const isCorrect = useGameStore((s) => s.isCorrect);
   const accusation = useGameStore((s) => s.accusation);
   const revealNarration = useGameStore((s) => s.revealNarration);
+  const witnessPortraitUrls = useGameStore((s) => s.witnessPortraitUrls);
   const resetCase = useGameStore((s) => s.resetCase);
   const goToBrief = useGameStore((s) => s.goToBrief);
 
@@ -79,6 +80,7 @@ export function RevealScreen() {
   const killer = caseData.witnesses.find((w) => w.id === caseData.truth.killer);
   const verdictLabel = isCorrect ? 'CASE CLOSED' : 'WRONG CALL';
   const verdictColor = isCorrect ? 'var(--ink)' : 'var(--oxblood)';
+  const killerPortraitUrl = killer ? witnessPortraitUrls[killer.id] : undefined;
 
   return (
     <main className="dossier-page">
@@ -156,9 +158,18 @@ export function RevealScreen() {
             <section className="paper-card p-[16px_18px]">
               <PaperClip left={300} top={-22} rotate={8} />
               <div className="dossier-overline">The Truth · Declassified</div>
-              <h2 className="mt-2 text-[28px] leading-tight">
-                {killer?.name ?? 'Unknown'} — {killer?.role ?? 'No role recorded'}
-              </h2>
+              <div className="mt-3 flex gap-4 max-[620px]:flex-col">
+                {killerPortraitUrl && (
+                  <img
+                    src={killerPortraitUrl}
+                    alt={`${killer?.name ?? 'Killer'} portrait`}
+                    className="h-[138px] w-[108px] shrink-0 object-cover grayscale"
+                  />
+                )}
+                <h2 className="text-[28px] leading-tight">
+                  {killer?.name ?? 'Unknown'} — {killer?.role ?? 'No role recorded'}
+                </h2>
+              </div>
               <dl className="mt-5 grid grid-cols-[90px_1fr] gap-x-4 gap-y-3 text-[13px] leading-relaxed">
                 <dt className="opacity-[0.65]">MOTIVE</dt>
                 <dd>{caseData.truth.motive}</dd>

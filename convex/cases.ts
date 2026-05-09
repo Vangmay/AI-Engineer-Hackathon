@@ -228,6 +228,16 @@ export const startNewCaseFromTemplate = mutation({
   },
 });
 
+export const getCaseByCaseId = query({
+  args: { caseId: v.string() },
+  handler: async (ctx, args) => {
+    return ctx.db
+      .query('cases')
+      .withIndex('by_case_id', (q) => q.eq('caseId', args.caseId))
+      .first();
+  },
+});
+
 export const getSessionSnapshot = query({
   args: { sessionId: v.id('sessions') },
   handler: async (ctx, args) => {
