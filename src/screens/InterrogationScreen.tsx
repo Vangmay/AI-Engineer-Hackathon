@@ -56,7 +56,10 @@ export function InterrogationScreen() {
   const witnessIntroAudioUrls = useGameStore((s) => s.witnessIntroAudioUrls);
   const voiceModels = useGameStore((s) => s.voiceModels);
   const introAudioRef = useRef<HTMLAudioElement | null>(null);
+  const replyAudioRef = useRef<HTMLAudioElement | null>(null);
+  const autoPlayedReplyTsRef = useRef<number | null>(null);
   const [isIntroPlaying, setIsIntroPlaying] = useState(false);
+  const [playingReplyTs, setPlayingReplyTs] = useState<number | null>(null);
 
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
@@ -104,6 +107,16 @@ export function InterrogationScreen() {
     };
   }, [introAudioUrl]);
 
+  useEffect(() => {
+    return () => {
+      if (replyAudioRef.current) {
+        replyAudioRef.current.pause();
+        replyAudioRef.current.currentTime = 0;
+        replyAudioRef.current = null;
+      }
+    };
+  }, []);
+
   const toggleIntroAudio = () => {
     const audio = introAudioRef.current;
     if (!audio) return;
@@ -117,6 +130,36 @@ export function InterrogationScreen() {
   const firstName = witness.name.split(' ')[0]?.toUpperCase() ?? witness.name.toUpperCase();
   const portraitUrl = witnessPortraitUrls[witness.id];
   const modelUrl = witnessModelUrls[witness.id];
+
+  const playReplyAudio = (audioUrl: string, timestamp: number) => {
+    if (replyAudioRef.current) {
+      replyAudioRef.current.pause();
+      replyAudioRef.current.currentTime = 0;
+      replyAudioRef.current = null;
+    }
+    const audio = new Audio(audioUrl);
+    replyAudioRef.current = audio;
+    setPlayingReplyTs(timestamp);
+    const clear = () => {
+      setPlayingReplyTs((prev) => (prev === timestamp ? null : prev));
+      if (replyAudioRef.current === audio) replyAudioRef.current = null;
+    };
+    audio.addEventListener('ended', clear, { once: true });
+    audio.addEventListener('pause', clear, { once: true });
+    void audio.play().catch(() => {
+      clear();
+    });
+  };
+
+  useEffect(() => {
+    const latestWitnessLine = [...witnessThread]
+      .reverse()
+      .find((line) => line.speaker === 'witness' && line.audioUrl?.trim());
+    if (!latestWitnessLine?.audioUrl) return;
+    if (autoPlayedReplyTsRef.current === latestWitnessLine.timestamp) return;
+    autoPlayedReplyTsRef.current = latestWitnessLine.timestamp;
+    playReplyAudio(latestWitnessLine.audioUrl, latestWitnessLine.timestamp);
+  }, [witnessThread]);
 
   const submitQuestion = async (raw: string) => {
     const text = raw.trim();
@@ -288,9 +331,18 @@ export function InterrogationScreen() {
           if (line.speaker === 'system') return null;
           const speaker = line.speaker === 'detective' ? 'YOU' : firstName;
           return (
-            <div key={`${line.timestamp}-${i}-${line.text.slice(0, 24)}`}>
-              <span className="inline-block w-[50px] opacity-60">{speaker}</span>
-              {line.text}
+                    <div key={`${line.timestamp}-${i}-${line.text.slice(0, 24)}`} className="flex items-start gap-2">
+                      <span className="inline-block w-[50px] shrink-0 opacity-60">{speaker}</span>
+                      <span className="min-w-0 flex-1">{line.text}</span>
+                      {line.speaker === 'witness' && line.audioUrl && (
+                        <button
+                          type="button"
+                          onClick={() => playReplyAudio(line.audioUrl!, line.timestamp)}
+                          className="mt-[2px] shrink-0 rounded border border-[var(--ink)] px-1.5 py-0.5 text-[9px] tracking-[0.08em]"
+                        >
+                          {playingReplyTs === line.timestamp ? 'PLAYING' : 'PLAY'}
+                        </button>
+                      )}
             </div>
           );
         })}

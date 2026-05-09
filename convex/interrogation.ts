@@ -5,6 +5,11 @@ import { QUESTIONS_PER_WITNESS_INTERRO } from './sessions';
 import { fetchOpenAiChatText } from './openaiJson';
 
 const MAX_QUESTION_LEN = 600;
+const VOICE_FALLBACKS = [
+  'pNInz6obpgDQGcFmaJgB',
+  'EXAVITQu4vr4xnSDxMaL',
+  'ThT5KcBeYPX3keUQqHPh',
+] as const;
 
 interface PublicWitnessProfile {
   id: string;
@@ -45,6 +50,71 @@ function personaSystemPrompt(args: {
     '  dribble guarded detail so the investigator can infer.',
     '- If confronted with plausible specifics, soften or revise rather than melodramatically confess.',
   ].join('\n');
+}
+
+function hashWitnessId(witnessId: string): number {
+  let h = 0;
+  for (let i = 0; i < witnessId.length; i++) {
+    h = ((h << 5) - h + witnessId.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h);
+}
+
+function pickFallbackVoiceId(witnessId: string): string {
+  return VOICE_FALLBACKS[hashWitnessId(witnessId) % VOICE_FALLBACKS.length]!;
+}
+
+function sanitiseSpeechText(text: string): string {
+  return text
+    .replace(/\s+/g, ' ')
+    .replace(/\b911\b/g, 'nine one one')
+    .trim()
+    .slice(0, 2400);
+}
+
+async function synthOpenAiTtsMp3(openaiKey: string | undefined, input: string): Promise<ArrayBuffer | null> {
+  if (!openaiKey?.trim()) return null;
+  const text = sanitiseSpeechText(input);
+  if (!text) return null;
+
+  const response = await fetch('https://api.openai.com/v1/audio/speech', {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${openaiKey}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'tts-1',
+      voice: process.env.OPENAI_TTS_VOICE?.trim() || 'nova',
+      input: text,
+      response_format: 'mp3',
+    }),
+  });
+  if (!response.ok) return null;
+  return response.arrayBuffer();
+}
+
+async function synthElevenLabsMp3(params: {
+  apiKey: string;
+  voiceId: string;
+  modelId: string;
+  input: string;
+}): Promise<ArrayBuffer | null> {
+  const text = sanitiseSpeechText(params.input);
+  if (!text || !params.apiKey || !params.voiceId) return null;
+  const response = await fetch(
+    `https://api.elevenlabs.io/v1/text-to-speech/${params.voiceId}?output_format=mp3_44100_128`,
+    {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'xi-api-key': params.apiKey,
+      },
+      body: JSON.stringify({ text, model_id: params.modelId }),
+    },
+  );
+  if (!response.ok) return null;
+  return response.arrayBuffer();
 }
 
 /** One detective question plus one in-character witness reply; max 3 per witness per session. */
@@ -88,6 +158,8 @@ export const sendWitnessQuestion = action({
 
     const openaiKey = process.env.OPENAI_API_KEY?.trim();
     const model = (process.env.OPENAI_MODEL ?? 'gpt-4o-mini').trim();
+    const elevenKey = process.env.ELEVENLABS_API_KEY?.trim();
+    const elevenModel = process.env.ELEVENLABS_MODEL_ID?.trim() ?? 'eleven_multilingual_v2';
 
     const snap = await ctx.runQuery(api.cases.getSessionSnapshot, {
       sessionId: args.sessionId,
@@ -193,6 +265,35 @@ export const sendWitnessQuestion = action({
       };
     }
 
+    let witnessReplyAudioUrl: string | undefined;
+    try {
+      const rawVoice =
+        typeof row.voiceId === 'string' && row.voiceId.trim() && row.voiceId !== 'stub'
+          ? row.voiceId.trim()
+          : pickFallbackVoiceId(args.witnessId);
+
+      let audioBuf: ArrayBuffer | null = null;
+      if (elevenKey) {
+        audioBuf = await synthElevenLabsMp3({
+          apiKey: elevenKey,
+          voiceId: rawVoice,
+          modelId: elevenModel,
+          input: replyText,
+        });
+      }
+      if (!audioBuf?.byteLength) {
+        audioBuf = await synthOpenAiTtsMp3(openaiKey, replyText);
+      }
+      if (audioBuf?.byteLength) {
+        const sid = await ctx.storage.store(
+          new Blob([new Uint8Array(audioBuf)], { type: 'audio/mpeg' }),
+        );
+        witnessReplyAudioUrl = (await ctx.storage.getUrl(sid)) ?? undefined;
+      }
+    } catch {
+      // Keep text flow resilient if TTS fails.
+    }
+
     const base = Date.now();
     try {
       const out = await ctx.runMutation(internal.sessions.appendWitnessInterrogationExchange, {
@@ -200,6 +301,7 @@ export const sendWitnessQuestion = action({
         witnessId: args.witnessId,
         question: trimmed,
         witnessReply: replyText,
+        witnessReplyAudioUrl,
         detectiveTimestamp: base,
         witnessTimestamp: base + 1,
       });
