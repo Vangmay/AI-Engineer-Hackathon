@@ -121,6 +121,13 @@ export function CaseLoadScreen() {
             <div>FILE NO. {caseData.case_id}</div>
             <div>OPENED {caseData.victim.date.toUpperCase()}</div>
             <div>STATUS · ACTIVE</div>
+            <button
+              type="button"
+              onClick={goToAccusation}
+              className="mt-2 bg-[var(--oxblood)] px-3 py-1.5 text-[10px] tracking-[0.15em] text-[var(--cream-on-dark)]"
+            >
+              FILE ACCUSATION →
+            </button>
           </div>
         </header>
 
@@ -248,6 +255,23 @@ export function CaseLoadScreen() {
                   </button>
                 </div>
               ))}
+            </section>
+
+            <section className="paper-card border-2 border-[var(--oxblood)] p-[14px_16px]">
+              <div className="dossier-overline mb-2 text-[var(--oxblood)]">
+                Final Action
+              </div>
+              <p className="text-[12px] leading-relaxed opacity-75">
+                Ready to put a suspect on record? The accusation is spoken and
+                filed into this case folder.
+              </p>
+              <button
+                type="button"
+                onClick={goToAccusation}
+                className="mt-3 w-full bg-[var(--oxblood)] px-3 py-2 text-[11px] tracking-[0.15em] text-[var(--cream-on-dark)]"
+              >
+                FILE ACCUSATION →
+              </button>
             </section>
           </aside>
         </section>
