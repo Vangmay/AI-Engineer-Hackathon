@@ -131,7 +131,7 @@
     "introText": "",
     "defaultAnswerText": "",
     "qcSampleText": "Emergency, please send help immediately. Someone has collapsed and is not breathing. The caller sounds frightened, urgent, and intelligible, with enough expressive variation to evaluate delivery quality and emotional control.",
-    "render911Text": "Emergency dispatch, please respond to Jessica Lloyd residence area, Belleville, Ontario. Someone has been found unresponsive.",
+    "render911Text": "Nine-one-one, what is your emergency? Jessica Lloyd is missing. Her car is still outside her place and she is not answering her phone. Something is wrong. What is the address where you are calling from? I am at Jessica's residence area in Belleville. Please send officers right away. When did anyone last hear from her, and do you see any sign of forced entry? Last night. This is not like her at all. Her phone goes straight to voicemail and I do not want to go inside alone.",
     "reviewerApprovalRequired": false,
     "approvedForRealClone": false
   },

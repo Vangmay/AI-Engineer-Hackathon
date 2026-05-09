@@ -39,7 +39,7 @@ function buildReveal(caseDoc: CaseDocForReveal, correct: boolean) {
 export const evaluateAccusation = mutation({
   args: {
     sessionId: v.id('sessions'),
-    accusationText: v.string(),
+    suspectId: v.string(),
   },
   handler: async (ctx, args) => {
     const session = await ctx.db.get(args.sessionId);
@@ -49,11 +49,11 @@ export const evaluateAccusation = mutation({
 
     const truth = caseDoc.hiddenTruth as HiddenTruth;
     const publicCase = caseDoc.publicCase as PublicCase;
-    const killer = publicCase.witnesses.find(
-      (w: { id: string }) => w.id === truth.killer,
+    const selectedSuspect = publicCase.witnesses.find(
+      (w: { id: string }) => w.id === args.suspectId,
     );
-    const firstName = killer?.name.toLowerCase().split(' ')[0] ?? '';
-    const isCorrect = args.accusationText.toLowerCase().includes(firstName);
+    const accusation = selectedSuspect?.name ?? args.suspectId;
+    const isCorrect = args.suspectId === truth.killer;
     const revealNarration = buildReveal(
       { publicCase, hiddenTruth: truth },
       isCorrect,
@@ -61,12 +61,12 @@ export const evaluateAccusation = mutation({
 
     await ctx.db.patch(args.sessionId, {
       phase: 'REVEAL',
-      accusation: args.accusationText,
+      accusation,
       isCorrect,
       revealNarration,
       updatedAt: Date.now(),
     });
 
-    return { isCorrect, revealNarration };
+    return { accusation, isCorrect, revealNarration };
   },
 });

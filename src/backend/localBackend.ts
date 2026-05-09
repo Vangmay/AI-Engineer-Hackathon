@@ -317,21 +317,17 @@ export const localBackend: GameBackend = {
     return snapshot.transcript;
   },
 
-  async evaluateAccusation(_sessionId, accusationText) {
+  async evaluateAccusation(_sessionId, suspectId) {
     const snapshot = await updateState((state) => {
-      const guess = accusationText.trim().toLowerCase();
-      const killer = state.caseData.witnesses.find(
-        (w) => w.id === state.caseData.truth.killer,
-      );
-      const firstName = killer?.name.toLowerCase().split(' ')[0] ?? '';
-      const isCorrect = !!killer && guess.includes(firstName);
+      const selectedSuspect = state.caseData.witnesses.find((w) => w.id === suspectId);
+      const isCorrect = suspectId === state.caseData.truth.killer;
       state.session.phase = 'REVEAL';
-      state.session.accusation = accusationText;
+      state.session.accusation = selectedSuspect?.name ?? suspectId;
       state.session.isCorrect = isCorrect;
       state.session.revealNarration = buildReveal(state.caseData, isCorrect);
     });
     const result: AccusationResult = {
-      accusation: snapshot.session.accusation ?? accusationText,
+      accusation: snapshot.session.accusation ?? suspectId,
       isCorrect: !!snapshot.session.isCorrect,
       revealNarration: snapshot.session.revealNarration ?? '',
     };

@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import type { DerivedAsset, VoiceRosterEntry } from '../src/types/media.ts';
 import { loadCaseBundle, saveCaseBundle, getCaseDir } from './lib/caseFiles.ts';
@@ -19,6 +20,10 @@ function renderAssetPath(baseDir: string, roster: VoiceRosterEntry, kind: string
   return path.join(baseDir, `${roster.characterRole}-${roster.personId ?? roster.rosterId}-${kind}.mp3`);
 }
 
+function tempSegmentPath(baseDir: string, stem: string, index: number): string {
+  return path.join(baseDir, `${stem}-segment-${String(index).padStart(2, '0')}.mp3`);
+}
+
 function createPlaceholderAsset(
   filePath: string,
   roster: VoiceRosterEntry,
@@ -33,6 +38,36 @@ function createPlaceholderAsset(
 
 function makeProviderSafeVoiceName(roster: VoiceRosterEntry): string {
   return `case-${roster.caseId}-${roster.characterRole}-${roster.rosterId.slice(-6)}`;
+}
+
+function buildDispatcherRoster(roster: VoiceRosterEntry): VoiceRosterEntry {
+  return {
+    ...roster,
+    rosterId: `${roster.rosterId}_dispatcher`,
+    displayName: '911 Dispatcher',
+    fallbackPrompt:
+      'Calm emergency dispatcher, professional, composed, clear and efficient, firm but reassuring, natural phone-call delivery, neutral Canadian English, suitable for authentic emergency call dialogue.',
+    qcSampleText:
+      'Nine-one-one, what is your emergency? Stay on the line with me. Tell me the address slowly and clearly. Help is on the way.',
+  };
+}
+
+function concatAudioSegments(segmentPaths: string[], outputPath: string): void {
+  if (segmentPaths.length === 0) {
+    throw new Error('No audio segments provided for concatenation.');
+  }
+
+  const manifestPath = outputPath.replace(/\.mp3$/u, '-segments.txt');
+  writeTextFile(
+    manifestPath,
+    `${segmentPaths.map((segmentPath) => `file '${segmentPath.replace(/'/g, `'\\''`)}'`).join('\n')}\n`,
+  );
+
+  execFileSync(
+    '/opt/homebrew/bin/ffmpeg',
+    ['-y', '-f', 'concat', '-safe', '0', '-i', manifestPath, '-c', 'copy', outputPath],
+    { stdio: 'ignore' },
+  );
 }
 
 function ensureVoiceDesignSampleText(roster: VoiceRosterEntry): string {
@@ -207,23 +242,74 @@ async function main() {
       reviewNotes: roster.decisionReason,
     });
 
-    for (const [kind, text] of [
+    const transcript911 = roster.characterRole === 'caller_911' ? bundle.caseRecord.call911Transcript : undefined;
+    const kinds: Array<readonly [string, string | undefined]> = [
       ['intro', roster.introText],
       ['default', roster.defaultAnswerText],
       ['sample', roster.qcSampleText],
-      ['911', roster.render911Text],
       ['reveal', roster.renderRevealText],
-    ] as const) {
+    ];
+
+    if (roster.render911Text) {
+      kinds.push(['911', roster.render911Text]);
+    }
+
+    for (const [kind, text] of kinds) {
       if (!text) continue;
       const filePath = renderAssetPath(outputDir, roster, kind);
-      const outputUri = await synthesizeOrPlaceholder({
-        apiKey: env.ELEVENLABS_API_KEY!,
-        providerVoiceId: resolved.providerVoiceId,
-        filePath,
-        roster,
-        text,
-        modelId: env.ELEVENLABS_MODEL_ID,
-      });
+      let outputUri: string;
+
+      if (kind === '911' && transcript911 && transcript911.length > 0) {
+        const dispatcherRoster = buildDispatcherRoster(roster);
+        const dispatcherVoice = await resolveVoiceForRoster(
+          env.ELEVENLABS_API_KEY!,
+          dispatcherRoster,
+          env.ELEVENLABS_MODEL_ID,
+        );
+        const segmentPaths: string[] = [];
+
+        for (const [index, line] of transcript911.entries()) {
+          const speakerRoster = line.who === 'DISP' ? dispatcherRoster : roster;
+          const providerVoiceId =
+            line.who === 'DISP' ? dispatcherVoice.providerVoiceId : resolved.providerVoiceId;
+          const segmentPath = tempSegmentPath(
+            outputDir,
+            `${roster.characterRole}-${roster.personId ?? roster.rosterId}-911`,
+            index,
+          );
+          const segmentOutput = await synthesizeOrPlaceholder({
+            apiKey: env.ELEVENLABS_API_KEY!,
+            providerVoiceId,
+            filePath: segmentPath,
+            roster: speakerRoster,
+            text: line.text,
+            modelId: env.ELEVENLABS_MODEL_ID,
+          });
+          segmentPaths.push(segmentOutput);
+        }
+
+        if (segmentPaths.every((segmentPath) => segmentPath.endsWith('.mp3'))) {
+          concatAudioSegments(segmentPaths, filePath);
+          outputUri = filePath;
+        } else {
+          createPlaceholderAsset(
+            filePath,
+            roster,
+            text,
+            'One or more 911 segments failed to synthesize; combined call audio was not produced.',
+          );
+          outputUri = filePath.replace(/\.mp3$/u, '.txt');
+        }
+      } else {
+        outputUri = await synthesizeOrPlaceholder({
+          apiKey: env.ELEVENLABS_API_KEY!,
+          providerVoiceId: resolved.providerVoiceId,
+          filePath,
+          roster,
+          text,
+          modelId: env.ELEVENLABS_MODEL_ID,
+        });
+      }
 
       additions.push({
         assetId: createId('asset', `${caseId}:${roster.rosterId}:${kind}`),

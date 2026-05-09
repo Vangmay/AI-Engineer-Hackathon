@@ -280,15 +280,38 @@ export function createConvexGameBackend(client: ConvexReactClient): GameBackend 
       };
     },
 
-    async evaluateAccusation(sessionId, accusationText) {
-      const result = await client.mutation(api.accusations.evaluateAccusation, {
-        sessionId: asSessionId(sessionId),
-        accusationText,
-      });
+    async evaluateAccusation(sessionId, suspectId) {
+      const preSubmitSnapshot = await fetchSnapshot(sessionId);
+      const selectedSuspect = preSubmitSnapshot.caseData.witnesses.find(
+        (witness) => witness.id === suspectId,
+      );
+      const accusationText = selectedSuspect?.name ?? suspectId;
+
+      let result: unknown;
+      try {
+        result = await client.mutation(api.accusations.evaluateAccusation, {
+          sessionId: asSessionId(sessionId),
+          suspectId,
+        });
+      } catch {
+        // Support older Convex deployments that still expect the previous text payload.
+        result = await client.mutation(
+          api.accusations.evaluateAccusation,
+          {
+            sessionId: asSessionId(sessionId),
+            accusationText,
+          } as never,
+        );
+      }
+
       const snap = await fetchSnapshot(sessionId);
-      const typed = result as { isCorrect: boolean; revealNarration: string };
+      const typed = result as {
+        accusation?: string;
+        isCorrect: boolean;
+        revealNarration: string;
+      };
       const fullResult: AccusationResult = {
-        accusation: accusationText,
+        accusation: typed.accusation ?? snap.session.accusation ?? accusationText,
         isCorrect: typed.isCorrect,
         revealNarration: typed.revealNarration,
       };

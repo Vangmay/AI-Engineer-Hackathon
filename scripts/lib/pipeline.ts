@@ -688,7 +688,16 @@ export function buildRuntimeCase(input: {
     clues: input.evidence.slice(0, 4).map((item) => item.description),
     scene_prompt: `Investigative scene reconstruction of ${input.caseRecord.canonicalTitle}, grounded in documented evidence and timeline details.`,
     brief: input.caseRecord.summaryShort,
+    call911_transcript: input.caseRecord.call911Transcript,
   };
+}
+
+function buildCall911RenderText(caseRecord: CaseRecord): string {
+  if (caseRecord.call911Transcript && caseRecord.call911Transcript.length > 0) {
+    return caseRecord.call911Transcript.map((line) => line.text).join(' ');
+  }
+
+  return `Emergency dispatch, please respond to ${caseRecord.primaryLocationLabel ?? 'the scene'}. Someone has been found unresponsive.`;
 }
 
 export function buildWitnessPromptPacks(
@@ -1005,7 +1014,7 @@ export function buildVoiceRoster(input: {
       defaultAnswerText: '',
       qcSampleText:
         'Emergency, please send help immediately. Someone has collapsed and is not breathing. The caller sounds frightened, urgent, and intelligible, with enough expressive variation to evaluate delivery quality and emotional control.',
-      render911Text: `Emergency dispatch, please respond to ${input.caseRecord.primaryLocationLabel ?? 'the scene'}. Someone has been found unresponsive.`,
+      render911Text: buildCall911RenderText(input.caseRecord),
       reviewerApprovalRequired: false,
       approvedForRealClone: false,
     },

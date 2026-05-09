@@ -80,7 +80,7 @@ export interface GameBackend {
   ) => Promise<WitnessQuestionResult>;
   evaluateAccusation: (
     sessionId: string,
-    accusationText: string,
+    suspectId: string,
   ) => Promise<GameSnapshot & { result: AccusationResult }>;
   resetSession: (sessionId: string) => Promise<GameSnapshot>;
 }

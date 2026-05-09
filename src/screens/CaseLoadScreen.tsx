@@ -77,11 +77,21 @@ function PaperClip({
   );
 }
 
-function Waveform({ activeBars = 28 }: { activeBars?: number }) {
+function formatPlaybackTime(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
+  const wholeSeconds = Math.floor(seconds);
+  const minutes = Math.floor(wholeSeconds / 60);
+  const remainder = wholeSeconds % 60;
+  return `${minutes}:${String(remainder).padStart(2, '0')}`;
+}
+
+function Waveform({ progress = 0 }: { progress?: number }) {
+  const clampedProgress = Math.max(0, Math.min(1, progress));
   return (
     <svg width="320" height="28" viewBox="0 0 320 28" aria-hidden="true">
       {Array.from({ length: 64 }).map((_, i) => {
         const h = 4 + Math.abs(Math.sin(i * 0.6) * Math.cos(i * 0.15)) * 22;
+        const barProgress = i / 63;
         return (
           <rect
             key={i}
@@ -90,10 +100,18 @@ function Waveform({ activeBars = 28 }: { activeBars?: number }) {
             width="2.5"
             height={h}
             fill="var(--ink)"
-            opacity={i < activeBars ? 1 : 0.35}
+            opacity={barProgress <= clampedProgress ? 1 : 0.28}
           />
         );
       })}
+      <line
+        x1={clampedProgress * 320}
+        x2={clampedProgress * 320}
+        y1="1"
+        y2="27"
+        stroke="var(--oxblood)"
+        strokeWidth="2"
+      />
     </svg>
   );
 }
@@ -118,15 +136,9 @@ export function CaseLoadScreen() {
 
   const [activeModel, setActiveModel] = useState<number | null>(null);
   const [isPlaying911, setIsPlaying911] = useState(false);
-  const [scenePhotoBroken, setScenePhotoBroken] = useState(false);
+  const [call911CurrentTime, setCall911CurrentTime] = useState(0);
+  const [call911Duration, setCall911Duration] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  const resolvedSceneUrl = sceneImageUrl?.trim() ?? '';
-  const showScenePhoto = resolvedSceneUrl.length > 0 && !scenePhotoBroken;
-
-  useEffect(() => {
-    setScenePhotoBroken(false);
-  }, [resolvedSceneUrl]);
 
   const generatedIn = `${((generationMs ?? 8300) / 1000).toFixed(1)}s`;
   const suspects = caseData.witnesses.filter((entry) => entry.category === 'suspect');
@@ -144,8 +156,19 @@ export function CaseLoadScreen() {
     audioRef.current = audio;
     audio.addEventListener('play', () => setIsPlaying911(true));
     audio.addEventListener('pause', () => setIsPlaying911(false));
-    audio.addEventListener('ended', () => setIsPlaying911(false));
+    audio.addEventListener('ended', () => {
+      setIsPlaying911(false);
+      setCall911CurrentTime(audio.duration || 0);
+    });
+    audio.addEventListener('loadedmetadata', () => {
+      setCall911Duration(audio.duration || 0);
+    });
+    audio.addEventListener('timeupdate', () => {
+      setCall911CurrentTime(audio.currentTime || 0);
+    });
     setIsPlaying911(false);
+    setCall911CurrentTime(0);
+    setCall911Duration(0);
 
     return () => {
       audio.pause();
@@ -163,6 +186,9 @@ export function CaseLoadScreen() {
       audio.pause();
     }
   };
+
+  const call911Progress =
+    call911Duration > 0 ? Math.min(1, call911CurrentTime / call911Duration) : 0;
 
   return (
     <main className="dossier-page">
@@ -276,10 +302,14 @@ export function CaseLoadScreen() {
                 >
                   {isPlaying911 ? '❚❚' : '▶'}
                 </button>
-                <Waveform />
+                <Waveform progress={call911Progress} />
                 <div className="text-[10px] opacity-70">
                   {call911AudioUrl ? (isPlaying911 ? 'LIVE' : 'READY') : 'NO AUDIO'}
                 </div>
+              </div>
+              <div className="mb-2 flex items-center justify-between text-[10px] opacity-65">
+                <span>{formatPlaybackTime(call911CurrentTime)}</span>
+                <span>{formatPlaybackTime(call911Duration)}</span>
               </div>
               <div className="text-[12px] leading-[23px]">
                 {call911Lines.map((line, i) => (
