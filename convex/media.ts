@@ -162,6 +162,66 @@ export const getMediaByCaseStringId = query({
   },
 });
 
+export const seedMediaForCaseStringId = action({
+  args: {
+    caseId: v.string(),
+    title: v.optional(v.string()),
+    sceneImageUrl: v.optional(v.string()),
+    evidenceRenders: v.optional(v.any()),
+    evidenceModels: v.optional(v.any()),
+    evidenceModelPreviews: v.optional(v.any()),
+  },
+  handler: async (ctx, args) => {
+    let caseDoc = await ctx.runQuery(
+      (await import('./_generated/api')).api.cases.getCaseByCaseId,
+      { caseId: args.caseId },
+    ) as { _id: string } | null;
+
+    if (!caseDoc) {
+      const convexCaseId: string = await ctx.runMutation(
+        (await import('./_generated/api')).internal.media.insertMinimalCase,
+        { caseId: args.caseId, title: args.title ?? args.caseId },
+      );
+      caseDoc = { _id: convexCaseId };
+    }
+
+    const patch: Record<string, unknown> = {};
+    if (args.sceneImageUrl) patch.sceneImageUrl = args.sceneImageUrl;
+    if (args.evidenceRenders) patch.evidenceRenders = args.evidenceRenders;
+    if (args.evidenceModels) patch.evidenceModels = args.evidenceModels;
+    if (args.evidenceModelPreviews) patch.evidenceModelPreviews = args.evidenceModelPreviews;
+
+    if (Object.keys(patch).length > 0) {
+      await ctx.runMutation(mediaInternals.patchMedia as any, {
+        caseId: caseDoc._id,
+        ...patch,
+      } as any);
+    }
+
+    return { caseConvexId: caseDoc._id };
+  },
+});
+
+export const insertMinimalCase = internalMutation({
+  args: { caseId: v.string(), title: v.string() },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query('cases')
+      .withIndex('by_case_id', (q) => q.eq('caseId', args.caseId))
+      .first();
+    if (existing) return existing._id as string;
+    const id = await ctx.db.insert('cases', {
+      caseId: args.caseId,
+      title: args.title,
+      publicCase: {},
+      hiddenTruth: {},
+      generation: { model: 'manual', promptVersion: 'v0', createdAt: Date.now() },
+    });
+    await ctx.db.insert('media', { caseId: id, updatedAt: Date.now() });
+    return id as unknown as string;
+  },
+});
+
 export const generateForCase = action({
   args: {
     caseId: v.id('cases'),

@@ -55,10 +55,10 @@
       }
     ],
     "clues": [
-      "Distinct tire impressions near Jessica Lloyd's home narrowed investigators to a vehicle consistent with Russell Williams's SUV.",
-      "Investigators used vehicle scrutiny and movement reconstruction to challenge Williams's account and tighten the timeline around Jessica Lloyd's disappearance.",
-      "Searches uncovered a cache of images and trophies tying Williams to break-ins, surveillance behavior, and the broader pattern behind the case.",
-      "Williams's demanding military responsibilities and high-profile command role initially created the impression that he had too visible a schedule to be the offender."
+      "Plaster forensic cast of a boot impression taken at the farmhouse rear entrance — tread pattern matches size 10.5 Canadian Forces parade boots recovered from Williams's Tweed residence.",
+      "Isolated 1920s limestone farmhouse, Highway 37, Hastings County — victim's residence and primary scene. Remote location; multiple unforced entry points documented.",
+      "Dark mahogany wooden box with brass hasp lock, recovered under floorboards of Williams's Tweed property — contents include personal articles traced to multiple victims.",
+      "Canadian Forces dark-blue colonel's beret with CFB Trenton insignia found in Williams's effects — his command visibility had initially appeared to rule him out."
     ],
     "scene_prompt": "Investigative scene reconstruction of The Russell Williams Interrogation, grounded in documented evidence and timeline details.",
     "brief": "On February 7, 2010, investigators questioned Colonel Russell Williams at Ottawa Police Service while the search for Jessica Lloyd was still active. Tire-track analysis, vehicle scrutiny, and inconsistencies in Williams's account had begun to collapse the image of a disciplined air-force commander into that of the prime suspect."
@@ -104,7 +104,7 @@
   "call911Script": "Emergency dispatch, please respond to Jessica Lloyd residence area, Belleville, Ontario. Someone has been found unresponsive.",
   "revealNarrationText": "The reconstructed truth points to the highest-confidence suspect in The Russell Williams Interrogation.",
   "assetManifest": {
-    "sceneImageUri": "https://www.theglobeandmail.com/resizer/v2/7YNN5TC3B5FTDANRFCSS3TC7Q4?auth=676e98259adf2188e6c99ebb468d9b74be2b258d562965a22b4a18613e579fab&width=1200&height=800&quality=80&smart=true",
+    "sceneImageUri": "https://v3b.fal.media/files/b/0a997abe/Eq-dtwx1tkuki-OMKuFM7_a61f787dd1714b9c89f",
     "call911AudioUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/caller_911-roster_c9e30cca64-911.mp3",
     "revealNarrationAudioUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/narrator-roster_7a087e2407-reveal.mp3",
     "witnessPortraits": {
@@ -145,22 +145,22 @@
       "ambientOrStingUris": {}
     },
     "evidenceRenders": {
-      "0": "https://www.theglobeandmail.com/resizer/v2/63UHEXTHSFGITNEG4V3SBFHSVU?auth=c317871298d4e95c002ea380b3cf2ed6ae54f8157a03bfb61a084bfb981ecbdc&width=1200&height=800&quality=80&smart=true",
-      "1": "https://i.cbc.ca/ais/1.2059563,1381988168000/full/max/0/default.jpg?im=Crop%2Crect%3D%280%2C0%2C1180%2C663%29%3BResize%3D620",
-      "2": "https://www.theglobeandmail.com/resizer/v2/23IN4KYXZBFFTHD7EN4LXV7YOQ?auth=341cea8760e5221432f6bdec937c7ef902ca3e7d7cb03eb16567a91537309710&width=1200&height=800&quality=80&smart=true",
-      "3": "https://i.cbc.ca/ais/1.2067829,1382072606000/full/max/0/default.jpg?im=Crop%2Crect%3D%280%2C0%2C1180%2C663%29%3BResize%3D620"
+      "0": "https://v3b.fal.media/files/b/0a997abf/fDCwZTCe5kTUrXKK3yz26_a0b52afc38bd4fcaa73",
+      "1": "https://v3b.fal.media/files/b/0a997aca/6qg1D5hZ7Uo4Xjb2BOwu3_0250929b4e884d35acd",
+      "2": "https://v3b.fal.media/files/b/0a997ad5/JolwieTI-WurvAgFdu4zg_7bcdbc5c90db4e8f8e3",
+      "3": "https://v3b.fal.media/files/b/0a997adf/gES9W5fQr2AJTkdqQhse5_39549a3e8d2847adade"
     },
     "evidenceModels": {
-      "0": "",
-      "1": "",
-      "2": "",
-      "3": ""
+      "0": "https://v3b.fal.media/files/b/0a997ac9/yBCsMBtySuUfNUp7lG3BU_base_basic_pbr.glb",
+      "1": "https://v3b.fal.media/files/b/0a997ad2/T7_1_p9rJkQ5Dh9Ga3U3l_base_basic_pbr.glb",
+      "2": "https://v3b.fal.media/files/b/0a997ade/d5oSGBovZwhNQLcNqPiuQ_base_basic_pbr.glb",
+      "3": "https://v3b.fal.media/files/b/0a997ae7/yFpAuS7cR7o5TVnk_lc9-_base_basic_pbr.glb"
     },
     "evidenceModelPreviews": {
-      "0": "",
-      "1": "",
-      "2": "",
-      "3": ""
+      "0": "https://v3b.fal.media/files/b/0a997abf/fDCwZTCe5kTUrXKK3yz26_a0b52afc38bd4fcaa73",
+      "1": "https://v3b.fal.media/files/b/0a997aca/6qg1D5hZ7Uo4Xjb2BOwu3_0250929b4e884d35acd",
+      "2": "https://v3b.fal.media/files/b/0a997ad5/JolwieTI-WurvAgFdu4zg_7bcdbc5c90db4e8f8e3",
+      "3": "https://v3b.fal.media/files/b/0a997adf/gES9W5fQr2AJTkdqQhse5_39549a3e8d2847adade"
     }
   },
   "packageVersion": "1.0.0",

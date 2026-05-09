@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Evidence3DViewer } from '@/components/Evidence3DViewer';
 import { useGameStore } from '@/store/gameStore';
 import type { TranscriptLine } from '@/types/case';
 
@@ -97,6 +98,7 @@ export function InterrogationScreen() {
   const witnessId = useGameStore((s) => s.activeWitnessId)!;
   const transcript = useGameStore((s) => s.transcript);
   const witnessPortraitUrls = useGameStore((s) => s.witnessPortraitUrls);
+  const witnessModelUrls = useGameStore((s) => s.witnessModelUrls);
   const appendTranscript = useGameStore((s) => s.appendTranscript);
   const endInterrogation = useGameStore((s) => s.endInterrogation);
   const goToAccusation = useGameStore((s) => s.goToAccusation);
@@ -158,8 +160,10 @@ export function InterrogationScreen() {
     }
   };
 
+  const [show3D, setShow3D] = useState(false);
   const firstName = witness.name.split(' ')[0].toUpperCase();
   const portraitUrl = witnessPortraitUrls[witness.id];
+  const modelUrl = witnessModelUrls[witness.id];
 
   return (
     <main className="dossier-page">
@@ -183,17 +187,41 @@ export function InterrogationScreen() {
           <section className="paper-card lifted p-3.5">
             <div className="tape-corner left" />
             <div className="tape-corner right" />
-            {portraitUrl ? (
-              <img
-                src={portraitUrl}
-                alt={`${witness.name} generated witness portrait`}
-                className="h-[380px] w-full object-cover grayscale"
-              />
-            ) : (
-              <div className="photo-ph h-[380px] p-3 text-[11px]">
-                PORTRAIT — {witness.portrait_prompt}
-              </div>
-            )}
+            <div className="relative h-[380px] w-full overflow-hidden" style={{ background: '#0e110e' }}>
+              {modelUrl && show3D ? (
+                <Evidence3DViewer
+                  inline
+                  glbUrl={modelUrl}
+                  previewUrl={portraitUrl}
+                  label={witness.name}
+                  description={witness.role}
+                />
+              ) : portraitUrl ? (
+                <img
+                  src={portraitUrl}
+                  alt={`${witness.name} portrait`}
+                  className="h-full w-full object-cover grayscale"
+                />
+              ) : (
+                <div className="photo-ph h-full p-3 text-[11px]">
+                  PORTRAIT — {witness.portrait_prompt}
+                </div>
+              )}
+              {modelUrl && (
+                <button
+                  type="button"
+                  onClick={() => setShow3D((v) => !v)}
+                  className="absolute bottom-2 right-2 px-2 py-1 text-[9px] tracking-[0.15em]"
+                  style={{
+                    background: 'rgba(0,0,0,0.7)',
+                    color: show3D ? 'var(--accent-yellow, #c9b06a)' : 'rgba(255,255,255,0.75)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                  }}
+                >
+                  {show3D ? 'PHOTO' : '3D MODEL'}
+                </button>
+              )}
+            </div>
             <Stamp
               text={witness.lies ? 'INCONSISTENT' : 'COOPERATIVE'}
               top={20}

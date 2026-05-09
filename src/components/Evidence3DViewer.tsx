@@ -8,10 +8,11 @@ interface Props {
   previewUrl?: string;
   label: string;
   description: string;
-  onClose: () => void;
+  onClose?: () => void;
+  inline?: boolean;
 }
 
-export function Evidence3DViewer({ glbUrl, previewUrl, label, description, onClose }: Props) {
+export function Evidence3DViewer({ glbUrl, previewUrl, label, description, onClose, inline }: Props) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -139,11 +140,34 @@ export function Evidence3DViewer({ glbUrl, previewUrl, label, description, onClo
     };
   }, [glbUrl]);
 
+  if (inline) {
+    return (
+      <div className="relative w-full h-full">
+        <div ref={canvasRef} className="w-full h-full" />
+        {loading && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ background: '#0e110e' }}>
+            {previewUrl && (
+              <img src={previewUrl} alt="Preview" className="h-20 w-20 object-contain opacity-40" />
+            )}
+            <div className="text-[10px] tracking-[0.2em] animate-pulse" style={{ color: 'var(--accent-yellow, #c9b06a)' }}>
+              LOADING 3D…
+            </div>
+          </div>
+        )}
+        {error && (
+          <div className="absolute inset-0 flex items-center justify-center text-[10px] opacity-60" style={{ background: '#0e110e' }}>
+            3D UNAVAILABLE
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ background: 'rgba(0,0,0,0.82)' }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose?.(); }}
     >
       <div
         className="relative flex flex-col"
@@ -178,7 +202,7 @@ export function Evidence3DViewer({ glbUrl, previewUrl, label, description, onClo
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={() => onClose?.()}
             className="text-[11px] tracking-[0.15em]"
             style={{ color: 'var(--text-muted)' }}
             aria-label="Close 3D viewer"
