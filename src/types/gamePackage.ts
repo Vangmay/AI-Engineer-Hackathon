@@ -11,10 +11,22 @@ export interface WitnessPromptPack {
 
 export interface AssetManifest {
   sceneImageUri?: string;
-  call911AudioUri?: string;
-  revealNarrationAudioUri?: string;
   witnessPortraits: Record<string, string>;
-  witnessVoiceSamples: Record<string, string>;
+  voiceModels: Record<
+    string,
+    {
+      voiceMode: 'real_clone' | 'profile_fallback';
+      providerVoiceId?: string;
+      sampleAssetUri?: string;
+    }
+  >;
+  renderedAudio: {
+    call911AudioUri?: string;
+    revealNarrationAudioUri?: string;
+    witnessIntroUris: Record<string, string>;
+    accusationResponseUris?: Record<string, string>;
+    ambientOrStingUris?: Record<string, string>;
+  };
 }
 
 export interface GameCasePackage {

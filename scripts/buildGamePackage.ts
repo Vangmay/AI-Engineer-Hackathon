@@ -26,6 +26,7 @@ async function main() {
     people: bundle.people,
     timeline: bundle.timeline,
     evidence: bundle.evidence,
+    voiceRoster: bundle.voiceRoster,
     derivedAssets: bundle.derivedAssets.filter(
       (asset) => asset.approvalStatus === 'approved' || asset.approvalStatus === 'needs_review',
     ),

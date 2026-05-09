@@ -13,6 +13,7 @@ export type OriginType =
 export type AssetType =
   | 'voice_model'
   | 'voice_line'
+  | 'voice_fallback_profile'
   | 'portrait'
   | 'face_model'
   | 'animated_avatar'
@@ -37,6 +38,17 @@ export type ReviewType =
   | 'technical';
 
 export type ReviewStatus = 'pending' | 'approved' | 'rejected' | 'revise';
+export type DownloadStatus = 'not_downloaded' | 'downloaded' | 'failed';
+export type TranscriptSource = 'source_text' | 'asr' | 'manual' | 'none';
+export type ClipRole =
+  | 'criminal_candidate'
+  | 'suspect_candidate'
+  | 'witness_candidate'
+  | 'narrator_candidate'
+  | 'unknown';
+export type VoiceCloneEligibility = 'eligible' | 'fallback_only' | 'reject';
+export type VoiceMode = 'real_clone' | 'profile_fallback';
+export type CharacterRole = 'criminal' | 'suspect' | 'witness' | 'caller_911' | 'narrator';
 
 export interface MediaCandidate {
   mediaId: string;
@@ -46,12 +58,22 @@ export interface MediaCandidate {
   originType: OriginType;
   url: string;
   localStoragePath?: string;
+  localRawMediaPath?: string;
+  localAudioExtractPath?: string;
+  downloadStatus: DownloadStatus;
   durationSec?: number;
   width?: number;
   height?: number;
   bitrateKbps?: number;
+  speakerLabel?: string;
+  speakerConfidence?: number;
+  speechDurationSec?: number;
+  overlapRatio?: number;
   transcriptAvailable: boolean;
   transcriptTextPath?: string;
+  transcriptSource: TranscriptSource;
+  clipRole: ClipRole;
+  voiceCloneEligibility: VoiceCloneEligibility;
   containsTargetPerson: boolean;
   faceVisibilityScore: number;
   voiceIsolatedScore: number;
@@ -68,6 +90,11 @@ export interface DerivedAsset {
   personId?: string;
   assetType: AssetType;
   toolProvider: ToolProvider;
+  voiceMode?: VoiceMode;
+  providerVoiceId?: string;
+  providerVoiceName?: string;
+  renderText?: string;
+  characterRole?: CharacterRole;
   inputMediaIds: string[];
   promptOrRecipe: string;
   modelName: string;
@@ -91,4 +118,25 @@ export interface ReviewRecord {
   reviewer: string;
   decisionReason: string;
   decidedAt: string;
+}
+
+export interface VoiceRosterEntry {
+  rosterId: string;
+  caseId: string;
+  personId?: string;
+  characterRole: CharacterRole;
+  displayName: string;
+  priority: number;
+  selectedMediaId?: string;
+  voiceMode: VoiceMode;
+  decisionReason: string;
+  strictGatePassed: boolean;
+  fallbackPrompt: string;
+  introText: string;
+  defaultAnswerText: string;
+  qcSampleText: string;
+  render911Text?: string;
+  renderRevealText?: string;
+  reviewerApprovalRequired: boolean;
+  approvedForRealClone: boolean;
 }

@@ -3,7 +3,7 @@ import { loadCaseBundle, saveCaseBundle } from './lib/caseFiles.ts';
 import { parseArgs } from './lib/cli.ts';
 import { loadLocalEnv, requireEnv } from './lib/env.ts';
 import { rootDir } from './lib/paths.ts';
-import { buildMediaCandidates } from './lib/pipeline.ts';
+import { buildMediaCandidates, inferClipRole } from './lib/pipeline.ts';
 
 function dedupeMedia(media: MediaCandidate[]): MediaCandidate[] {
   return media.filter(
@@ -40,7 +40,20 @@ async function main() {
     bundle.sources,
     Number(args.limit ?? env.MEDIA_PER_PERSON_LIMIT ?? '12'),
   );
-  const media = dedupeMedia([...bundle.media, ...generated]);
+  const normalizedExisting = bundle.media.map((entry) => ({
+    ...entry,
+    downloadStatus: entry.downloadStatus ?? 'not_downloaded',
+    transcriptSource: entry.transcriptSource ?? (entry.transcriptAvailable ? 'source_text' : 'none'),
+    clipRole:
+      entry.clipRole ??
+      inferClipRole(
+        bundle.people.find((person) => person.personId === entry.personId)?.roleType ?? 'other',
+      ),
+    voiceCloneEligibility:
+      entry.voiceCloneEligibility ??
+      (entry.mediaKind === 'image' ? 'fallback_only' : 'fallback_only'),
+  }));
+  const media = dedupeMedia([...normalizedExisting, ...generated]);
 
   saveCaseBundle(caseId, {
     media,

@@ -1,5 +1,5 @@
 {
-  "packageId": "pkg_a56b860db2",
+  "packageId": "pkg_293552c523",
   "caseId": "case_raymond_teo_2026",
   "title": "The Marina One Penthouse",
   "runtimeCase": {
@@ -100,21 +100,33 @@
       "lieStrategy": "A pending divorce filing she planned to serve on Monday — unrelated to the death, but she fears it makes her look guilty."
     }
   ],
-  "call911Script": "Emergency dispatch, please respond to Marina One, Penthouse 47-B, Singapore. Raymond Teo has been found unresponsive and witnesses are giving conflicting accounts.",
-  "revealNarrationText": "The reconstructed truth points to person_w_priya. Embezzlement of S$340,000 over eight months. The murder itself. Tumbler on the nightstand contains residue of a benzodiazepine not prescribed to the victim.",
+  "call911Script": "Emergency dispatch, please respond to Marina One, Penthouse 47-B, Singapore. Someone has been found unresponsive.",
+  "revealNarrationText": "The reconstructed truth points to the highest-confidence suspect in The Marina One Penthouse.",
   "assetManifest": {
-    "call911AudioUri": "/assets/seed/marcus-intro.wav",
     "witnessPortraits": {
       "person_w_marcus": "",
       "person_w_priya": "",
       "person_w_eleanor": ""
     },
-    "witnessVoiceSamples": {
-      "person_w_marcus": "/assets/seed/marcus-intro.wav",
-      "person_w_priya": "",
-      "person_w_eleanor": ""
+    "voiceModels": {
+      "person_w_marcus": {
+        "voiceMode": "profile_fallback"
+      },
+      "person_w_priya": {
+        "voiceMode": "profile_fallback"
+      },
+      "person_w_eleanor": {
+        "voiceMode": "profile_fallback"
+      }
+    },
+    "renderedAudio": {
+      "witnessIntroUris": {
+        "person_w_marcus": "",
+        "person_w_priya": "",
+        "person_w_eleanor": ""
+      }
     }
   },
   "packageVersion": "1.0.0",
-  "generatedAt": "2026-05-09T03:01:02.607Z"
+  "generatedAt": "2026-05-09T03:27:40.220Z"
 }
