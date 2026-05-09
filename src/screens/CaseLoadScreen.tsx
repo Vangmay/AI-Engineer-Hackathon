@@ -50,6 +50,39 @@ function Stamp({
   );
 }
 
+function WitnessFacts({
+  witness,
+}: {
+  witness: {
+    age: number;
+    sex?: string;
+    occupation?: string;
+    residence?: string;
+    relationship_to_victim?: string;
+  };
+}) {
+  const facts = [
+    ['AGE', String(witness.age)],
+    ['SEX', witness.sex],
+    ['OCCUPATION', witness.occupation],
+    ['RESIDENCE', witness.residence],
+    ['CONNECTION', witness.relationship_to_victim],
+  ].filter(([, value]) => Boolean(value));
+
+  return (
+    <dl className="mt-1.5 grid grid-cols-[78px_1fr] gap-x-2 gap-y-0.5 text-[10px] leading-snug opacity-[0.68]">
+      {facts.map(([label, value]) => (
+        <div key={label} className="contents">
+          <dt className="tracking-[0.12em] opacity-[0.7]">
+            {label}
+          </dt>
+          <dd>{value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 function PaperClip({
   left,
   top,
@@ -311,10 +344,18 @@ export function CaseLoadScreen() {
                 <span>{formatPlaybackTime(call911CurrentTime)}</span>
                 <span>{formatPlaybackTime(call911Duration)}</span>
               </div>
+              <div className="mb-3 border-b border-dashed border-[rgba(26,20,16,0.25)] pb-2 text-[11px] leading-[1.5]">
+                <div className="tracking-[0.14em] opacity-55">REPORTING PARTY</div>
+                <div className="mt-1 font-semibold">
+                  {call911Lines.find((line) => line.who === 'CALL')?.label ?? 'Caller not identified'}
+                </div>
+              </div>
               <div className="text-[12px] leading-[23px]">
                 {call911Lines.map((line, i) => (
                   <div key={i} className="flex gap-2.5">
-                    <span className="w-[42px] opacity-60">{line.who}</span>
+                    <span className="w-[110px] shrink-0 text-[10px] leading-[1.35] opacity-60">
+                      {line.label ?? line.who}
+                    </span>
                     <span>{line.text}</span>
                   </div>
                 ))}
@@ -383,8 +424,9 @@ export function CaseLoadScreen() {
                   )}
                   <div className="min-w-0 flex-1">
                     <div className="text-[14px]">{witness.name}</div>
+                    <WitnessFacts witness={witness} />
                     {witness.profile && (
-                      <div className="line-clamp-2 text-[10px] leading-snug opacity-[0.55]">
+                      <div className="mt-1.5 line-clamp-2 text-[10px] leading-snug opacity-[0.55]">
                         {witness.profile}
                       </div>
                     )}
@@ -422,8 +464,9 @@ export function CaseLoadScreen() {
                   )}
                   <div className="min-w-0 flex-1">
                     <div className="text-[14px]">{witness.name}</div>
+                    <WitnessFacts witness={witness} />
                     {witness.profile && (
-                      <div className="line-clamp-2 text-[10px] leading-snug opacity-[0.55]">
+                      <div className="mt-1.5 line-clamp-2 text-[10px] leading-snug opacity-[0.55]">
                         {witness.profile}
                       </div>
                     )}
@@ -444,8 +487,9 @@ export function CaseLoadScreen() {
                 Final Action
               </div>
               <p className="text-[12px] leading-relaxed opacity-75">
-                Ready to put a suspect on record? The accusation is spoken and
-                filed into this case folder.
+                Ready to put a suspect on record? Review the suspect cards, make
+                one final selection, and the dossier will immediately tell you if
+                you were correct.
               </p>
               <button
                 type="button"

@@ -26,7 +26,7 @@ const upsertGamePackageRef = makeFunctionReference<'mutation'>('imports:upsertGa
 const listCaseAudioAssetsRef = makeFunctionReference<'query'>('media:listCaseAudioAssets');
 const generateUploadUrlRef = makeFunctionReference<'mutation'>('media:generateUploadUrl');
 const saveUploadedAudioAssetsRef = makeFunctionReference<'mutation'>('media:saveUploadedAudioAssets');
-const generateCaseMediaRef = makeFunctionReference<'action'>('media:generateForCase');
+const seedMediaForCaseStringIdRef = makeFunctionReference<'action'>('media:seedMediaForCaseStringId');
 
 function isTruthyFlag(value: string | undefined): boolean {
   return value === 'true' || value === '1' || value === 'yes';
@@ -200,17 +200,20 @@ async function main() {
     })) as { caseId: string };
 
     try {
-      await client.action(generateCaseMediaRef, {
-        caseId: imported.caseId,
-        force,
+      await client.action(seedMediaForCaseStringIdRef, {
+        caseId: localCaseId,
+        title: packageRecord.title,
         sceneImageUrl: packageRecord.assetManifest.sceneImageUri ?? undefined,
+        sceneModelUrl: packageRecord.assetManifest.sceneModelUri ?? undefined,
+        witnessPortraitUrls: normalizeRecord(packageRecord.assetManifest.witnessPortraits),
+        witnessModelUrls: normalizeRecord(packageRecord.assetManifest.witnessModels),
         evidenceRenders: normalizeRecord(packageRecord.assetManifest.evidenceRenders),
         evidenceModels: normalizeRecord(packageRecord.assetManifest.evidenceModels),
         evidenceModelPreviews: normalizeRecord(packageRecord.assetManifest.evidenceModelPreviews),
       });
     } catch (error) {
       console.warn(
-        `Continuing without generateCaseMedia refresh for ${localCaseId}: ${error instanceof Error ? error.message : String(error)}`,
+        `Continuing without seeded media refresh for ${localCaseId}: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
 

@@ -926,5 +926,119 @@
     "qualityScore": 65,
     "approvalStatus": "needs_review",
     "reviewNotes": "Reveal narration uses a controlled fallback narrator voice."
+  },
+  {
+    "assetId": "asset_24b147d608",
+    "caseId": "case_colonel_russell_williams_2010",
+    "personId": "person_russell_williams",
+    "assetType": "portrait",
+    "toolProvider": "fal",
+    "inputMediaIds": [
+      "media_russell_portrait"
+    ],
+    "promptOrRecipe": "Use the provided source image of Russell Williams as identity reference. Create an evidence-board witness portrait for a cinematic Singapore true-crime game. Maintain adult facial identity and recognizable features, but render as a polished editorial dossier photograph. Neutral background, direct gaze, restrained expression, realistic lighting, no text.",
+    "modelName": "fal-ai/flux-pro/kontext/max",
+    "outputUri": "https://v3b.fal.media/files/b/0a997ce6/l4L-VcFLchM_XT-WoOAJL_b3e1e6d05f9f4b80a4eb2d2a84b68f97.jpg",
+    "generationDate": "2026-05-09T07:23:48.967Z",
+    "qualityScore": 82,
+    "similarityScore": 88,
+    "approvalStatus": "needs_review",
+    "reviewNotes": "Generated from data media URL: https://i.cbc.ca/ais/1.2067829,1382072606000/full/max/0/default.jpg?im=Crop%2Crect%3D%280%2C0%2C1180%2C663%29%3BResize%3D620"
+  },
+  {
+    "assetId": "asset_02c7b07667",
+    "caseId": "case_colonel_russell_williams_2010",
+    "personId": "person_graham_reid",
+    "assetType": "portrait",
+    "toolProvider": "fal",
+    "inputMediaIds": [],
+    "promptOrRecipe": "Editorial witness portrait for Graham Reid. Composite of an ex-boyfriend and recent social contact who would have drawn early investigative attention.. Canadian adult. Cinematic true-crime dossier photograph, direct gaze, neutral background, realistic lighting, no text.",
+    "modelName": "fal-ai/flux-pro",
+    "outputUri": "https://v3b.fal.media/files/b/0a997ce7/B4la_PzwrCMUAR1CVL2u0_3a80ff4a713a45d9b5805a711dc1722d.jpg",
+    "generationDate": "2026-05-09T07:23:53.581Z",
+    "qualityScore": 22,
+    "approvalStatus": "needs_review",
+    "reviewNotes": "Generated from person metadata because no fal-usable image URL was available in /data."
+  },
+  {
+    "assetId": "asset_17521cd994",
+    "caseId": "case_colonel_russell_williams_2010",
+    "personId": "person_colin_fraser",
+    "assetType": "portrait",
+    "toolProvider": "fal",
+    "inputMediaIds": [],
+    "promptOrRecipe": "Editorial witness portrait for Colin Fraser. Composite rural contractor whose truck routes and off-book jobs put him near the area at awkward hours.. Canadian adult. Cinematic true-crime dossier photograph, direct gaze, neutral background, realistic lighting, no text.",
+    "modelName": "fal-ai/flux-pro",
+    "outputUri": "https://v3b.fal.media/files/b/0a997ce7/WqwUDMfUuC22IkainsPlp_8a137703d56649469aba175aa4014210.jpg",
+    "generationDate": "2026-05-09T07:24:00.286Z",
+    "qualityScore": 16,
+    "approvalStatus": "needs_review",
+    "reviewNotes": "Generated from person metadata because no fal-usable image URL was available in /data."
+  },
+  {
+    "assetId": "asset_a6c40bda04",
+    "caseId": "case_colonel_russell_williams_2010",
+    "personId": "person_adam_doyle",
+    "assetType": "portrait",
+    "toolProvider": "fal",
+    "inputMediaIds": [],
+    "promptOrRecipe": "Editorial witness portrait for Adam Doyle. Composite base logistics sergeant who understood vehicle access, paperwork, and how easily institutional embarrassment can distort a timeline.. Canadian adult. Cinematic true-crime dossier photograph, direct gaze, neutral background, realistic lighting, no text.",
+    "modelName": "fal-ai/flux-pro",
+    "outputUri": "https://v3b.fal.media/files/b/0a997ce8/pcBuSjLShJqntXe6rU_PR_ce24a6d15f9d4cf687eb8a42a345fadb.jpg",
+    "generationDate": "2026-05-09T07:24:04.273Z",
+    "qualityScore": 18,
+    "approvalStatus": "needs_review",
+    "reviewNotes": "Generated from person metadata because no fal-usable image URL was available in /data."
+  },
+  {
+    "assetId": "asset_9640023540",
+    "caseId": "case_colonel_russell_williams_2010",
+    "personId": "person_jim_smyth",
+    "assetType": "portrait",
+    "toolProvider": "fal",
+    "inputMediaIds": [
+      "media_jim_smyth_image"
+    ],
+    "promptOrRecipe": "Use the provided source image of Jim Smyth as identity reference. Create an evidence-board witness portrait for a cinematic Singapore true-crime game. Maintain adult facial identity and recognizable features, but render as a polished editorial dossier photograph. Neutral background, direct gaze, restrained expression, realistic lighting, no text.",
+    "modelName": "fal-ai/flux-pro/kontext/max",
+    "outputUri": "https://v3b.fal.media/files/b/0a997cea/XOktBzdCl6co0m9L6aXT5_fdb0de6ecf6f43c7b00c0da40a66915c.jpg",
+    "generationDate": "2026-05-09T07:24:21.081Z",
+    "qualityScore": 58,
+    "similarityScore": 64,
+    "approvalStatus": "needs_review",
+    "reviewNotes": "Generated from data media URL: https://i.cbc.ca/ais/1.1777682,1717130919935/full/max/0/default.jpg?im=Crop%2Crect%3D%280%2C0%2C220%2C123%29%3B"
+  },
+  {
+    "assetId": "asset_f3a1b9724a",
+    "caseId": "case_colonel_russell_williams_2010",
+    "personId": "person_carol_lloyd",
+    "assetType": "portrait",
+    "toolProvider": "fal",
+    "inputMediaIds": [
+      "media_carol_family_image"
+    ],
+    "promptOrRecipe": "Use the provided source image of Carol Lloyd as identity reference. Create an evidence-board witness portrait for a cinematic Singapore true-crime game. Maintain adult facial identity and recognizable features, but render as a polished editorial dossier photograph. Neutral background, direct gaze, restrained expression, realistic lighting, no text.",
+    "modelName": "fal-ai/flux-pro/kontext/max",
+    "outputUri": "https://v3b.fal.media/files/b/0a997ceb/8oxkkIbNCVNKcIGECK3vQ_ea0ce041926e48498234b3a0b1cb6c71.jpg",
+    "generationDate": "2026-05-09T07:24:39.097Z",
+    "qualityScore": 49,
+    "similarityScore": 52,
+    "approvalStatus": "needs_review",
+    "reviewNotes": "Generated from data media URL: https://i.cbc.ca/ais/1.2099319,1488560464000/full/max/0/default.jpg?im=Crop%2Crect%3D%280%2C0%2C305%2C171%29%3BResize%3D620"
+  },
+  {
+    "assetId": "asset_54325394e8",
+    "caseId": "case_colonel_russell_williams_2010",
+    "personId": "person_erin_mcallister",
+    "assetType": "portrait",
+    "toolProvider": "fal",
+    "inputMediaIds": [],
+    "promptOrRecipe": "Editorial witness portrait for Erin McAllister. Composite coworker and friend who can separate rumour from the small routine details Jessica actually shared.. Canadian adult. Cinematic true-crime dossier photograph, direct gaze, neutral background, realistic lighting, no text.",
+    "modelName": "fal-ai/flux-pro",
+    "outputUri": "https://v3b.fal.media/files/b/0a997cec/wkXWPpAhNTCEbP2zYPrWz_79c45cec0f184e41ba3e9fac41ae56e9.jpg",
+    "generationDate": "2026-05-09T07:24:43.634Z",
+    "qualityScore": 14,
+    "approvalStatus": "needs_review",
+    "reviewNotes": "Generated from person metadata because no fal-usable image URL was available in /data."
   }
 ]

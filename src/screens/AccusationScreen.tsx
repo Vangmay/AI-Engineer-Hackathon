@@ -49,6 +49,13 @@ export function AccusationScreen() {
             {suspects.map((suspect) => {
               const portraitUrl = witnessPortraitUrls[suspect.id];
               const isSelected = suspect.id === selectedSuspectId;
+              const factRows = [
+                ['AGE', String(suspect.age)],
+                ['SEX', suspect.sex],
+                ['OCCUPATION', suspect.occupation],
+                ['RESIDENCE', suspect.residence],
+                ['CONNECTION', suspect.relationship_to_victim],
+              ].filter(([, value]) => Boolean(value));
               return (
                 <button
                   key={suspect.id}
@@ -95,9 +102,16 @@ export function AccusationScreen() {
                       </div>
                     </div>
 
-                    <div className="mt-3 text-[11px] tracking-[0.12em] opacity-65">
-                      AGE {suspect.age}
-                    </div>
+                    <dl className="mt-3 grid grid-cols-[86px_1fr] gap-x-2 gap-y-1 text-[11px] leading-snug opacity-70">
+                      {factRows.map(([label, value]) => (
+                        <div key={`${suspect.id}-${label}`} className="contents">
+                          <dt className="tracking-[0.14em]">
+                            {label}
+                          </dt>
+                          <dd>{value}</dd>
+                        </div>
+                      ))}
+                    </dl>
                     <p className="mt-3 text-[13px] leading-relaxed opacity-80">
                       {suspect.profile || suspect.knows}
                     </p>

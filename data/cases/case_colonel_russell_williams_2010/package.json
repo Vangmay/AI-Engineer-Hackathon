@@ -1,5 +1,5 @@
 {
-  "packageId": "pkg_62210568ac",
+  "packageId": "pkg_77069eaac9",
   "caseId": "case_colonel_russell_williams_2010",
   "title": "The Belleville Vanishing",
   "runtimeCase": {
@@ -24,8 +24,12 @@
         "id": "person_russell_williams",
         "name": "Russell Williams",
         "category": "suspect",
-        "role": "",
+        "role": "Canadian Forces colonel under scrutiny as investigators tighten vehicle and movement evidence around him.",
         "age": 47,
+        "sex": "Male",
+        "occupation": "Air force colonel and base commander",
+        "residence": "Ottawa / Tweed, Ontario",
+        "relationship_to_victim": "High-value suspect with no innocent personal connection to Jessica Lloyd.",
         "profile": "Air force colonel with access to vehicles, strict routines, and the kind of public credibility that initially shields him from suspicion.",
         "persona": "Controlled, meticulous, status-conscious, and careful with every sentence; he sounds calm because he wants control, not because he feels safe.",
         "knows": "He presents himself as fully cooperative and insists the investigation is confusing professionalism for guilt.",
@@ -38,8 +42,12 @@
         "id": "person_graham_reid",
         "name": "Graham Reid",
         "category": "suspect",
-        "role": "",
+        "role": "Local associate pulled into the suspect pool because of proximity, emotion, and a late conflict.",
         "age": 26,
+        "sex": "Male",
+        "occupation": "Warehouse labourer",
+        "residence": "Belleville, Ontario",
+        "relationship_to_victim": "Known local contact who argued with Jessica shortly before she vanished.",
         "profile": "Young local man with emotional history, enough proximity to Jessica's routines to matter, and the kind of personal friction detectives would check first.",
         "persona": "Restless, defensive, and eager to distance himself from the case; he sounds more rattled than calculating.",
         "knows": "He can account for most of the night but resents being treated as the obvious first-round suspect.",
@@ -52,8 +60,12 @@
         "id": "person_colin_fraser",
         "name": "Colin Fraser",
         "category": "suspect",
-        "role": "",
+        "role": "Tradesman suspect with access to back roads, nighttime movement, and alibi gaps worth testing.",
         "age": 37,
+        "sex": "Male",
+        "occupation": "General contractor",
+        "residence": "Tweed, Ontario",
+        "relationship_to_victim": "Peripheral local figure whose route access and odd-hours driving attracted police attention.",
         "profile": "Tradesman familiar with back roads, late-night driving, and the kind of alibi gaps police naturally pull on in a disappearance case.",
         "persona": "Blunt, proud, and irritated by police attention; he sounds rough but not strategically polished.",
         "knows": "He knew the roads around Belleville and had a practical reason to be moving around after dark.",
@@ -66,8 +78,12 @@
         "id": "person_adam_doyle",
         "name": "Adam Doyle",
         "category": "suspect",
-        "role": "",
+        "role": "Military support insider with knowledge of paperwork, vehicles, and administrative blind spots.",
         "age": 34,
+        "sex": "Male",
+        "occupation": "Base transport clerk",
+        "residence": "Trenton, Ontario",
+        "relationship_to_victim": "No close personal tie; investigated for possible access, records exposure, and institutional cover.",
         "profile": "Support-side military insider with enough access to know what should and should not appear in vehicle and movement records.",
         "persona": "Careful, deferential, and anxious about exposing institutional embarrassment; he sounds like someone trying not to implicate himself in a scandal.",
         "knows": "He can explain how vehicle access and paperwork worked around the base during the search window.",
@@ -82,6 +98,10 @@
         "category": "witness",
         "role": "OPP detective sergeant leading the interview strategy in Ottawa.",
         "age": 36,
+        "sex": "Male",
+        "occupation": "OPP detective sergeant",
+        "residence": "Ottawa, Ontario",
+        "relationship_to_victim": "Lead investigator rather than a personal acquaintance.",
         "profile": "Lead interviewer who understands that the confession only lands because the facts are already trapping the subject from every direction.",
         "persona": "Steady, probing, patient, and strategic; he sounds calm because he wants the suspect to fill the silence.",
         "knows": "He can explain how the tire evidence, routine-building, and interview pressure converged on the same person.",
@@ -96,6 +116,10 @@
         "category": "witness",
         "role": "Family-side witness composite grounded in Jessica Lloyd coverage and memorial reporting.",
         "age": 35,
+        "sex": "Female",
+        "occupation": "Family representative",
+        "residence": "Belleville, Ontario",
+        "relationship_to_victim": "Family-side witness speaking for Jessica Lloyd's routines, absence, and the early search pressure.",
         "profile": "Family representative who keeps the victim at the center of the story and resists letting the investigation collapse into gossip or spectacle.",
         "persona": "Grieving, direct, and emotionally controlled; she speaks with moral clarity rather than investigative certainty.",
         "knows": "She can speak to Jessica's routines, what mattered in the early search, and how the family experienced the case pressure.",
@@ -110,6 +134,10 @@
         "category": "witness",
         "role": "Composite coworker and friend who can separate rumour from the small routine details Jessica actually shared.",
         "age": 27,
+        "sex": "Female",
+        "occupation": "Retail coworker",
+        "residence": "Belleville, Ontario",
+        "relationship_to_victim": "Friend and coworker who noticed Jessica's routine had broken and raised the alarm.",
         "profile": "Close enough to know changes in Jessica's mood and schedule, but not so close that every memory is warped by panic.",
         "persona": "Observant, emotionally direct, and less guarded than the suspects; she sounds like someone trying to be useful, not impressive.",
         "knows": "She noticed subtle changes in Jessica's routine and can distinguish what was real from what people only claimed after the fact.",
@@ -130,27 +158,33 @@
     "call911_transcript": [
       {
         "who": "DISP",
+        "label": "911 DISPATCH",
         "text": "Nine-one-one, what is your emergency?"
       },
       {
         "who": "CALL",
-        "text": "Jessica Lloyd is missing. Her car is still outside her place and she is not answering her phone. Something is wrong."
+        "label": "ERIN MCALLISTER · COWORKER",
+        "text": "This is Erin McAllister, Jessica Lloyd's coworker. Jessica is missing, her car is still outside, and she is not answering her phone. Something is wrong."
       },
       {
         "who": "DISP",
+        "label": "911 DISPATCH",
         "text": "What is the address where you are calling from?"
       },
       {
         "who": "CALL",
-        "text": "I am at Jessica's residence area in Belleville. Please send officers right away."
+        "label": "ERIN MCALLISTER · COWORKER",
+        "text": "I am outside Jessica's place in Belleville. I came because she never showed up and now I cannot reach her. Please send officers right away."
       },
       {
         "who": "DISP",
+        "label": "911 DISPATCH",
         "text": "When did anyone last hear from her, and do you see any sign of forced entry?"
       },
       {
         "who": "CALL",
-        "text": "Last night. This is not like her at all. Her phone goes straight to voicemail and I do not want to go inside alone."
+        "label": "ERIN MCALLISTER · COWORKER",
+        "text": "Last night. This is not like her at all. Her phone goes straight to voicemail, her car has not moved, and I am not going inside alone."
       }
     ]
   },
@@ -243,17 +277,25 @@
   "call911Script": "Nine-one-one, what is your emergency? Jessica Lloyd is missing. Her car is still outside her place and she is not answering her phone. Something is wrong. What is the address where you are calling from? I am at Jessica's residence area in Belleville. Please send officers right away. When did anyone last hear from her, and do you see any sign of forced entry? Last night. This is not like her at all. Her phone goes straight to voicemail and I do not want to go inside alone.",
   "revealNarrationText": "The reconstructed truth points to the highest-confidence suspect in The Belleville Vanishing.",
   "assetManifest": {
-    "sceneImageUri": "https://v3b.fal.media/files/b/0a997c75/6L3k9ZRXXYF1bCrWTWeDl_10dff6ed5b5347eda6355b96374f72b7.jpg",
-    "sceneModelUri": "https://v3b.fal.media/files/b/0a997c7d/0BHicDfSSCg_WikO5ILYj_base_basic_pbr.glb",
+    "sceneImageUri": "https://www.theglobeandmail.com/resizer/v2/7YNN5TC3B5FTDANRFCSS3TC7Q4?auth=676e98259adf2188e6c99ebb468d9b74be2b258d562965a22b4a18613e579fab&width=1200&height=800&quality=80&smart=true",
     "call911AudioUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/caller_911-roster_c9e30cca64-911.mp3",
     "revealNarrationAudioUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/narrator-roster_7a087e2407-reveal.mp3",
     "witnessPortraits": {
-      "person_russell_williams": "https://i.cbc.ca/ais/1.2067829,1382072606000/full/max/0/default.jpg?im=Crop%2Crect%3D%280%2C0%2C1180%2C663%29%3BResize%3D620",
+      "person_russell_williams": "https://v3b.fal.media/files/b/0a997ce6/l4L-VcFLchM_XT-WoOAJL_b3e1e6d05f9f4b80a4eb2d2a84b68f97.jpg",
+      "person_graham_reid": "https://v3b.fal.media/files/b/0a997ce7/B4la_PzwrCMUAR1CVL2u0_3a80ff4a713a45d9b5805a711dc1722d.jpg",
+      "person_colin_fraser": "https://v3b.fal.media/files/b/0a997ce7/WqwUDMfUuC22IkainsPlp_8a137703d56649469aba175aa4014210.jpg",
+      "person_adam_doyle": "https://v3b.fal.media/files/b/0a997ce8/pcBuSjLShJqntXe6rU_PR_ce24a6d15f9d4cf687eb8a42a345fadb.jpg",
+      "person_jim_smyth": "https://v3b.fal.media/files/b/0a997cea/XOktBzdCl6co0m9L6aXT5_fdb0de6ecf6f43c7b00c0da40a66915c.jpg",
+      "person_carol_lloyd": "https://v3b.fal.media/files/b/0a997ceb/8oxkkIbNCVNKcIGECK3vQ_ea0ce041926e48498234b3a0b1cb6c71.jpg",
+      "person_erin_mcallister": "https://v3b.fal.media/files/b/0a997cec/wkXWPpAhNTCEbP2zYPrWz_79c45cec0f184e41ba3e9fac41ae56e9.jpg"
+    },
+    "witnessModels": {
+      "person_russell_williams": "",
       "person_graham_reid": "",
       "person_colin_fraser": "",
       "person_adam_doyle": "",
-      "person_jim_smyth": "https://i.cbc.ca/ais/1.1777682,1717130919935/full/max/0/default.jpg?im=Crop%2Crect%3D%280%2C0%2C220%2C123%29%3B",
-      "person_carol_lloyd": "https://i.cbc.ca/ais/1.2099319,1488560464000/full/max/0/default.jpg?im=Crop%2Crect%3D%280%2C0%2C305%2C171%29%3BResize%3D620",
+      "person_jim_smyth": "",
+      "person_carol_lloyd": "",
       "person_erin_mcallister": ""
     },
     "witnessVoiceSamples": {
@@ -336,5 +378,5 @@
     }
   },
   "packageVersion": "1.0.0",
-  "generatedAt": "2026-05-09T07:00:08.741Z"
+  "generatedAt": "2026-05-09T07:25:21.148Z"
 }

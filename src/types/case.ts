@@ -1,6 +1,7 @@
 /** 911 dossier excerpt; UI shows text while audio reads a derived script */
 export interface Call911Line {
   who: 'DISP' | 'CALL';
+  label?: string;
   text: string;
 }
 
@@ -10,6 +11,10 @@ export interface Witness {
   category?: 'suspect' | 'witness';
   role: string;
   age: number;
+  sex?: string;
+  occupation?: string;
+  residence?: string;
+  relationship_to_victim?: string;
   profile?: string;
   persona?: string;
   knows: string;

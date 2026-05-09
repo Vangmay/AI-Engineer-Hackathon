@@ -749,14 +749,32 @@ export function buildGameCasePackage(input: {
     [...input.derivedAssets]
       .filter(predicate)
       .sort((a, b) => b.generationDate.localeCompare(a.generationDate))[0];
+  const preferredVisualAsset = (predicate: (asset: DerivedAsset) => boolean) =>
+    [...input.derivedAssets]
+      .filter(predicate)
+      .sort((a, b) => {
+        const generatedA = a.toolProvider === 'manual' ? 0 : 1;
+        const generatedB = b.toolProvider === 'manual' ? 0 : 1;
+        return (
+          generatedB - generatedA ||
+          b.generationDate.localeCompare(a.generationDate) ||
+          b.assetId.localeCompare(a.assetId)
+        );
+      })[0];
   const witnessPortraits = Object.fromEntries(
     runtimeCase.witnesses.map((witness) => {
-      const portrait = pickBestAsset(
-        input.derivedAssets.filter(
-          (asset) => asset.personId === witness.id && asset.assetType === 'portrait',
-        ),
+      const portrait = preferredVisualAsset(
+        (asset) => asset.personId === witness.id && asset.assetType === 'portrait',
       );
       return [witness.id, web(portrait?.outputUri) ?? ''];
+    }),
+  );
+  const witnessModels = Object.fromEntries(
+    runtimeCase.witnesses.map((witness) => {
+      const model = latestAsset(
+        (asset) => asset.personId === witness.id && asset.assetType === 'face_model',
+      );
+      return [witness.id, web(model?.outputUri) ?? ''];
     }),
   );
   const voiceModels = Object.fromEntries(
@@ -874,6 +892,7 @@ export function buildGameCasePackage(input: {
       call911AudioUri: web(call911AudioUri),
       revealNarrationAudioUri: web(revealNarrationAudioUri),
       witnessPortraits,
+      witnessModels,
       witnessVoiceSamples,
       voiceModels,
       renderedAudio: {
