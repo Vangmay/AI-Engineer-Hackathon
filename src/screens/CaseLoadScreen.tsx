@@ -2,8 +2,9 @@ import type { CSSProperties } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { Evidence3DViewer } from '@/components/Evidence3DViewer';
 import { useGameStore } from '@/store/gameStore';
+import type { Call911Line } from '@/types/case';
 
-const CALL_911_TRANSCRIPT = [
+const DEFAULT_911_TRANSCRIPT: Call911Line[] = [
   { who: 'DISP', text: "Nine-one-one, what's your emergency?" },
   { who: 'CALL', text: "I-- I think Ray is dead. He's not breathing. Oh god." },
   { who: 'DISP', text: "Ma'am, where are you?" },
@@ -98,6 +99,10 @@ function Waveform({ activeBars = 28 }: { activeBars?: number }) {
 
 export function CaseLoadScreen() {
   const caseData = useGameStore((s) => s.caseData)!;
+  const call911Lines: Call911Line[] =
+    caseData.call911_transcript && caseData.call911_transcript.length > 0
+      ? caseData.call911_transcript
+      : DEFAULT_911_TRANSCRIPT;
   const generationMs = useGameStore((s) => s.generationMs);
   const sceneImageUrl = useGameStore((s) => s.sceneImageUrl);
   const sceneModelUrl = useGameStore((s) => s.sceneModelUrl);
@@ -112,11 +117,25 @@ export function CaseLoadScreen() {
   const [noted, setNoted] = useState<Set<number>>(() => new Set());
   const [activeModel, setActiveModel] = useState<number | null>(null);
   const [isPlaying911, setIsPlaying911] = useState(false);
+  const [scenePhotoBroken, setScenePhotoBroken] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const resolvedSceneUrl = sceneImageUrl?.trim() ?? '';
+  const showScenePhoto = resolvedSceneUrl.length > 0 && !scenePhotoBroken;
+
+  useEffect(() => {
+    setScenePhotoBroken(false);
+  }, [resolvedSceneUrl]);
 
   const generatedIn = `${((generationMs ?? 8300) / 1000).toFixed(1)}s`;
   const suspects = caseData.witnesses.filter((entry) => entry.category === 'suspect');
   const witnesses = caseData.witnesses.filter((entry) => entry.category !== 'suspect');
+  const leadSheetItems = [
+    `Victim ${caseData.victim.name}, ${caseData.victim.age}, was found at ${caseData.victim.location}.`,
+    `Estimated incident window centers around ${caseData.victim.time_of_death}.`,
+    ...caseData.clues.slice(0, 2).map((clue) => clue),
+    ...caseData.witnesses.slice(0, 2).map((w) => `${w.name} reports: ${w.knows}`),
+  ];
 
   useEffect(() => {
     if (!call911AudioUrl) return;
@@ -125,6 +144,7 @@ export function CaseLoadScreen() {
     audio.addEventListener('play', () => setIsPlaying911(true));
     audio.addEventListener('pause', () => setIsPlaying911(false));
     audio.addEventListener('ended', () => setIsPlaying911(false));
+    setIsPlaying911(false);
 
     return () => {
       audio.pause();
@@ -175,20 +195,26 @@ export function CaseLoadScreen() {
             <section className="paper-card lifted p-[14px_14px_18px]">
               <div className="tape-corner left" />
               <div className="tape-corner right" />
-              <div className="case-scene-frame h-[250px]">
-                {sceneImageUrl ? (
+              <div className="relative h-[250px] overflow-hidden rounded-sm case-scene-frame">
+                {showScenePhoto ? (
                   <img
-                    src={sceneImageUrl}
+                    src={resolvedSceneUrl}
                     alt={`Crime scene reconstruction for ${caseData.title}`}
-                    className="h-full w-full object-cover"
+                    className="pointer-events-none absolute inset-0 z-[1] h-full w-full object-cover select-none"
+                    referrerPolicy="no-referrer"
+                    decoding="async"
+                    loading="eager"
+                    onError={() => setScenePhotoBroken(true)}
                   />
-                ) : (
-                  <div className="photo-ph h-full text-[11px] leading-relaxed">
-                    CRIME SCENE — {caseData.victim.location.toUpperCase()}
-                    <br />
-                    {caseData.scene_prompt}
+                ) : null}
+                {!showScenePhoto ? (
+                  <div className="photo-ph absolute inset-0 z-0 flex h-full flex-col px-4 text-[11px] leading-relaxed">
+                    <span className="opacity-95">
+                      CRIME SCENE — {caseData.victim.location.toUpperCase()}
+                    </span>
+                    <span className="mt-2 opacity-85">{caseData.scene_prompt}</span>
                   </div>
-                )}
+                ) : null}
               </div>
               <div className="mt-2 flex justify-between gap-4 text-[10px] opacity-70">
                 <span>EXHIBIT A · SCENE PHOTOGRAPH 01</span>
@@ -230,13 +256,28 @@ export function CaseLoadScreen() {
                 </div>
               </div>
               <div className="text-[12px] leading-[23px]">
-                {CALL_911_TRANSCRIPT.map((line, i) => (
+                {call911Lines.map((line, i) => (
                   <div key={i} className="flex gap-2.5">
                     <span className="w-[42px] opacity-60">{line.who}</span>
                     <span>{line.text}</span>
                   </div>
                 ))}
               </div>
+            </section>
+
+            <section className="paper-card mt-[18px] p-[14px_18px_16px]">
+              <div className="flex items-baseline justify-between border-b border-dashed border-[var(--ink)] pb-1">
+                <span className="text-[13px] tracking-[0.1em]">INCIDENT LEAD SHEET</span>
+                <span className="text-[10px] opacity-70">FIELD NOTES · PLAYER VISIBLE</span>
+              </div>
+              <ul className="mt-2 space-y-1.5 text-[12px] leading-[1.55]">
+                {leadSheetItems.map((item, index) => (
+                  <li key={`${item.slice(0, 24)}-${index}`} className="flex gap-2">
+                    <span className="mt-[2px] text-[10px] opacity-65">●</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
             </section>
           </div>
 

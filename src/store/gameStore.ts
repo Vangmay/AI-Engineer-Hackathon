@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { gameBackend } from '@/backend/client';
-import type { GameSnapshot } from '@/backend/contracts';
+import type { GameSnapshot, WitnessQuestionResult } from '@/backend/contracts';
 import type { GamePhase, MysteryCase, TranscriptLine } from '@/types/case';
 import type { AssetManifest } from '@/types/gamePackage';
 
@@ -24,6 +24,7 @@ interface GameState {
   isCorrect: boolean | null;
   revealNarration: string | null;
   transcript: TranscriptLine[];
+  witnessQuestionCounts: Record<string, number> | undefined;
   generationMs: number | null;
 
   loadStaticCase: () => Promise<void>;
@@ -33,6 +34,9 @@ interface GameState {
     evidenceImageUrls: Record<string, string>;
     evidenceModelUrls: Record<string, string>;
     evidenceModelPreviewUrls: Record<string, string>;
+    call911AudioUrl?: string | null;
+    witnessIntroAudioUrls?: Record<string, string>;
+    witnessPortraitUrls?: Record<string, string>;
   }) => void;
   goToBrief: () => void;
   startInterrogation: (witnessId: string) => Promise<void>;
@@ -41,6 +45,7 @@ interface GameState {
   submitAccusation: (text: string) => Promise<void>;
   resetCase: () => Promise<void>;
   appendTranscript: (line: TranscriptLine) => void;
+  sendWitnessQuestion: (witnessId: string, text: string) => Promise<WitnessQuestionResult>;
 }
 
 function snapshotToState(snapshot: GameSnapshot) {
@@ -62,6 +67,11 @@ function snapshotToState(snapshot: GameSnapshot) {
     generationMs: snapshot.generationMs,
     transcript: snapshot.transcript,
     activeWitnessId: snapshot.session.activeWitnessId,
+    witnessQuestionCounts:
+      snapshot.session.witnessQuestionCounts &&
+      Object.keys(snapshot.session.witnessQuestionCounts).length > 0
+        ? snapshot.session.witnessQuestionCounts
+        : undefined,
     accusation: snapshot.session.accusation,
     isCorrect: snapshot.session.isCorrect,
     revealNarration: snapshot.session.revealNarration,
@@ -88,11 +98,12 @@ export const useGameStore = create<GameState>((set, get) => ({
   isCorrect: null,
   revealNarration: null,
   transcript: [],
+  witnessQuestionCounts: undefined,
   generationMs: null,
 
-  /** Convex: runs `cases.startNewCase` (Exa + LLM or template). Local: seeds Raymond Teo bundle. */
+  /** Convex: new session for a random row in `cases` (no new case). Local: single bundled case. Empty DB: one `startNewCase` bootstrap. */
   loadStaticCase: async () => {
-    const snapshot = await gameBackend.startNewCase();
+    const snapshot = await gameBackend.startRandomExistingCase();
     set(snapshotToState(snapshot));
   },
 
@@ -119,6 +130,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         isCorrect: null,
         revealNarration: null,
         transcript: [],
+        witnessQuestionCounts: undefined,
         generationMs: null,
       });
       return;
@@ -138,6 +150,18 @@ export const useGameStore = create<GameState>((set, get) => ({
       evidenceModelPreviewUrls: Object.keys(media.evidenceModelPreviewUrls).length > 0
         ? media.evidenceModelPreviewUrls
         : s.evidenceModelPreviewUrls,
+      call911AudioUrl:
+        media.call911AudioUrl !== undefined && media.call911AudioUrl !== null
+          ? media.call911AudioUrl
+          : s.call911AudioUrl,
+      witnessIntroAudioUrls:
+        media.witnessIntroAudioUrls && Object.keys(media.witnessIntroAudioUrls).length > 0
+          ? { ...s.witnessIntroAudioUrls, ...media.witnessIntroAudioUrls }
+          : s.witnessIntroAudioUrls,
+      witnessPortraitUrls:
+        media.witnessPortraitUrls && Object.keys(media.witnessPortraitUrls).length > 0
+          ? { ...s.witnessPortraitUrls, ...media.witnessPortraitUrls }
+          : s.witnessPortraitUrls,
     }));
   },
 
@@ -187,14 +211,23 @@ export const useGameStore = create<GameState>((set, get) => ({
   appendTranscript: (line) => {
     const { sessionId } = get();
     set((s) => {
-      const key = `${line.speaker}:${line.timestamp}:${line.text}`;
+      const key = `${line.speaker}:${line.timestamp}:${line.text}:${line.witnessId ?? ''}`;
       const exists = s.transcript.some(
-        (item) => `${item.speaker}:${item.timestamp}:${item.text}` === key,
+        (item) =>
+          `${item.speaker}:${item.timestamp}:${item.text}:${item.witnessId ?? ''}` === key,
       );
       return exists ? s : { transcript: [...s.transcript, line] };
     });
     if (sessionId) {
       void gameBackend.appendTranscriptLine(sessionId, line);
     }
+  },
+
+  sendWitnessQuestion: async (witnessId, text) => {
+    const { sessionId } = get();
+    if (!sessionId) return { ok: false as const, code: 'NO_SESSION' };
+    const result = await gameBackend.sendWitnessQuestion(sessionId, witnessId, text);
+    if (result.ok) set(snapshotToState(result.snapshot));
+    return result;
   },
 }));

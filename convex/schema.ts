@@ -15,6 +15,8 @@ export default defineSchema({
     accusation: v.optional(v.string()),
     isCorrect: v.optional(v.boolean()),
     revealNarration: v.optional(v.string()),
+    /** Questions already asked this session, keyed by dossier witness id (`witnesses.witnessId`). Max 3 per witness enforced in interrogation flow. */
+    witnessQuestionCounts: v.optional(v.record(v.string(), v.number())),
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index('by_updated_at', ['updatedAt']),
@@ -67,6 +69,7 @@ export default defineSchema({
     evidenceRenders: v.optional(v.any()),
     evidenceModels: v.optional(v.any()),
     evidenceModelPreviews: v.optional(v.any()),
+    witnessPortraitUrls: v.optional(v.any()),
     updatedAt: v.number(),
   }).index('by_case', ['caseId']),
 

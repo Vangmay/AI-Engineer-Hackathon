@@ -1,69 +1,7 @@
 import type { CSSProperties } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import type { WitnessQuestionErrorCode } from '@/backend/contracts';
 import { useGameStore } from '@/store/gameStore';
-import type { TranscriptLine } from '@/types/case';
-
-function stubConversation(witnessId: string): TranscriptLine[] {
-  const base = Date.now();
-  switch (witnessId) {
-    case 'person_russell_williams':
-      return [
-        { speaker: 'detective', text: 'Walk me through your movements the night Jessica disappeared.', timestamp: base },
-        { speaker: 'witness', text: 'I have already cooperated. My schedule was normal, and I had no reason to be anywhere near her home.', timestamp: base + 1 },
-        { speaker: 'detective', text: 'Then explain why the vehicle evidence keeps dragging us back to you.', timestamp: base + 2 },
-        { speaker: 'witness', text: 'You are building a theory around coincidence. That is not the same thing as proof.', timestamp: base + 3 },
-      ];
-    case 'person_graham_reid':
-      return [
-        { speaker: 'detective', text: 'You argued with Jessica shortly before she vanished, correct?', timestamp: base },
-        { speaker: 'witness', text: 'We argued, yes. People argue. That does not put me in her driveway that night.', timestamp: base + 1 },
-        { speaker: 'detective', text: 'Why leave that argument out the first time?', timestamp: base + 2 },
-        { speaker: 'witness', text: 'Because I knew exactly how it would sound, and I panicked.', timestamp: base + 3 },
-      ];
-    case 'person_colin_fraser':
-      return [
-        { speaker: 'detective', text: 'Your truck was near Belleville late that night. Why?', timestamp: base },
-        { speaker: 'witness', text: 'I was working a private job and did not want tax questions on top of police questions.', timestamp: base + 1 },
-        { speaker: 'detective', text: 'So you hid your route from us.', timestamp: base + 2 },
-        { speaker: 'witness', text: 'I hid the job, not a murder. There is a difference.', timestamp: base + 3 },
-      ];
-    case 'person_adam_doyle':
-      return [
-        { speaker: 'detective', text: 'Why touch vehicle paperwork after the search started?', timestamp: base },
-        { speaker: 'witness', text: 'Because the base was in chaos and I thought I was fixing a clerical mess.', timestamp: base + 1 },
-        { speaker: 'detective', text: 'You understand that looks like a cover-up.', timestamp: base + 2 },
-        { speaker: 'witness', text: 'I understand it now. At the time I was thinking about careers, not crimes.', timestamp: base + 3 },
-      ];
-    case 'person_jim_smyth':
-      return [
-        { speaker: 'detective', text: 'What made the interview strategy work?', timestamp: base },
-        { speaker: 'witness', text: 'Pressure only works when the facts are already closing in. The tire evidence and his own routines did most of the work.', timestamp: base + 1 },
-        { speaker: 'detective', text: 'When did you know he was slipping?', timestamp: base + 2 },
-        { speaker: 'witness', text: 'When calm stopped looking like confidence and started looking rehearsed.', timestamp: base + 3 },
-      ];
-    case 'person_carol_lloyd':
-      return [
-        { speaker: 'detective', text: 'What do people miss about Jessica when they talk about the case?', timestamp: base },
-        { speaker: 'witness', text: 'They turn her into a headline. She had routines, humour, and plans. She was not just the worst thing that happened to her.', timestamp: base + 1 },
-        { speaker: 'detective', text: 'What mattered most in the early days?', timestamp: base + 2 },
-        { speaker: 'witness', text: 'That the search stay urgent, and that police not settle for the easiest story.', timestamp: base + 3 },
-      ];
-    case 'person_erin_mcallister':
-      return [
-        { speaker: 'detective', text: 'Did Jessica mention anyone making her uncomfortable?', timestamp: base },
-        { speaker: 'witness', text: 'She mentioned being more careful lately, but she did not hand me a neat suspect list.', timestamp: base + 1 },
-        { speaker: 'detective', text: 'Why hold part of that back?', timestamp: base + 2 },
-        { speaker: 'witness', text: 'Because I did not want gossip turning into evidence before I was sure what I remembered.', timestamp: base + 3 },
-      ];
-    default:
-      return [
-        { speaker: 'detective', text: 'Start from the beginning and tell me what matters most.', timestamp: base },
-        { speaker: 'witness', text: 'The small details mattered more than anyone wanted to admit at first.', timestamp: base + 1 },
-        { speaker: 'detective', text: 'Such as?', timestamp: base + 2 },
-        { speaker: 'witness', text: 'Routes, routines, and the things people edited out when they were scared.', timestamp: base + 3 },
-      ];
-  }
-}
 
 function Stamp({
   text,
@@ -98,39 +36,19 @@ function Stamp({
   );
 }
 
-function LiveWaveform() {
-  return (
-    <svg width="100%" height="56" viewBox="0 0 480 56" aria-hidden="true">
-      {Array.from({ length: 96 }).map((_, i) => {
-        const h =
-          4 +
-          Math.abs(
-            Math.sin(i * 0.42) * Math.cos(i * 0.18 + 1) +
-              0.3 * Math.sin(i * 1.1),
-          ) *
-            22;
-        return (
-          <rect
-            key={i}
-            x={i * 5}
-            y={(56 - h) / 2}
-            width="3"
-            height={h}
-            fill="var(--ink)"
-            opacity={0.85}
-          />
-        );
-      })}
-    </svg>
-  );
-}
+const SUGGESTED_PROMPTS: { chip: string; text: string }[] = [
+  { chip: 'ALIBI', text: 'Where were you during the killing window?' },
+  { chip: 'MOTIVE', text: 'Why would anyone want the victim gone?' },
+  { chip: 'RELATIONSHIP', text: 'How did you actually know them day-to-day?' },
+];
 
 export function InterrogationScreen() {
   const caseData = useGameStore((s) => s.caseData)!;
   const witnessId = useGameStore((s) => s.activeWitnessId)!;
   const transcript = useGameStore((s) => s.transcript);
   const witnessPortraitUrls = useGameStore((s) => s.witnessPortraitUrls);
-  const appendTranscript = useGameStore((s) => s.appendTranscript);
+  const witnessQuestionCounts = useGameStore((s) => s.witnessQuestionCounts);
+  const sendWitnessQuestion = useGameStore((s) => s.sendWitnessQuestion);
   const endInterrogation = useGameStore((s) => s.endInterrogation);
   const goToAccusation = useGameStore((s) => s.goToAccusation);
   const witnessIntroAudioUrls = useGameStore((s) => s.witnessIntroAudioUrls);
@@ -138,30 +56,36 @@ export function InterrogationScreen() {
   const introAudioRef = useRef<HTMLAudioElement | null>(null);
   const [isIntroPlaying, setIsIntroPlaying] = useState(false);
 
+  const [draft, setDraft] = useState('');
+  const [sending, setSending] = useState(false);
+  const [banner, setBanner] = useState<string | null>(null);
+
   const witness = useMemo(
     () => caseData.witnesses.find((w) => w.id === witnessId)!,
     [caseData, witnessId],
   );
+
+  const witnessThread = useMemo(() => {
+    return transcript.filter(
+      (line) =>
+        line.witnessId === witnessId && line.speaker !== 'system',
+    );
+  }, [transcript, witnessId]);
+
+  const convexMode = !!(import.meta.env.VITE_CONVEX_URL as string | undefined);
+
+  const questionsUsed =
+    witnessQuestionCounts?.[witnessId] ??
+    witnessThread.filter((line) => line.speaker === 'detective').length;
+  const questionsRemaining = Math.max(0, 3 - questionsUsed);
+
   const introAudioUrl = witnessIntroAudioUrls[witnessId] ?? null;
   const voiceModel = voiceModels[witnessId];
 
   useEffect(() => {
-    let cancelled = false;
-    const timeouts: number[] = [];
-    const lines = stubConversation(witnessId);
-    let i = 0;
-    const tick = () => {
-      if (cancelled || i >= lines.length) return;
-      appendTranscript(lines[i]);
-      i += 1;
-      timeouts.push(window.setTimeout(tick, 1800 + Math.random() * 700));
-    };
-    timeouts.push(window.setTimeout(tick, 600));
-    return () => {
-      cancelled = true;
-      timeouts.forEach((id) => window.clearTimeout(id));
-    };
-  }, [witnessId, appendTranscript]);
+    setDraft('');
+    setBanner(null);
+  }, [witnessId]);
 
   useEffect(() => {
     if (!introAudioUrl) return;
@@ -188,8 +112,41 @@ export function InterrogationScreen() {
     }
   };
 
-  const firstName = witness.name.split(' ')[0].toUpperCase();
+  const firstName = witness.name.split(' ')[0]?.toUpperCase() ?? witness.name.toUpperCase();
   const portraitUrl = witnessPortraitUrls[witness.id];
+
+  const submitQuestion = async (raw: string) => {
+    const text = raw.trim();
+    if (!text || sending) return;
+    if (questionsRemaining <= 0) {
+      setBanner('You already used three questions with this witness for this session.');
+      return;
+    }
+    setSending(true);
+    setBanner(null);
+    const outcome = await sendWitnessQuestion(witnessId, text);
+    setSending(false);
+    setDraft('');
+    if (!outcome.ok) {
+      const msgs: Partial<Record<WitnessQuestionErrorCode, string>> = {
+        EMPTY_QUESTION: 'Type a question first.',
+        LIMIT: 'Interview limit reached: three detective questions per witness.',
+        QUESTION_TOO_LONG: 'Question is too long; shorten under 600 characters.',
+        NO_API_KEY:
+          'Convex needs OPENAI_API_KEY on the deployment for AI personas. Add it in Convex → Settings.',
+        NO_SESSION: 'Lost session sync—reload the dossier.',
+        NOT_INTERVIEW: 'Open the interrogation booth again from the roster.',
+        WRONG_WITNESS: 'Interview state drifted—return to roster and reopen this witness.',
+        WITNESS_NOT_FOUND: 'This witness dossier snapshot is stale.',
+        LLM_ERROR: outcome.message ?? 'Model call failed.',
+      };
+      setBanner(msgs[outcome.code] ?? outcome.message ?? 'Could not reach the booth.');
+      return;
+    }
+  };
+
+  const canSend =
+    draft.trim().length > 0 && questionsRemaining > 0 && !sending;
 
   return (
     <main className="dossier-page">
@@ -276,83 +233,129 @@ export function InterrogationScreen() {
                   {witness.persona}
                 </div>
               )}
-              <div className="mt-2.5 text-[10px] tracking-[0.1em] opacity-60">
-                VOICE · ELEVENLABS PROFILE (TEXT-TO-VOICE)
+              <div className="mt-2.5 flex flex-wrap items-center gap-2 border-t border-[var(--ink)] pt-2.5 border-dashed">
+                <span className="rounded border border-[var(--ink)] px-2 py-0.5 text-[10px] tracking-[0.12em]">
+                  QUESTIONS LEFT · {questionsRemaining} / 3
+                </span>
+                <span className="text-[10px] tracking-[0.08em] opacity-65">
+                  {convexMode
+                    ? 'VOICE PROFILE + OPENAI PERSONA (SERVER)'
+                    : 'LOCAL HEURISTIC DIALOG · NO LLM ROUTE'}
+                </span>
               </div>
               {voiceModel?.providerVoiceId && (
-                <div className="mt-1 text-[10px] tracking-[0.08em] opacity-55">
-                  PROVIDER VOICE ID · {voiceModel.providerVoiceId}
+                <div className="mt-2 text-[10px] tracking-[0.08em] opacity-55">
+                  ELEVENLABS · {voiceModel.providerVoiceId}
                 </div>
               )}
             </div>
 
-            <div className="paper-card p-[12px_14px]">
-              <div className="flex justify-between text-[10px] tracking-[0.15em] opacity-60">
-                <span>● LIVE · GEMINI VOICE LINK</span>
-                <span>SUBJECT SPEAKING</span>
-              </div>
-              <div className="mt-1.5">
-                <LiveWaveform />
-              </div>
-            </div>
-
-            <div className="paper-card lined-paper min-h-[250px] flex-1 p-[14px_18px_16px]">
-              <div className="border-b border-dashed border-[var(--ink)] pb-1 text-[12px] tracking-[0.1em]">
-                LIVE TRANSCRIPT
-              </div>
-              <div className="mt-1 text-[12px] leading-[24px]">
-                {transcript.map((line, i) => {
-                  if (line.speaker === 'system') return null;
-                  const speaker = line.speaker === 'detective' ? 'YOU' : firstName;
-                  return (
-                    <div key={`${line.timestamp}-${i}`}>
-                      <span className="inline-block w-[50px] opacity-60">
-                        {speaker}
-                      </span>
-                      {line.text}
-                    </div>
-                  );
-                })}
-                <div className="opacity-45 italic">· · · subject pause, 1.4s · · ·</div>
-              </div>
-            </div>
-          </section>
-        </section>
-
-        <footer className="mt-6 flex items-center justify-between gap-4 border-t border-[var(--ink)] pt-2.5 max-[900px]:flex-col max-[900px]:items-start">
-          <div className="text-[10px] tracking-[0.15em] opacity-70">
-            ASK A QUESTION · OR TAP A SUGGESTED LINE BELOW
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {['ALIBI', 'MOTIVE', 'RELATIONSHIP'].map((chip) => (
-              <button
-                key={chip}
-                type="button"
-                className="border border-[var(--ink)] px-2 py-1 text-[10px] tracking-[0.15em]"
-              >
-                {chip}
-              </button>
-            ))}
-            <button
-              type="button"
-              onClick={endInterrogation}
-              className="border border-[var(--ink)] px-2 py-1 text-[10px] tracking-[0.15em]"
-            >
-              RETURN TO CASE FILE
-            </button>
-            <button
-              type="button"
-              onClick={goToAccusation}
-              className="bg-[var(--oxblood)] px-2 py-1 text-[10px] tracking-[0.15em] text-[var(--cream-on-dark)]"
-            >
-              READY TO ACCUSE →
-            </button>
-          </div>
-        </footer>
+    <div className="paper-card lined-paper min-h-[280px] flex-1 flex flex-col p-[14px_18px_16px]">
+      <div className="flex flex-wrap items-end justify-between gap-2 border-b border-dashed border-[var(--ink)] pb-1">
+        <div className="text-[12px] tracking-[0.1em]">LIVE TRANSCRIPT</div>
+        <div className="text-[10px] tracking-[0.12em] opacity-65">
+          {questionsRemaining <= 0
+            ? 'INTERVIEW LIMIT REACHED'
+            : 'TYPE A QUESTION BELOW'}
+        </div>
       </div>
+      <div className="mt-1 flex-1 overflow-y-auto text-[12px] leading-[24px] max-h-[320px]">
+        {witnessThread.length === 0 && (
+          <div className="opacity-50 italic">No questions yet. Open the thread.</div>
+        )}
+        {witnessThread.map((line, i) => {
+          if (line.speaker === 'system') return null;
+          const speaker = line.speaker === 'detective' ? 'YOU' : firstName;
+          return (
+            <div key={`${line.timestamp}-${i}-${line.text.slice(0, 24)}`}>
+              <span className="inline-block w-[50px] opacity-60">{speaker}</span>
+              {line.text}
+            </div>
+          );
+        })}
+      </div>
+      {banner && (
+        <div className="mt-2 rounded border border-[var(--oxblood)] bg-[rgba(139,58,54,0.08)] px-2 py-1.5 text-[11px] leading-[1.45]">
+          {banner}
+        </div>
+      )}
+      <label className="mt-3 block text-[10px] tracking-[0.12em] opacity-70">
+        YOUR QUESTION
+        <textarea
+          className="mt-1 block w-full min-h-[76px] border border-[var(--ink)] bg-[transparent] px-2 py-1.5 text-[12px] leading-[1.45] resize-y outline-none disabled:opacity-45"
+          value={draft}
+          disabled={sending || questionsRemaining <= 0}
+          onChange={(e) => setDraft(e.target.value)}
+          placeholder={
+            questionsRemaining <= 0
+              ? 'No questions remaining for this witness.'
+              : 'Ask in character—as the investigator…'
+          }
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey && canSend) {
+              e.preventDefault();
+              void submitQuestion(draft);
+            }
+          }}
+        />
+      </label>
+      <div className="mt-2 flex flex-wrap gap-2">
+        <button
+          type="button"
+          disabled={!canSend}
+          onClick={() => void submitQuestion(draft)}
+          className="bg-[var(--ink)] px-3 py-1.5 text-[10px] tracking-[0.15em] text-[var(--cream-on-dark)] disabled:opacity-40"
+        >
+          {sending ? 'RECORDING RESPONSE…' : 'SEND TO SUBJECT'}
+        </button>
+        {questionsRemaining <= 0 && (
+          <span className="py-1.5 text-[10px] tracking-[0.12em] opacity-60 uppercase">
+            Return to dossier → another witness → accuse when ready.
+          </span>
+        )}
+      </div>
+    </div>
+          </section >
+        </section >
+
+    <footer className="mt-6 flex items-center justify-between gap-4 border-t border-[var(--ink)] pt-2.5 max-[900px]:flex-col max-[900px]:items-start">
+      <div className="text-[10px] tracking-[0.15em] opacity-70">
+        PROMPT BANK · EACH CHIP FILLS YOUR QUEST FIELD
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {SUGGESTED_PROMPTS.map(({ chip, text }) => (
+          <button
+            key={chip}
+            type="button"
+            disabled={questionsRemaining <= 0}
+            className="border border-[var(--ink)] px-2 py-1 text-[10px] tracking-[0.15em] disabled:opacity-35"
+            onClick={() =>
+              questionsRemaining <= 0 ? undefined : setDraft(text)
+            }
+          >
+            {chip}
+          </button>
+        ))}
+        <button
+          type="button"
+          onClick={endInterrogation}
+          className="border border-[var(--ink)] px-2 py-1 text-[10px] tracking-[0.15em]"
+        >
+          RETURN TO CASE FILE
+        </button>
+        <button
+          type="button"
+          onClick={goToAccusation}
+          className="bg-[var(--oxblood)] px-2 py-1 text-[10px] tracking-[0.15em] text-[var(--cream-on-dark)]"
+        >
+          READY TO ACCUSE →
+        </button>
+      </div>
+    </footer>
+      </div >
 
       <Stamp text="INTERVIEW IN PROGRESS" top={50} left={880} rotate={4} size={11} />
       <div className="dossier-grain" />
-    </main>
+    </main >
   );
 }
