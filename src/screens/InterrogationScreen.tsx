@@ -94,9 +94,6 @@ export function InterrogationScreen() {
     audio.addEventListener('play', () => setIsIntroPlaying(true));
     audio.addEventListener('pause', () => setIsIntroPlaying(false));
     audio.addEventListener('ended', () => setIsIntroPlaying(false));
-    void audio.play().catch(() => {
-      setIsIntroPlaying(false);
-    });
 
     return () => {
       audio.pause();
@@ -201,16 +198,14 @@ export function InterrogationScreen() {
                   LIVE INTERVIEW
                 </div>
                 <div className="mt-0.5 text-[18px]">{witness.name}</div>
-                <div className="text-[11px] opacity-70">
-                  {witness.role} · age {witness.age}
-                </div>
+                <div className="text-[11px] opacity-70">age {witness.age}</div>
               </div>
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={toggleIntroAudio}
                   className="h-10 w-10 rounded-full bg-[#3a342c] text-[16px]"
-                  aria-label="Play witness intro"
+                  aria-label="Play subject intro"
                 >
                   {isIntroPlaying ? '⏸' : '▶'}
                 </button>
@@ -230,8 +225,14 @@ export function InterrogationScreen() {
               <div className="dossier-overline">Subject File</div>
               <h2 className="mt-0.5 text-[22px]">{witness.name}</h2>
               <p className="mt-1.5 text-[12px] leading-[1.55] opacity-75">
-                {witness.knows}
+                {witness.profile ?? witness.knows}
               </p>
+              {witness.persona && (
+                <div className="mt-2 rounded-sm border border-dashed border-[var(--ink)] px-2 py-1.5 text-[11px] leading-[1.5] opacity-75">
+                  <span className="mr-1 tracking-[0.12em] opacity-55">PERSONA</span>
+                  {witness.persona}
+                </div>
+              )}
               <div className="mt-2.5 flex flex-wrap items-center gap-2 border-t border-[var(--ink)] pt-2.5 border-dashed">
                 <span className="rounded border border-[var(--ink)] px-2 py-0.5 text-[10px] tracking-[0.12em]">
                   QUESTIONS LEFT · {questionsRemaining} / 3
@@ -249,112 +250,112 @@ export function InterrogationScreen() {
               )}
             </div>
 
-            <div className="paper-card lined-paper min-h-[280px] flex-1 flex flex-col p-[14px_18px_16px]">
-              <div className="flex flex-wrap items-end justify-between gap-2 border-b border-dashed border-[var(--ink)] pb-1">
-                <div className="text-[12px] tracking-[0.1em]">LIVE TRANSCRIPT</div>
-                <div className="text-[10px] tracking-[0.12em] opacity-65">
-                  {questionsRemaining <= 0
-                    ? 'INTERVIEW LIMIT REACHED'
-                    : 'TYPE A QUESTION BELOW'}
-                </div>
-              </div>
-              <div className="mt-1 flex-1 overflow-y-auto text-[12px] leading-[24px] max-h-[320px]">
-                {witnessThread.length === 0 && (
-                  <div className="opacity-50 italic">No questions yet. Open the thread.</div>
-                )}
-                {witnessThread.map((line, i) => {
-                  if (line.speaker === 'system') return null;
-                  const speaker = line.speaker === 'detective' ? 'YOU' : firstName;
-                  return (
-                    <div key={`${line.timestamp}-${i}-${line.text.slice(0, 24)}`}>
-                      <span className="inline-block w-[50px] opacity-60">{speaker}</span>
-                      {line.text}
-                    </div>
-                  );
-                })}
-              </div>
-              {banner && (
-                <div className="mt-2 rounded border border-[var(--oxblood)] bg-[rgba(139,58,54,0.08)] px-2 py-1.5 text-[11px] leading-[1.45]">
-                  {banner}
-                </div>
-              )}
-              <label className="mt-3 block text-[10px] tracking-[0.12em] opacity-70">
-                YOUR QUESTION
-                <textarea
-                  className="mt-1 block w-full min-h-[76px] border border-[var(--ink)] bg-[transparent] px-2 py-1.5 text-[12px] leading-[1.45] resize-y outline-none disabled:opacity-45"
-                  value={draft}
-                  disabled={sending || questionsRemaining <= 0}
-                  onChange={(e) => setDraft(e.target.value)}
-                  placeholder={
-                    questionsRemaining <= 0
-                      ? 'No questions remaining for this witness.'
-                      : 'Ask in character—as the investigator…'
-                  }
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey && canSend) {
-                      e.preventDefault();
-                      void submitQuestion(draft);
-                    }
-                  }}
-                />
-              </label>
-              <div className="mt-2 flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  disabled={!canSend}
-                  onClick={() => void submitQuestion(draft)}
-                  className="bg-[var(--ink)] px-3 py-1.5 text-[10px] tracking-[0.15em] text-[var(--cream-on-dark)] disabled:opacity-40"
-                >
-                  {sending ? 'RECORDING RESPONSE…' : 'SEND TO SUBJECT'}
-                </button>
-                {questionsRemaining <= 0 && (
-                  <span className="py-1.5 text-[10px] tracking-[0.12em] opacity-60 uppercase">
-                    Return to dossier → another witness → accuse when ready.
-                  </span>
-                )}
-              </div>
-            </div>
-          </section>
-        </section>
-
-        <footer className="mt-6 flex items-center justify-between gap-4 border-t border-[var(--ink)] pt-2.5 max-[900px]:flex-col max-[900px]:items-start">
-          <div className="text-[10px] tracking-[0.15em] opacity-70">
-            PROMPT BANK · EACH CHIP FILLS YOUR QUEST FIELD
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {SUGGESTED_PROMPTS.map(({ chip, text }) => (
-              <button
-                key={chip}
-                type="button"
-                disabled={questionsRemaining <= 0}
-                className="border border-[var(--ink)] px-2 py-1 text-[10px] tracking-[0.15em] disabled:opacity-35"
-                onClick={() =>
-                  questionsRemaining <= 0 ? undefined : setDraft(text)
-                }
-              >
-                {chip}
-              </button>
-            ))}
-            <button
-              type="button"
-              onClick={endInterrogation}
-              className="border border-[var(--ink)] px-2 py-1 text-[10px] tracking-[0.15em]"
-            >
-              RETURN TO CASE FILE
-            </button>
-            <button
-              type="button"
-              onClick={goToAccusation}
-              className="bg-[var(--oxblood)] px-2 py-1 text-[10px] tracking-[0.15em] text-[var(--cream-on-dark)]"
-            >
-              READY TO ACCUSE →
-            </button>
-          </div>
-        </footer>
+    <div className="paper-card lined-paper min-h-[280px] flex-1 flex flex-col p-[14px_18px_16px]">
+      <div className="flex flex-wrap items-end justify-between gap-2 border-b border-dashed border-[var(--ink)] pb-1">
+        <div className="text-[12px] tracking-[0.1em]">LIVE TRANSCRIPT</div>
+        <div className="text-[10px] tracking-[0.12em] opacity-65">
+          {questionsRemaining <= 0
+            ? 'INTERVIEW LIMIT REACHED'
+            : 'TYPE A QUESTION BELOW'}
+        </div>
       </div>
+      <div className="mt-1 flex-1 overflow-y-auto text-[12px] leading-[24px] max-h-[320px]">
+        {witnessThread.length === 0 && (
+          <div className="opacity-50 italic">No questions yet. Open the thread.</div>
+        )}
+        {witnessThread.map((line, i) => {
+          if (line.speaker === 'system') return null;
+          const speaker = line.speaker === 'detective' ? 'YOU' : firstName;
+          return (
+            <div key={`${line.timestamp}-${i}-${line.text.slice(0, 24)}`}>
+              <span className="inline-block w-[50px] opacity-60">{speaker}</span>
+              {line.text}
+            </div>
+          );
+        })}
+      </div>
+      {banner && (
+        <div className="mt-2 rounded border border-[var(--oxblood)] bg-[rgba(139,58,54,0.08)] px-2 py-1.5 text-[11px] leading-[1.45]">
+          {banner}
+        </div>
+      )}
+      <label className="mt-3 block text-[10px] tracking-[0.12em] opacity-70">
+        YOUR QUESTION
+        <textarea
+          className="mt-1 block w-full min-h-[76px] border border-[var(--ink)] bg-[transparent] px-2 py-1.5 text-[12px] leading-[1.45] resize-y outline-none disabled:opacity-45"
+          value={draft}
+          disabled={sending || questionsRemaining <= 0}
+          onChange={(e) => setDraft(e.target.value)}
+          placeholder={
+            questionsRemaining <= 0
+              ? 'No questions remaining for this witness.'
+              : 'Ask in character—as the investigator…'
+          }
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey && canSend) {
+              e.preventDefault();
+              void submitQuestion(draft);
+            }
+          }}
+        />
+      </label>
+      <div className="mt-2 flex flex-wrap gap-2">
+        <button
+          type="button"
+          disabled={!canSend}
+          onClick={() => void submitQuestion(draft)}
+          className="bg-[var(--ink)] px-3 py-1.5 text-[10px] tracking-[0.15em] text-[var(--cream-on-dark)] disabled:opacity-40"
+        >
+          {sending ? 'RECORDING RESPONSE…' : 'SEND TO SUBJECT'}
+        </button>
+        {questionsRemaining <= 0 && (
+          <span className="py-1.5 text-[10px] tracking-[0.12em] opacity-60 uppercase">
+            Return to dossier → another witness → accuse when ready.
+          </span>
+        )}
+      </div>
+    </div>
+          </section >
+        </section >
+
+    <footer className="mt-6 flex items-center justify-between gap-4 border-t border-[var(--ink)] pt-2.5 max-[900px]:flex-col max-[900px]:items-start">
+      <div className="text-[10px] tracking-[0.15em] opacity-70">
+        PROMPT BANK · EACH CHIP FILLS YOUR QUEST FIELD
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {SUGGESTED_PROMPTS.map(({ chip, text }) => (
+          <button
+            key={chip}
+            type="button"
+            disabled={questionsRemaining <= 0}
+            className="border border-[var(--ink)] px-2 py-1 text-[10px] tracking-[0.15em] disabled:opacity-35"
+            onClick={() =>
+              questionsRemaining <= 0 ? undefined : setDraft(text)
+            }
+          >
+            {chip}
+          </button>
+        ))}
+        <button
+          type="button"
+          onClick={endInterrogation}
+          className="border border-[var(--ink)] px-2 py-1 text-[10px] tracking-[0.15em]"
+        >
+          RETURN TO CASE FILE
+        </button>
+        <button
+          type="button"
+          onClick={goToAccusation}
+          className="bg-[var(--oxblood)] px-2 py-1 text-[10px] tracking-[0.15em] text-[var(--cream-on-dark)]"
+        >
+          READY TO ACCUSE →
+        </button>
+      </div>
+    </footer>
+      </div >
 
       <Stamp text="INTERVIEW IN PROGRESS" top={50} left={880} rotate={4} size={11} />
       <div className="dossier-grain" />
-    </main>
+    </main >
   );
 }

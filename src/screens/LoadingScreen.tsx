@@ -5,7 +5,7 @@ import { useGameStore } from '@/store/gameStore';
 const STAGES = [
   'Opening case envelope',
   'Indexing victim profile',
-  'Sorting witness statements',
+  'Sorting case statements',
   'Dusting scene photograph',
   'Threading 911 tape',
   'Stamping active file',

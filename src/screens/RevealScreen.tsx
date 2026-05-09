@@ -87,9 +87,6 @@ export function RevealScreen() {
     audio.addEventListener('play', () => setIsPlayingReveal(true));
     audio.addEventListener('pause', () => setIsPlayingReveal(false));
     audio.addEventListener('ended', () => setIsPlayingReveal(false));
-    void audio.play().catch(() => {
-      setIsPlayingReveal(false);
-    });
     return () => {
       audio.pause();
       audio.currentTime = 0;

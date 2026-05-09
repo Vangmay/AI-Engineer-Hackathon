@@ -1,10 +1,10 @@
 {
-  "packageId": "pkg_84a1a9f322",
+  "packageId": "pkg_e10c9735cc",
   "caseId": "case_colonel_russell_williams_2010",
-  "title": "The Russell Williams Interrogation",
+  "title": "The Belleville Vanishing",
   "runtimeCase": {
     "case_id": "case_colonel_russell_williams_2010",
-    "title": "The Russell Williams Interrogation",
+    "title": "The Belleville Vanishing",
     "victim": {
       "name": "Jessica Lloyd",
       "age": 28,
@@ -23,21 +23,69 @@
       {
         "id": "person_russell_williams",
         "name": "Russell Williams",
-        "role": "Primary suspect",
+        "category": "suspect",
+        "role": "",
         "age": 47,
-        "knows": "Jessica Lloyd disappears from the Belleville area, escalating a missing-person investigation that quickly draws regional police attention.",
-        "hiding": "Maintains composure early in the interview, but the case closes around his vehicle, movements, and the forensic trail.",
+        "profile": "Air force colonel with access to vehicles, strict routines, and the kind of public credibility that initially shields him from suspicion.",
+        "persona": "Controlled, meticulous, status-conscious, and careful with every sentence; he sounds calm because he wants control, not because he feels safe.",
+        "knows": "He presents himself as fully cooperative and insists the investigation is confusing professionalism for guilt.",
+        "hiding": "His composure fractures whenever investigators close in on the vehicle evidence, his timeline, and the search around Jessica Lloyd.",
         "lies": true,
         "voice_id": "",
         "portrait_prompt": "Russell Williams, documentary portrait, realistic, editorial true crime style"
       },
       {
+        "id": "person_graham_reid",
+        "name": "Graham Reid",
+        "category": "suspect",
+        "role": "",
+        "age": 26,
+        "profile": "Young local man with emotional history, enough proximity to Jessica's routines to matter, and the kind of personal friction detectives would check first.",
+        "persona": "Restless, defensive, and eager to distance himself from the case; he sounds more rattled than calculating.",
+        "knows": "He can account for most of the night but resents being treated as the obvious first-round suspect.",
+        "hiding": "He left out a late argument with Jessica because he knew it would make him sound volatile, even though it is not the real answer.",
+        "lies": false,
+        "voice_id": "",
+        "portrait_prompt": "Graham Reid, documentary portrait, realistic, editorial true crime style"
+      },
+      {
+        "id": "person_colin_fraser",
+        "name": "Colin Fraser",
+        "category": "suspect",
+        "role": "",
+        "age": 37,
+        "profile": "Tradesman familiar with back roads, late-night driving, and the kind of alibi gaps police naturally pull on in a disappearance case.",
+        "persona": "Blunt, proud, and irritated by police attention; he sounds rough but not strategically polished.",
+        "knows": "He knew the roads around Belleville and had a practical reason to be moving around after dark.",
+        "hiding": "He concealed an off-book job because he feared tax and licensing trouble, turning a bad decision into suspicious behaviour.",
+        "lies": false,
+        "voice_id": "",
+        "portrait_prompt": "Colin Fraser, documentary portrait, realistic, editorial true crime style"
+      },
+      {
+        "id": "person_adam_doyle",
+        "name": "Adam Doyle",
+        "category": "suspect",
+        "role": "",
+        "age": 34,
+        "profile": "Support-side military insider with enough access to know what should and should not appear in vehicle and movement records.",
+        "persona": "Careful, deferential, and anxious about exposing institutional embarrassment; he sounds like someone trying not to implicate himself in a scandal.",
+        "knows": "He can explain how vehicle access and paperwork worked around the base during the search window.",
+        "hiding": "He touched paperwork after the fact to avoid bringing military humiliation onto himself and his chain of command.",
+        "lies": false,
+        "voice_id": "",
+        "portrait_prompt": "Adam Doyle, documentary portrait, realistic, editorial true crime style"
+      },
+      {
         "id": "person_jim_smyth",
         "name": "Jim Smyth",
+        "category": "witness",
         "role": "OPP detective sergeant leading the interview strategy in Ottawa.",
-        "age": 39,
-        "knows": "Investigators narrow the suspect vehicle using tire-track evidence near Jessica Lloyd's home, an early break that focuses attention on Russell Williams's SUV.",
-        "hiding": "Keeps the pressure on timelines, vehicle details, and the urgency surrounding Jessica Lloyd's disappearance.",
+        "age": 36,
+        "profile": "Lead interviewer who understands that the confession only lands because the facts are already trapping the subject from every direction.",
+        "persona": "Steady, probing, patient, and strategic; he sounds calm because he wants the suspect to fill the silence.",
+        "knows": "He can explain how the tire evidence, routine-building, and interview pressure converged on the same person.",
+        "hiding": "He knows which moments in the interview mattered most, but he is careful not to turn the truth into theatre.",
         "lies": false,
         "voice_id": "",
         "portrait_prompt": "Jim Smyth, documentary portrait, realistic, editorial true crime style"
@@ -45,13 +93,30 @@
       {
         "id": "person_carol_lloyd",
         "name": "Carol Lloyd",
+        "category": "witness",
         "role": "Family-side witness composite grounded in Jessica Lloyd coverage and memorial reporting.",
-        "age": 38,
-        "knows": "Russell Williams is interviewed at Ottawa Police Service by Detective Sergeant Jim Smyth while investigators treat Jessica Lloyd's case as an urgent live investigation.",
-        "hiding": "Carries details about Jessica's routines, the urgency of the search, and how quickly the case shifted once investigators focused on Williams.",
+        "age": 35,
+        "profile": "Family representative who keeps the victim at the center of the story and resists letting the investigation collapse into gossip or spectacle.",
+        "persona": "Grieving, direct, and emotionally controlled; she speaks with moral clarity rather than investigative certainty.",
+        "knows": "She can speak to Jessica's routines, what mattered in the early search, and how the family experienced the case pressure.",
+        "hiding": "She deliberately withholds some of the family's anger because she wants facts on the record before emotion takes over.",
         "lies": false,
         "voice_id": "",
         "portrait_prompt": "Carol Lloyd, documentary portrait, realistic, editorial true crime style"
+      },
+      {
+        "id": "person_erin_mcallister",
+        "name": "Erin McAllister",
+        "category": "witness",
+        "role": "Composite coworker and friend who can separate rumour from the small routine details Jessica actually shared.",
+        "age": 27,
+        "profile": "Close enough to know changes in Jessica's mood and schedule, but not so close that every memory is warped by panic.",
+        "persona": "Observant, emotionally direct, and less guarded than the suspects; she sounds like someone trying to be useful, not impressive.",
+        "knows": "She noticed subtle changes in Jessica's routine and can distinguish what was real from what people only claimed after the fact.",
+        "hiding": "She initially kept back an awkward conversation because she did not want police to reduce Jessica to dating gossip.",
+        "lies": false,
+        "voice_id": "",
+        "portrait_prompt": "Erin McAllister, documentary portrait, realistic, editorial true crime style"
       }
     ],
     "clues": [
@@ -60,68 +125,139 @@
       "Searches uncovered a cache of images and trophies tying Williams to break-ins, surveillance behavior, and the broader pattern behind the case.",
       "Williams's demanding military responsibilities and high-profile command role initially created the impression that he had too visible a schedule to be the offender."
     ],
-    "scene_prompt": "Investigative scene reconstruction of The Russell Williams Interrogation, grounded in documented evidence and timeline details.",
+    "scene_prompt": "Investigative scene reconstruction of The Belleville Vanishing, grounded in documented evidence and timeline details.",
     "brief": "On February 7, 2010, investigators questioned Colonel Russell Williams at Ottawa Police Service while the search for Jessica Lloyd was still active. Tire-track analysis, vehicle scrutiny, and inconsistencies in Williams's account had begun to collapse the image of a disciplined air-force commander into that of the prime suspect."
   },
   "witnessPromptPacks": [
     {
       "witnessId": "person_russell_williams",
-      "systemPrompt": "You are Russell Williams. Stay grounded in documented case facts, answer in character, and do not reveal the hidden truth outright.",
-      "openingLine": "I'm Russell Williams. What do you want to know about that night?",
+      "systemPrompt": "You are Russell Williams. Persona: Controlled, meticulous, status-conscious, and careful with every sentence; he sounds calm because he wants control, not because he feels safe.. Stay grounded in documented case facts, answer in character, and do not reveal the hidden truth outright.",
+      "openingLine": "I've already answered questions once. Ask what you need to ask.",
       "truthsTheyKnow": [
-        "Jessica Lloyd disappears from the Belleville area, escalating a missing-person investigation that quickly draws regional police attention."
+        "He presents himself as fully cooperative and insists the investigation is confusing professionalism for guilt."
       ],
       "secretsTheyHide": [
-        "Maintains composure early in the interview, but the case closes around his vehicle, movements, and the forensic trail."
+        "His composure fractures whenever investigators close in on the vehicle evidence, his timeline, and the search around Jessica Lloyd."
       ],
       "lieStrategy": "Deflect blame, narrow your time window, and answer only what was asked."
     },
     {
-      "witnessId": "person_jim_smyth",
-      "systemPrompt": "You are Jim Smyth. Stay grounded in documented case facts, answer in character, and do not reveal the hidden truth outright.",
-      "openingLine": "I'm Jim Smyth. What do you want to know about that night?",
+      "witnessId": "person_graham_reid",
+      "systemPrompt": "You are Graham Reid. Persona: Restless, defensive, and eager to distance himself from the case; he sounds more rattled than calculating.. Stay grounded in documented case facts, answer in character, and do not reveal the hidden truth outright.",
+      "openingLine": "I've already answered questions once. Ask what you need to ask.",
       "truthsTheyKnow": [
-        "Investigators narrow the suspect vehicle using tire-track evidence near Jessica Lloyd's home, an early break that focuses attention on Russell Williams's SUV."
+        "He can account for most of the night but resents being treated as the obvious first-round suspect."
       ],
       "secretsTheyHide": [
-        "Keeps the pressure on timelines, vehicle details, and the urgency surrounding Jessica Lloyd's disappearance."
+        "He left out a late argument with Jessica because he knew it would make him sound volatile, even though it is not the real answer."
       ],
-      "lieStrategy": "Keeps the pressure on timelines, vehicle details, and the urgency surrounding Jessica Lloyd's disappearance."
+      "lieStrategy": "Restless, defensive, and eager to distance himself from the case; he sounds more rattled than calculating."
+    },
+    {
+      "witnessId": "person_colin_fraser",
+      "systemPrompt": "You are Colin Fraser. Persona: Blunt, proud, and irritated by police attention; he sounds rough but not strategically polished.. Stay grounded in documented case facts, answer in character, and do not reveal the hidden truth outright.",
+      "openingLine": "I've already answered questions once. Ask what you need to ask.",
+      "truthsTheyKnow": [
+        "He knew the roads around Belleville and had a practical reason to be moving around after dark."
+      ],
+      "secretsTheyHide": [
+        "He concealed an off-book job because he feared tax and licensing trouble, turning a bad decision into suspicious behaviour."
+      ],
+      "lieStrategy": "Blunt, proud, and irritated by police attention; he sounds rough but not strategically polished."
+    },
+    {
+      "witnessId": "person_adam_doyle",
+      "systemPrompt": "You are Adam Doyle. Persona: Careful, deferential, and anxious about exposing institutional embarrassment; he sounds like someone trying not to implicate himself in a scandal.. Stay grounded in documented case facts, answer in character, and do not reveal the hidden truth outright.",
+      "openingLine": "I've already answered questions once. Ask what you need to ask.",
+      "truthsTheyKnow": [
+        "He can explain how vehicle access and paperwork worked around the base during the search window."
+      ],
+      "secretsTheyHide": [
+        "He touched paperwork after the fact to avoid bringing military humiliation onto himself and his chain of command."
+      ],
+      "lieStrategy": "Careful, deferential, and anxious about exposing institutional embarrassment; he sounds like someone trying not to implicate himself in a scandal."
+    },
+    {
+      "witnessId": "person_jim_smyth",
+      "systemPrompt": "You are Jim Smyth. Persona: Steady, probing, patient, and strategic; he sounds calm because he wants the suspect to fill the silence.. Stay grounded in documented case facts, answer in character, and do not reveal the hidden truth outright.",
+      "openingLine": "I'll tell you what I can. Ask what you need to know.",
+      "truthsTheyKnow": [
+        "He can explain how the tire evidence, routine-building, and interview pressure converged on the same person."
+      ],
+      "secretsTheyHide": [
+        "He knows which moments in the interview mattered most, but he is careful not to turn the truth into theatre."
+      ],
+      "lieStrategy": "Steady, probing, patient, and strategic; he sounds calm because he wants the suspect to fill the silence."
     },
     {
       "witnessId": "person_carol_lloyd",
-      "systemPrompt": "You are Carol Lloyd. Stay grounded in documented case facts, answer in character, and do not reveal the hidden truth outright.",
-      "openingLine": "I'm Carol Lloyd. What do you want to know about that night?",
+      "systemPrompt": "You are Carol Lloyd. Persona: Grieving, direct, and emotionally controlled; she speaks with moral clarity rather than investigative certainty.. Stay grounded in documented case facts, answer in character, and do not reveal the hidden truth outright.",
+      "openingLine": "I'll tell you what I can. Ask what you need to know.",
       "truthsTheyKnow": [
-        "Russell Williams is interviewed at Ottawa Police Service by Detective Sergeant Jim Smyth while investigators treat Jessica Lloyd's case as an urgent live investigation."
+        "She can speak to Jessica's routines, what mattered in the early search, and how the family experienced the case pressure."
       ],
       "secretsTheyHide": [
-        "Carries details about Jessica's routines, the urgency of the search, and how quickly the case shifted once investigators focused on Williams."
+        "She deliberately withholds some of the family's anger because she wants facts on the record before emotion takes over."
       ],
-      "lieStrategy": "Carries details about Jessica's routines, the urgency of the search, and how quickly the case shifted once investigators focused on Williams."
+      "lieStrategy": "Grieving, direct, and emotionally controlled; she speaks with moral clarity rather than investigative certainty."
+    },
+    {
+      "witnessId": "person_erin_mcallister",
+      "systemPrompt": "You are Erin McAllister. Persona: Observant, emotionally direct, and less guarded than the suspects; she sounds like someone trying to be useful, not impressive.. Stay grounded in documented case facts, answer in character, and do not reveal the hidden truth outright.",
+      "openingLine": "I'll tell you what I can. Ask what you need to know.",
+      "truthsTheyKnow": [
+        "She noticed subtle changes in Jessica's routine and can distinguish what was real from what people only claimed after the fact."
+      ],
+      "secretsTheyHide": [
+        "She initially kept back an awkward conversation because she did not want police to reduce Jessica to dating gossip."
+      ],
+      "lieStrategy": "Observant, emotionally direct, and less guarded than the suspects; she sounds like someone trying to be useful, not impressive."
     }
   ],
   "call911Script": "Emergency dispatch, please respond to Jessica Lloyd residence area, Belleville, Ontario. Someone has been found unresponsive.",
-  "revealNarrationText": "The reconstructed truth points to the highest-confidence suspect in The Russell Williams Interrogation.",
+  "revealNarrationText": "The reconstructed truth points to the highest-confidence suspect in The Belleville Vanishing.",
   "assetManifest": {
     "sceneImageUri": "https://www.theglobeandmail.com/resizer/v2/7YNN5TC3B5FTDANRFCSS3TC7Q4?auth=676e98259adf2188e6c99ebb468d9b74be2b258d562965a22b4a18613e579fab&width=1200&height=800&quality=80&smart=true",
     "call911AudioUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/caller_911-roster_c9e30cca64-911.mp3",
     "revealNarrationAudioUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/narrator-roster_7a087e2407-reveal.mp3",
     "witnessPortraits": {
       "person_russell_williams": "https://i.cbc.ca/ais/1.2067829,1382072606000/full/max/0/default.jpg?im=Crop%2Crect%3D%280%2C0%2C1180%2C663%29%3BResize%3D620",
+      "person_graham_reid": "",
+      "person_colin_fraser": "",
+      "person_adam_doyle": "",
       "person_jim_smyth": "https://i.cbc.ca/ais/1.1777682,1717130919935/full/max/0/default.jpg?im=Crop%2Crect%3D%280%2C0%2C220%2C123%29%3B",
-      "person_carol_lloyd": "https://i.cbc.ca/ais/1.2099319,1488560464000/full/max/0/default.jpg?im=Crop%2Crect%3D%280%2C0%2C305%2C171%29%3BResize%3D620"
+      "person_carol_lloyd": "https://i.cbc.ca/ais/1.2099319,1488560464000/full/max/0/default.jpg?im=Crop%2Crect%3D%280%2C0%2C305%2C171%29%3BResize%3D620",
+      "person_erin_mcallister": ""
     },
     "witnessVoiceSamples": {
       "person_russell_williams": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/criminal-person_russell_williams-sample.mp3",
+      "person_graham_reid": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/suspect-person_graham_reid-sample.mp3",
+      "person_colin_fraser": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/suspect-person_colin_fraser-sample.mp3",
+      "person_adam_doyle": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/suspect-person_adam_doyle-sample.mp3",
       "person_jim_smyth": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/witness-person_jim_smyth-sample.mp3",
-      "person_carol_lloyd": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/witness-person_carol_lloyd-sample.mp3"
+      "person_carol_lloyd": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/witness-person_carol_lloyd-sample.mp3",
+      "person_erin_mcallister": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/witness-person_erin_mcallister-sample.mp3"
     },
     "voiceModels": {
       "person_russell_williams": {
         "voiceMode": "profile_fallback",
         "providerVoiceId": "bBXj5KgFFY7RmJybmt9B",
         "sampleAssetUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/criminal-person_russell_williams-sample.mp3"
+      },
+      "person_graham_reid": {
+        "voiceMode": "profile_fallback",
+        "providerVoiceId": "u82SOMXU6mDEQDZEiGzw",
+        "sampleAssetUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/suspect-person_graham_reid-sample.mp3"
+      },
+      "person_colin_fraser": {
+        "voiceMode": "profile_fallback",
+        "providerVoiceId": "90MVHpR7ZK4P8LdbmT7U",
+        "sampleAssetUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/suspect-person_colin_fraser-sample.mp3"
+      },
+      "person_adam_doyle": {
+        "voiceMode": "profile_fallback",
+        "providerVoiceId": "ROoTSPYbzy9ak8vI3Ocu",
+        "sampleAssetUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/suspect-person_adam_doyle-sample.mp3"
       },
       "person_jim_smyth": {
         "voiceMode": "profile_fallback",
@@ -132,6 +268,11 @@
         "voiceMode": "profile_fallback",
         "providerVoiceId": "LAZhaBTgLQgP2DzOPKbx",
         "sampleAssetUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/witness-person_carol_lloyd-sample.mp3"
+      },
+      "person_erin_mcallister": {
+        "voiceMode": "profile_fallback",
+        "providerVoiceId": "jPNgybtuS4Hpu2QJEvWt",
+        "sampleAssetUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/witness-person_erin_mcallister-sample.mp3"
       }
     },
     "renderedAudio": {
@@ -139,8 +280,12 @@
       "revealNarrationAudioUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/narrator-roster_7a087e2407-reveal.mp3",
       "witnessIntroUris": {
         "person_russell_williams": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/criminal-person_russell_williams-intro.mp3",
+        "person_graham_reid": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/suspect-person_graham_reid-intro.mp3",
+        "person_colin_fraser": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/suspect-person_colin_fraser-intro.mp3",
+        "person_adam_doyle": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/suspect-person_adam_doyle-intro.mp3",
         "person_jim_smyth": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/witness-person_jim_smyth-intro.mp3",
-        "person_carol_lloyd": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/witness-person_carol_lloyd-intro.mp3"
+        "person_carol_lloyd": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/witness-person_carol_lloyd-intro.mp3",
+        "person_erin_mcallister": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/witness-person_erin_mcallister-intro.mp3"
       },
       "ambientOrStingUris": {}
     },
@@ -164,5 +309,5 @@
     }
   },
   "packageVersion": "1.0.0",
-  "generatedAt": "2026-05-09T05:41:02.194Z"
+  "generatedAt": "2026-05-09T06:37:51.488Z"
 }
