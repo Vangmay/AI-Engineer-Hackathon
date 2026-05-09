@@ -7,9 +7,11 @@ const CONVEX_URL = import.meta.env.VITE_CONVEX_URL as string | undefined;
 
 interface LobbyHydration {
   sceneImageUrl: string | null;
+  sceneModelUrl: string | null;
   call911AudioUrl: string | null;
   witnessIntroAudioUrls: Record<string, string>;
   witnessPortraitUrls: Record<string, string>;
+  witnessModelUrls: Record<string, string>;
   evidenceImageUrls: Record<string, string>;
   evidenceModels: Record<string, string>;
   evidenceModelPreviewUrls: Record<string, string>;
@@ -56,6 +58,7 @@ function ConvexMediaSyncInner() {
     const apply = (h: LobbyHydration) => {
       setConvexMedia({
         sceneImageUrl: h.sceneImageUrl,
+        sceneModelUrl: h.sceneModelUrl ?? null,
         evidenceImageUrls: h.evidenceImageUrls,
         evidenceModelUrls: h.evidenceModels,
         evidenceModelPreviewUrls: h.evidenceModelPreviewUrls,
@@ -65,6 +68,10 @@ function ConvexMediaSyncInner() {
         witnessPortraitUrls:
           Object.keys(h.witnessPortraitUrls ?? {}).length > 0
             ? (h.witnessPortraitUrls ?? {})
+            : undefined,
+        witnessModelUrls:
+          Object.keys(h.witnessModelUrls ?? {}).length > 0
+            ? (h.witnessModelUrls ?? {})
             : undefined,
       });
     };

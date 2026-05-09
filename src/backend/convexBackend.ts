@@ -165,7 +165,7 @@ function snapshotFromConvexRow(row: {
       voiceModels:
         (m.voiceModels as CaseMedia['voiceModels']) ?? ({} as CaseMedia['voiceModels']),
       witnessPortraitUrls: asRecord(m.witnessPortraitUrls),
-      witnessModelUrls: {},
+      witnessModelUrls: asRecord(m.witnessModelUrls),
       witnessVoiceSampleUrls: asRecord(m.witnessVoiceSampleUrls),
       evidenceImageUrls: asRecord(m.evidenceImageUrls ?? m.evidenceRenders),
       evidenceModelUrls: asRecord(m.evidenceModelUrls ?? m.evidenceModels),

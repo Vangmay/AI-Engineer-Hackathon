@@ -243,7 +243,8 @@
   "call911Script": "Nine-one-one, what is your emergency? Jessica Lloyd is missing. Her car is still outside her place and she is not answering her phone. Something is wrong. What is the address where you are calling from? I am at Jessica's residence area in Belleville. Please send officers right away. When did anyone last hear from her, and do you see any sign of forced entry? Last night. This is not like her at all. Her phone goes straight to voicemail and I do not want to go inside alone.",
   "revealNarrationText": "The reconstructed truth points to the highest-confidence suspect in The Belleville Vanishing.",
   "assetManifest": {
-    "sceneImageUri": "https://www.theglobeandmail.com/resizer/v2/7YNN5TC3B5FTDANRFCSS3TC7Q4?auth=676e98259adf2188e6c99ebb468d9b74be2b258d562965a22b4a18613e579fab&width=1200&height=800&quality=80&smart=true",
+    "sceneImageUri": "https://v3b.fal.media/files/b/0a997c75/6L3k9ZRXXYF1bCrWTWeDl_10dff6ed5b5347eda6355b96374f72b7.jpg",
+    "sceneModelUri": "https://v3b.fal.media/files/b/0a997c7d/0BHicDfSSCg_WikO5ILYj_base_basic_pbr.glb",
     "call911AudioUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/caller_911-roster_c9e30cca64-911.mp3",
     "revealNarrationAudioUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/narrator-roster_7a087e2407-reveal.mp3",
     "witnessPortraits": {

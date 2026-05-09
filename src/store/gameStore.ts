@@ -35,12 +35,14 @@ interface GameState {
   loadCase: (caseId: string) => Promise<void>;
   setConvexMedia: (media: {
     sceneImageUrl: string | null;
+    sceneModelUrl?: string | null;
     evidenceImageUrls: Record<string, string>;
     evidenceModelUrls: Record<string, string>;
     evidenceModelPreviewUrls: Record<string, string>;
     call911AudioUrl?: string | null;
     witnessIntroAudioUrls?: Record<string, string>;
     witnessPortraitUrls?: Record<string, string>;
+    witnessModelUrls?: Record<string, string>;
   }) => void;
   goToBrief: () => void;
   startInterrogation: (witnessId: string) => Promise<void>;
@@ -155,6 +157,10 @@ export const useGameStore = create<GameState>((set, get) => ({
   setConvexMedia: (media) => {
     set((s) => ({
       sceneImageUrl: media.sceneImageUrl ?? s.sceneImageUrl,
+      sceneModelUrl:
+        media.sceneModelUrl !== undefined && media.sceneModelUrl !== null
+          ? media.sceneModelUrl
+          : s.sceneModelUrl,
       evidenceImageUrls: Object.keys(media.evidenceImageUrls).length > 0
         ? media.evidenceImageUrls
         : s.evidenceImageUrls,
@@ -176,6 +182,10 @@ export const useGameStore = create<GameState>((set, get) => ({
         media.witnessPortraitUrls && Object.keys(media.witnessPortraitUrls).length > 0
           ? { ...s.witnessPortraitUrls, ...media.witnessPortraitUrls }
           : s.witnessPortraitUrls,
+      witnessModelUrls:
+        media.witnessModelUrls && Object.keys(media.witnessModelUrls).length > 0
+          ? { ...s.witnessModelUrls, ...media.witnessModelUrls }
+          : s.witnessModelUrls,
     }));
   },
 
