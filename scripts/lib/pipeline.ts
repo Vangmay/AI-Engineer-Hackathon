@@ -615,6 +615,9 @@ export function buildRuntimeCase(input: {
   evidence: EvidenceItem[];
   timeline: TimelineEvent[];
 }): MysteryCase {
+  const referenceYear =
+    Number.parseInt((input.caseRecord.incidentStartDate ?? '').slice(0, 4), 10) ||
+    new Date().getUTCFullYear();
   const victim =
     input.people.find((person) => person.roleType === 'victim') ??
     input.people[0] ?? {
@@ -630,7 +633,7 @@ export function buildRuntimeCase(input: {
     id: person.personId,
     name: person.fullName,
     role: person.roleType === 'suspect' ? 'Primary suspect' : person.shortBio,
-    age: person.birthYear ? new Date().getUTCFullYear() - person.birthYear : 40 - index,
+    age: person.birthYear ? referenceYear - person.birthYear : 40 - index,
     knows:
       input.timeline[index]?.description ??
       `Knows key details about ${input.caseRecord.canonicalTitle}.`,
@@ -649,7 +652,7 @@ export function buildRuntimeCase(input: {
     title: input.caseRecord.canonicalTitle,
     victim: {
       name: victim.fullName,
-      age: victim.birthYear ? new Date().getUTCFullYear() - victim.birthYear : 45,
+      age: victim.birthYear ? referenceYear - victim.birthYear : 45,
       occupation: victim.shortBio,
       time_of_death: 'Unknown',
       location: input.caseRecord.primaryLocationLabel ?? 'Unknown location',

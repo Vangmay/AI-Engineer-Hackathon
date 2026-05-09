@@ -1,0 +1,93 @@
+[
+  {
+    "mediaId": "media_russell_portrait",
+    "caseId": "case_colonel_russell_williams_2010",
+    "personId": "person_russell_williams",
+    "mediaKind": "image",
+    "originType": "news_clip",
+    "url": "https://i.cbc.ca/ais/1.2067829,1382072606000/full/max/0/default.jpg?im=Crop%2Crect%3D%280%2C0%2C1180%2C663%29%3BResize%3D620",
+    "downloadStatus": "not_downloaded",
+    "transcriptAvailable": false,
+    "transcriptSource": "none",
+    "clipRole": "criminal_candidate",
+    "voiceCloneEligibility": "fallback_only",
+    "containsTargetPerson": true,
+    "faceVisibilityScore": 88,
+    "voiceIsolatedScore": 0,
+    "backgroundNoiseScore": 0,
+    "usableForCloneScore": 82,
+    "rightsNotes": "Harvested from Exa result metadata for CBC News.",
+    "sourceIds": [
+      "source_cbc_timeline"
+    ],
+    "extractedAt": "2026-05-09T13:30:00.000Z"
+  },
+  {
+    "mediaId": "media_jim_smyth_image",
+    "caseId": "case_colonel_russell_williams_2010",
+    "personId": "person_jim_smyth",
+    "mediaKind": "image",
+    "originType": "interview",
+    "url": "https://i.cbc.ca/ais/1.1777682,1717130919935/full/max/0/default.jpg?im=Crop%2Crect%3D%280%2C0%2C220%2C123%29%3B",
+    "downloadStatus": "not_downloaded",
+    "transcriptAvailable": false,
+    "transcriptSource": "none",
+    "clipRole": "witness_candidate",
+    "voiceCloneEligibility": "fallback_only",
+    "containsTargetPerson": true,
+    "faceVisibilityScore": 64,
+    "voiceIsolatedScore": 0,
+    "backgroundNoiseScore": 0,
+    "usableForCloneScore": 58,
+    "rightsNotes": "Harvested from Exa result metadata for CBC player coverage of the Williams interview.",
+    "sourceIds": [
+      "source_transcript_interview"
+    ],
+    "extractedAt": "2026-05-09T13:30:00.000Z"
+  },
+  {
+    "mediaId": "media_carol_family_image",
+    "caseId": "case_colonel_russell_williams_2010",
+    "personId": "person_carol_lloyd",
+    "mediaKind": "image",
+    "originType": "news_clip",
+    "url": "https://i.cbc.ca/ais/1.2099319,1488560464000/full/max/0/default.jpg?im=Crop%2Crect%3D%280%2C0%2C305%2C171%29%3BResize%3D620",
+    "downloadStatus": "not_downloaded",
+    "transcriptAvailable": false,
+    "transcriptSource": "none",
+    "clipRole": "witness_candidate",
+    "voiceCloneEligibility": "fallback_only",
+    "containsTargetPerson": true,
+    "faceVisibilityScore": 52,
+    "voiceIsolatedScore": 0,
+    "backgroundNoiseScore": 0,
+    "usableForCloneScore": 49,
+    "rightsNotes": "Harvested from Exa result metadata for CBC memorial coverage; used as a family-side visual reference for the case package.",
+    "sourceIds": [
+      "source_cbc_body"
+    ],
+    "extractedAt": "2026-05-09T13:30:00.000Z"
+  },
+  {
+    "mediaId": "media_scene_house",
+    "caseId": "case_colonel_russell_williams_2010",
+    "mediaKind": "image",
+    "originType": "archive_photo",
+    "url": "https://www.theglobeandmail.com/resizer/v2/7YNN5TC3B5FTDANRFCSS3TC7Q4?auth=676e98259adf2188e6c99ebb468d9b74be2b258d562965a22b4a18613e579fab&width=1200&height=800&quality=80&smart=true",
+    "downloadStatus": "not_downloaded",
+    "transcriptAvailable": false,
+    "transcriptSource": "none",
+    "clipRole": "unknown",
+    "voiceCloneEligibility": "fallback_only",
+    "containsTargetPerson": false,
+    "faceVisibilityScore": 0,
+    "voiceIsolatedScore": 0,
+    "backgroundNoiseScore": 0,
+    "usableForCloneScore": 76,
+    "rightsNotes": "Harvested from Exa result metadata for Globe and Mail case coverage.",
+    "sourceIds": [
+      "source_globe_case_against"
+    ],
+    "extractedAt": "2026-05-09T13:30:00.000Z"
+  }
+]

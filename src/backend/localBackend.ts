@@ -12,7 +12,8 @@ import type {
 
 const STORAGE_KEY = 'crime-scene.local-backend.v1';
 
-const ACTIVE_CASE_ID = import.meta.env.VITE_ACTIVE_CASE_ID ?? 'case_raymond_teo_2026';
+const ACTIVE_CASE_ID =
+  import.meta.env.VITE_ACTIVE_CASE_ID ?? 'case_colonel_russell_williams_2010';
 
 interface LocalBackendState {
   session: GameSession;

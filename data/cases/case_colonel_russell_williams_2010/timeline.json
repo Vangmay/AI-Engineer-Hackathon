@@ -1,0 +1,90 @@
+[
+  {
+    "eventId": "event_jessica_disappears",
+    "caseId": "case_colonel_russell_williams_2010",
+    "timestampPrecision": "day",
+    "timestampStart": "2010-01-29",
+    "eventType": "crime",
+    "description": "Jessica Lloyd disappears from the Belleville area, escalating a missing-person investigation that quickly draws regional police attention.",
+    "peopleInvolved": [
+      "person_jessica_lloyd",
+      "person_carol_lloyd"
+    ],
+    "locationLabel": "Belleville, Ontario",
+    "sourceIds": [
+      "source_cbc_timeline",
+      "source_cbc_body"
+    ],
+    "confidenceScore": 92
+  },
+  {
+    "eventId": "event_tire_track_break",
+    "caseId": "case_colonel_russell_williams_2010",
+    "timestampPrecision": "day",
+    "timestampStart": "2010-02-04",
+    "eventType": "police_action",
+    "description": "Investigators narrow the suspect vehicle using tire-track evidence near Jessica Lloyd's home, an early break that focuses attention on Russell Williams's SUV.",
+    "peopleInvolved": [
+      "person_russell_williams",
+      "person_jim_smyth"
+    ],
+    "locationLabel": "Belleville, Ontario",
+    "sourceIds": [
+      "source_globe_tire_track"
+    ],
+    "confidenceScore": 95
+  },
+  {
+    "eventId": "event_ottawa_interview",
+    "caseId": "case_colonel_russell_williams_2010",
+    "timestampPrecision": "exact",
+    "timestampStart": "2010-02-07T00:00:00-05:00",
+    "eventType": "police_action",
+    "description": "Russell Williams is interviewed at Ottawa Police Service by Detective Sergeant Jim Smyth while investigators treat Jessica Lloyd's case as an urgent live investigation.",
+    "peopleInvolved": [
+      "person_russell_williams",
+      "person_jim_smyth"
+    ],
+    "locationLabel": "Ottawa Police Service, Ottawa, Ontario",
+    "sourceIds": [
+      "source_transcript_interview"
+    ],
+    "confidenceScore": 98
+  },
+  {
+    "eventId": "event_search_and_seizure",
+    "caseId": "case_colonel_russell_williams_2010",
+    "timestampPrecision": "day",
+    "timestampStart": "2010-02-07",
+    "eventType": "police_action",
+    "description": "Search activity and digital review begin tying Williams's movements and private evidence cache to the investigation's growing list of break-ins and assaults.",
+    "peopleInvolved": [
+      "person_russell_williams",
+      "person_jim_smyth"
+    ],
+    "locationLabel": "Tweed, Ontario",
+    "sourceIds": [
+      "source_globe_case_against",
+      "source_wikipedia_overview"
+    ],
+    "confidenceScore": 90
+  },
+  {
+    "eventId": "event_body_recovered",
+    "caseId": "case_colonel_russell_williams_2010",
+    "timestampPrecision": "day",
+    "timestampStart": "2010-02-08",
+    "eventType": "discovery",
+    "description": "Jessica Lloyd's body is located after investigators say Williams led police to the remains, turning the case from urgent search to homicide prosecution.",
+    "peopleInvolved": [
+      "person_jessica_lloyd",
+      "person_russell_williams",
+      "person_carol_lloyd"
+    ],
+    "locationLabel": "Tweed area, Ontario",
+    "sourceIds": [
+      "source_cbc_body"
+    ],
+    "confidenceScore": 96
+  }
+]

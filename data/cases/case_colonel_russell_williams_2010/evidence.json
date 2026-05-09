@@ -1,0 +1,74 @@
+[
+  {
+    "evidenceId": "evidence_tire_track",
+    "caseId": "case_colonel_russell_williams_2010",
+    "label": "Tire Track Match",
+    "evidenceType": "physical",
+    "description": "Distinct tire impressions near Jessica Lloyd's home narrowed investigators to a vehicle consistent with Russell Williams's SUV.",
+    "supports": [
+      "person_russell_williams"
+    ],
+    "contradicts": [],
+    "isPubliclyDocumented": true,
+    "gameplayValue": "core_clue",
+    "sourceIds": [
+      "source_globe_tire_track",
+      "source_cbc_timeline"
+    ],
+    "confidenceScore": 95
+  },
+  {
+    "evidenceId": "evidence_vehicle_movements",
+    "caseId": "case_colonel_russell_williams_2010",
+    "label": "Vehicle and Movement Timeline",
+    "evidenceType": "digital",
+    "description": "Investigators used vehicle scrutiny and movement reconstruction to challenge Williams's account and tighten the timeline around Jessica Lloyd's disappearance.",
+    "supports": [
+      "person_russell_williams"
+    ],
+    "contradicts": [],
+    "isPubliclyDocumented": true,
+    "gameplayValue": "core_clue",
+    "sourceIds": [
+      "source_transcript_interview",
+      "source_cbc_timeline"
+    ],
+    "confidenceScore": 91
+  },
+  {
+    "evidenceId": "evidence_photo_cache",
+    "caseId": "case_colonel_russell_williams_2010",
+    "label": "Search-Warrant Photo Cache",
+    "evidenceType": "digital",
+    "description": "Searches uncovered a cache of images and trophies tying Williams to break-ins, surveillance behavior, and the broader pattern behind the case.",
+    "supports": [
+      "person_russell_williams"
+    ],
+    "contradicts": [],
+    "isPubliclyDocumented": true,
+    "gameplayValue": "secondary_clue",
+    "sourceIds": [
+      "source_globe_case_against",
+      "source_wikipedia_overview"
+    ],
+    "confidenceScore": 89
+  },
+  {
+    "evidenceId": "evidence_military_alibi",
+    "caseId": "case_colonel_russell_williams_2010",
+    "label": "Operational Alibi",
+    "evidenceType": "document",
+    "description": "Williams's demanding military responsibilities and high-profile command role initially created the impression that he had too visible a schedule to be the offender.",
+    "supports": [],
+    "contradicts": [
+      "person_russell_williams"
+    ],
+    "isPubliclyDocumented": true,
+    "gameplayValue": "red_herring",
+    "sourceIds": [
+      "source_wikipedia_overview",
+      "source_cbc_timeline"
+    ],
+    "confidenceScore": 58
+  }
+]

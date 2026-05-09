@@ -1,0 +1,168 @@
+{
+  "packageId": "pkg_84a1a9f322",
+  "caseId": "case_colonel_russell_williams_2010",
+  "title": "The Russell Williams Interrogation",
+  "runtimeCase": {
+    "case_id": "case_colonel_russell_williams_2010",
+    "title": "The Russell Williams Interrogation",
+    "victim": {
+      "name": "Jessica Lloyd",
+      "age": 28,
+      "occupation": "Belleville resident whose disappearance triggered the final urgent phase of the investigation.",
+      "time_of_death": "Unknown",
+      "location": "Jessica Lloyd residence area, Belleville, Ontario",
+      "date": "2010-01-29"
+    },
+    "truth": {
+      "killer": "person_russell_williams",
+      "motive": "Maintains composure early in the interview, but the case closes around his vehicle, movements, and the forensic trail.",
+      "method": "Distinct tire impressions near Jessica Lloyd's home narrowed investigators to a vehicle consistent with Russell Williams's SUV.",
+      "hidden_clue": "Distinct tire impressions near Jessica Lloyd's home narrowed investigators to a vehicle consistent with Russell Williams's SUV."
+    },
+    "witnesses": [
+      {
+        "id": "person_russell_williams",
+        "name": "Russell Williams",
+        "role": "Primary suspect",
+        "age": 47,
+        "knows": "Jessica Lloyd disappears from the Belleville area, escalating a missing-person investigation that quickly draws regional police attention.",
+        "hiding": "Maintains composure early in the interview, but the case closes around his vehicle, movements, and the forensic trail.",
+        "lies": true,
+        "voice_id": "",
+        "portrait_prompt": "Russell Williams, documentary portrait, realistic, editorial true crime style"
+      },
+      {
+        "id": "person_jim_smyth",
+        "name": "Jim Smyth",
+        "role": "OPP detective sergeant leading the interview strategy in Ottawa.",
+        "age": 39,
+        "knows": "Investigators narrow the suspect vehicle using tire-track evidence near Jessica Lloyd's home, an early break that focuses attention on Russell Williams's SUV.",
+        "hiding": "Keeps the pressure on timelines, vehicle details, and the urgency surrounding Jessica Lloyd's disappearance.",
+        "lies": false,
+        "voice_id": "",
+        "portrait_prompt": "Jim Smyth, documentary portrait, realistic, editorial true crime style"
+      },
+      {
+        "id": "person_carol_lloyd",
+        "name": "Carol Lloyd",
+        "role": "Family-side witness composite grounded in Jessica Lloyd coverage and memorial reporting.",
+        "age": 38,
+        "knows": "Russell Williams is interviewed at Ottawa Police Service by Detective Sergeant Jim Smyth while investigators treat Jessica Lloyd's case as an urgent live investigation.",
+        "hiding": "Carries details about Jessica's routines, the urgency of the search, and how quickly the case shifted once investigators focused on Williams.",
+        "lies": false,
+        "voice_id": "",
+        "portrait_prompt": "Carol Lloyd, documentary portrait, realistic, editorial true crime style"
+      }
+    ],
+    "clues": [
+      "Distinct tire impressions near Jessica Lloyd's home narrowed investigators to a vehicle consistent with Russell Williams's SUV.",
+      "Investigators used vehicle scrutiny and movement reconstruction to challenge Williams's account and tighten the timeline around Jessica Lloyd's disappearance.",
+      "Searches uncovered a cache of images and trophies tying Williams to break-ins, surveillance behavior, and the broader pattern behind the case.",
+      "Williams's demanding military responsibilities and high-profile command role initially created the impression that he had too visible a schedule to be the offender."
+    ],
+    "scene_prompt": "Investigative scene reconstruction of The Russell Williams Interrogation, grounded in documented evidence and timeline details.",
+    "brief": "On February 7, 2010, investigators questioned Colonel Russell Williams at Ottawa Police Service while the search for Jessica Lloyd was still active. Tire-track analysis, vehicle scrutiny, and inconsistencies in Williams's account had begun to collapse the image of a disciplined air-force commander into that of the prime suspect."
+  },
+  "witnessPromptPacks": [
+    {
+      "witnessId": "person_russell_williams",
+      "systemPrompt": "You are Russell Williams. Stay grounded in documented case facts, answer in character, and do not reveal the hidden truth outright.",
+      "openingLine": "I'm Russell Williams. What do you want to know about that night?",
+      "truthsTheyKnow": [
+        "Jessica Lloyd disappears from the Belleville area, escalating a missing-person investigation that quickly draws regional police attention."
+      ],
+      "secretsTheyHide": [
+        "Maintains composure early in the interview, but the case closes around his vehicle, movements, and the forensic trail."
+      ],
+      "lieStrategy": "Deflect blame, narrow your time window, and answer only what was asked."
+    },
+    {
+      "witnessId": "person_jim_smyth",
+      "systemPrompt": "You are Jim Smyth. Stay grounded in documented case facts, answer in character, and do not reveal the hidden truth outright.",
+      "openingLine": "I'm Jim Smyth. What do you want to know about that night?",
+      "truthsTheyKnow": [
+        "Investigators narrow the suspect vehicle using tire-track evidence near Jessica Lloyd's home, an early break that focuses attention on Russell Williams's SUV."
+      ],
+      "secretsTheyHide": [
+        "Keeps the pressure on timelines, vehicle details, and the urgency surrounding Jessica Lloyd's disappearance."
+      ],
+      "lieStrategy": "Keeps the pressure on timelines, vehicle details, and the urgency surrounding Jessica Lloyd's disappearance."
+    },
+    {
+      "witnessId": "person_carol_lloyd",
+      "systemPrompt": "You are Carol Lloyd. Stay grounded in documented case facts, answer in character, and do not reveal the hidden truth outright.",
+      "openingLine": "I'm Carol Lloyd. What do you want to know about that night?",
+      "truthsTheyKnow": [
+        "Russell Williams is interviewed at Ottawa Police Service by Detective Sergeant Jim Smyth while investigators treat Jessica Lloyd's case as an urgent live investigation."
+      ],
+      "secretsTheyHide": [
+        "Carries details about Jessica's routines, the urgency of the search, and how quickly the case shifted once investigators focused on Williams."
+      ],
+      "lieStrategy": "Carries details about Jessica's routines, the urgency of the search, and how quickly the case shifted once investigators focused on Williams."
+    }
+  ],
+  "call911Script": "Emergency dispatch, please respond to Jessica Lloyd residence area, Belleville, Ontario. Someone has been found unresponsive.",
+  "revealNarrationText": "The reconstructed truth points to the highest-confidence suspect in The Russell Williams Interrogation.",
+  "assetManifest": {
+    "sceneImageUri": "https://www.theglobeandmail.com/resizer/v2/7YNN5TC3B5FTDANRFCSS3TC7Q4?auth=676e98259adf2188e6c99ebb468d9b74be2b258d562965a22b4a18613e579fab&width=1200&height=800&quality=80&smart=true",
+    "call911AudioUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/caller_911-roster_c9e30cca64-911.mp3",
+    "revealNarrationAudioUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/narrator-roster_7a087e2407-reveal.mp3",
+    "witnessPortraits": {
+      "person_russell_williams": "https://i.cbc.ca/ais/1.2067829,1382072606000/full/max/0/default.jpg?im=Crop%2Crect%3D%280%2C0%2C1180%2C663%29%3BResize%3D620",
+      "person_jim_smyth": "https://i.cbc.ca/ais/1.1777682,1717130919935/full/max/0/default.jpg?im=Crop%2Crect%3D%280%2C0%2C220%2C123%29%3B",
+      "person_carol_lloyd": "https://i.cbc.ca/ais/1.2099319,1488560464000/full/max/0/default.jpg?im=Crop%2Crect%3D%280%2C0%2C305%2C171%29%3BResize%3D620"
+    },
+    "witnessVoiceSamples": {
+      "person_russell_williams": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/criminal-person_russell_williams-sample.mp3",
+      "person_jim_smyth": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/witness-person_jim_smyth-sample.mp3",
+      "person_carol_lloyd": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/witness-person_carol_lloyd-sample.mp3"
+    },
+    "voiceModels": {
+      "person_russell_williams": {
+        "voiceMode": "profile_fallback",
+        "providerVoiceId": "bBXj5KgFFY7RmJybmt9B",
+        "sampleAssetUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/criminal-person_russell_williams-sample.mp3"
+      },
+      "person_jim_smyth": {
+        "voiceMode": "profile_fallback",
+        "providerVoiceId": "1cz3lbiKbSmQEIDBBv7T",
+        "sampleAssetUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/witness-person_jim_smyth-sample.mp3"
+      },
+      "person_carol_lloyd": {
+        "voiceMode": "profile_fallback",
+        "providerVoiceId": "LAZhaBTgLQgP2DzOPKbx",
+        "sampleAssetUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/witness-person_carol_lloyd-sample.mp3"
+      }
+    },
+    "renderedAudio": {
+      "call911AudioUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/caller_911-roster_c9e30cca64-911.mp3",
+      "revealNarrationAudioUri": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/narrator-roster_7a087e2407-reveal.mp3",
+      "witnessIntroUris": {
+        "person_russell_williams": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/criminal-person_russell_williams-intro.mp3",
+        "person_jim_smyth": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/witness-person_jim_smyth-intro.mp3",
+        "person_carol_lloyd": "/case-assets/case_colonel_russell_williams_2010/assets/audio/renders/witness-person_carol_lloyd-intro.mp3"
+      },
+      "ambientOrStingUris": {}
+    },
+    "evidenceRenders": {
+      "0": "https://www.theglobeandmail.com/resizer/v2/63UHEXTHSFGITNEG4V3SBFHSVU?auth=c317871298d4e95c002ea380b3cf2ed6ae54f8157a03bfb61a084bfb981ecbdc&width=1200&height=800&quality=80&smart=true",
+      "1": "https://i.cbc.ca/ais/1.2059563,1381988168000/full/max/0/default.jpg?im=Crop%2Crect%3D%280%2C0%2C1180%2C663%29%3BResize%3D620",
+      "2": "https://www.theglobeandmail.com/resizer/v2/23IN4KYXZBFFTHD7EN4LXV7YOQ?auth=341cea8760e5221432f6bdec937c7ef902ca3e7d7cb03eb16567a91537309710&width=1200&height=800&quality=80&smart=true",
+      "3": "https://i.cbc.ca/ais/1.2067829,1382072606000/full/max/0/default.jpg?im=Crop%2Crect%3D%280%2C0%2C1180%2C663%29%3BResize%3D620"
+    },
+    "evidenceModels": {
+      "0": "",
+      "1": "",
+      "2": "",
+      "3": ""
+    },
+    "evidenceModelPreviews": {
+      "0": "",
+      "1": "",
+      "2": "",
+      "3": ""
+    }
+  },
+  "packageVersion": "1.0.0",
+  "generatedAt": "2026-05-09T05:41:02.194Z"
+}

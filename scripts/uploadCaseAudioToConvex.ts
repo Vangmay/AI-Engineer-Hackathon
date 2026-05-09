@@ -26,9 +26,18 @@ const upsertGamePackageRef = makeFunctionReference<'mutation'>('imports:upsertGa
 const listCaseAudioAssetsRef = makeFunctionReference<'query'>('media:listCaseAudioAssets');
 const generateUploadUrlRef = makeFunctionReference<'mutation'>('media:generateUploadUrl');
 const saveUploadedAudioAssetsRef = makeFunctionReference<'mutation'>('media:saveUploadedAudioAssets');
+const generateCaseMediaRef = makeFunctionReference<'action'>('media:generateForCase');
 
 function isTruthyFlag(value: string | undefined): boolean {
   return value === 'true' || value === '1' || value === 'yes';
+}
+
+function normalizeRecord(
+  value: Record<string, string> | undefined,
+): Record<string, string> | undefined {
+  if (!value) return undefined;
+  const entries = Object.entries(value).filter(([, entry]) => typeof entry === 'string' && entry.trim());
+  return entries.length > 0 ? Object.fromEntries(entries) : undefined;
 }
 
 function isPlayableAudioAsset(asset: DerivedAsset): boolean {
@@ -189,6 +198,15 @@ async function main() {
       packageRecord,
       caseRecord: bundle.caseRecord,
     })) as { caseId: string };
+
+    await client.action(generateCaseMediaRef, {
+      caseId: imported.caseId,
+      force,
+      sceneImageUrl: packageRecord.assetManifest.sceneImageUri ?? undefined,
+      evidenceRenders: normalizeRecord(packageRecord.assetManifest.evidenceRenders),
+      evidenceModels: normalizeRecord(packageRecord.assetManifest.evidenceModels),
+      evidenceModelPreviews: normalizeRecord(packageRecord.assetManifest.evidenceModelPreviews),
+    });
 
     const existingAssets = (await client.query(listCaseAudioAssetsRef, {
       caseId: imported.caseId,
