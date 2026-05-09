@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { Evidence3DViewer } from '@/components/Evidence3DViewer';
+import { Scene3DViewer } from '@/components/Scene3DViewer';
 import { useGameStore } from '@/store/gameStore';
 import type { Call911Line } from '@/types/case';
 
@@ -198,51 +199,35 @@ export function CaseLoadScreen() {
           </div>
         </header>
 
+        {/* Full-width crime scene hero at top */}
+        <section className="paper-card lifted mt-[22px] p-[14px_14px_10px] relative">
+          <div className="tape-corner left" />
+          <div className="tape-corner right" />
+          <div className="overflow-hidden" style={{ height: 420 }}>
+            {sceneModelUrl ? (
+              <Scene3DViewer glbUrl={sceneModelUrl} previewUrl={sceneImageUrl ?? undefined} />
+            ) : sceneImageUrl ? (
+              <img
+                src={sceneImageUrl}
+                alt={`Crime scene — ${caseData.title}`}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="photo-ph h-full text-[11px] leading-relaxed">
+                CRIME SCENE — {caseData.victim.location.toUpperCase()}
+              </div>
+            )}
+          </div>
+          <div className="mt-2 flex justify-between gap-4 text-[10px] opacity-70">
+            <span>{sceneModelUrl ? 'EXHIBIT A · CRIME SCENE RECONSTRUCTION · INTERACTIVE 3D' : 'EXHIBIT A · SCENE PHOTOGRAPH 01'}</span>
+            <span>{sceneModelUrl ? 'DRAG TO ROTATE · SCROLL TO ZOOM' : 'RESPONDING OFFICER · 04:22 SGT'}</span>
+          </div>
+          <Stamp text="CONFIDENTIAL" top={-22} left={310} rotate={-8} />
+        </section>
+
         <section className="mt-[22px] grid grid-cols-[1.35fr_1fr] gap-8 max-[900px]:grid-cols-1">
           <div>
-            <section className="paper-card lifted p-[14px_14px_18px]">
-              <div className="tape-corner left" />
-              <div className="tape-corner right" />
-              <div className="relative h-[250px] overflow-hidden rounded-sm case-scene-frame">
-                {showScenePhoto ? (
-                  <img
-                    src={resolvedSceneUrl}
-                    alt={`Crime scene reconstruction for ${caseData.title}`}
-                    className="pointer-events-none absolute inset-0 z-[1] h-full w-full object-cover select-none"
-                    referrerPolicy="no-referrer"
-                    decoding="async"
-                    loading="eager"
-                    onError={() => setScenePhotoBroken(true)}
-                  />
-                ) : null}
-                {!showScenePhoto ? (
-                  <div className="photo-ph absolute inset-0 z-0 flex h-full flex-col px-4 text-[11px] leading-relaxed">
-                    <span className="opacity-95">
-                      CRIME SCENE — {caseData.victim.location.toUpperCase()}
-                    </span>
-                    <span className="mt-2 opacity-85">{caseData.scene_prompt}</span>
-                  </div>
-                ) : null}
-              </div>
-              <div className="mt-2 flex justify-between gap-4 text-[10px] opacity-70">
-                <span>EXHIBIT A · SCENE PHOTOGRAPH 01</span>
-                {sceneModelUrl ? (
-                  <a
-                    href={sceneModelUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="opacity-100 underline decoration-dashed underline-offset-2"
-                  >
-                    3D SCENE MODEL · GLB
-                  </a>
-                ) : (
-                  <span>RESPONDING OFFICER · 04:22 SGT</span>
-                )}
-              </div>
-              <Stamp text="CONFIDENTIAL" top={-22} left={310} rotate={-8} />
-            </section>
-
-            <section className="paper-card lined-paper mt-[22px] p-[14px_18px_16px]">
+            <section className="paper-card lined-paper p-[14px_18px_16px]">
               <div className="flex items-baseline justify-between border-b border-dashed border-[var(--ink)] pb-1">
                 <span className="text-[13px] tracking-[0.1em]">
                   911 CALL · TRANSCRIPT

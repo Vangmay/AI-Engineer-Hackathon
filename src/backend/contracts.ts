@@ -10,6 +10,7 @@ export interface CaseMedia {
   witnessIntroAudioUrls: Record<string, string>;
   voiceModels: AssetManifest['voiceModels'];
   witnessPortraitUrls: Record<string, string>;
+  witnessModelUrls: Record<string, string>;
   witnessVoiceSampleUrls: Record<string, string>;
   evidenceImageUrls: Record<string, string>;
   evidenceModelUrls: Record<string, string>;

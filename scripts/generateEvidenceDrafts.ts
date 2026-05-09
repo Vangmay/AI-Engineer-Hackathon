@@ -60,14 +60,29 @@ function extractVisualSubject(description: string, evidenceType: string): string
   const safe = sanitiseForImage(description);
   const lower = description.toLowerCase();
 
-  if (lower.includes('tumbler') || lower.includes('glass') && lower.includes('nightstand')) {
+  // Raymond Teo case
+  if (lower.includes('tumbler') || (lower.includes('glass') && lower.includes('nightstand'))) {
     return 'glass tumbler with white crystalline residue on the interior surface, placed on a dark wooden surface';
   }
-  if (lower.includes('access log') || lower.includes('door') && lower.includes('opened')) {
+  if (lower.includes('access log') || (lower.includes('door') && lower.includes('opened'))) {
     return 'digital security keypad panel with an illuminated LED timestamp display mounted on a wall';
   }
   if (lower.includes('wine glass')) {
     return 'crystal wine glass with a red lipstick imprint on the rim, resting inside a stainless steel sink';
+  }
+
+  // Russell Williams case
+  if (lower.includes('plaster') && lower.includes('boot')) {
+    return 'rectangular plaster forensic cast block showing a detailed boot sole tread impression, placed on a white evidence sheet with a metric ruler alongside';
+  }
+  if (lower.includes('farmhouse') || lower.includes('limestone farmhouse')) {
+    return 'isolated 1920s limestone farmhouse in rural Ontario winter landscape, bare fields, overcast sky, exterior front view showing stone walls and a wooden front door, no people';
+  }
+  if (lower.includes('mahogany') || lower.includes('trophy box')) {
+    return 'dark mahogany wooden box with brass hasp lock and corner fittings, lid partially open, resting on an evidence examination table under forensic lighting';
+  }
+  if (lower.includes("beret") || lower.includes('colonel') && lower.includes('insignia')) {
+    return 'Canadian Forces dark-blue military beret with polished metal colonel rank insignia badge on the front, placed flat on a neutral surface';
   }
 
   return safe;
@@ -119,10 +134,16 @@ async function main() {
   const now = new Date().toISOString();
 
   if (!only3d) {
-    const scenePrompt = [
-      `Luxury Singapore penthouse apartment interior, forensic investigation, evidence markers visible on surfaces,`,
-      `Singapore Police Force CID documentation photograph, realistic apartment lighting, cinematic composition, no gore, no readable text.`,
-    ].join(' ');
+    const isWilliams = caseId.includes('russell_williams');
+    const scenePrompt = isWilliams
+      ? [
+          `Rural Ontario Canada, isolated limestone farmhouse at night, exterior establishing shot, bare winter fields, single lit window, police cruiser lights casting blue-red reflections on fresh snow,`,
+          `Ontario Provincial Police forensic investigation, evidence markers on ground, cinematic composition, no gore, no readable text.`,
+        ].join(' ')
+      : [
+          `Luxury Singapore penthouse apartment interior, forensic investigation, evidence markers visible on surfaces,`,
+          `Singapore Police Force CID documentation photograph, realistic apartment lighting, cinematic composition, no gore, no readable text.`,
+        ].join(' ');
     const scene = await createFalImageDraft({
       apiKey: env.FAL_API_KEY!,
       prompt: scenePrompt,

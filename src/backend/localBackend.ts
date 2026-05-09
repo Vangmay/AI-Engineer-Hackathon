@@ -33,6 +33,7 @@ const emptyMedia: CaseMedia = {
   witnessIntroAudioUrls: {},
   voiceModels: {},
   witnessPortraitUrls: {},
+  witnessModelUrls: {},
   witnessVoiceSampleUrls: {},
   evidenceImageUrls: {},
   evidenceModelUrls: {},
@@ -73,6 +74,12 @@ function mediaFromPackage(pkg: GameCasePackage): CaseMedia {
     ambientAudioUrl: normalizeCaseAssetUrl(renderedAudio.ambientOrStingUris?.default) ?? null,
     witnessPortraitUrls: Object.fromEntries(
       Object.entries(m.witnessPortraits ?? {}).map(([id, uri]) => [
+        id,
+        normalizeCaseAssetUrl(uri) ?? '',
+      ]),
+    ),
+    witnessModelUrls: Object.fromEntries(
+      Object.entries(m.witnessModels ?? {}).map(([id, uri]) => [
         id,
         normalizeCaseAssetUrl(uri) ?? '',
       ]),

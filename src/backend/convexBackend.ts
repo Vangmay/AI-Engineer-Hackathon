@@ -42,6 +42,7 @@ const emptyMedia: CaseMedia = {
   witnessIntroAudioUrls: {},
   voiceModels: {},
   witnessPortraitUrls: {},
+  witnessModelUrls: {},
   witnessVoiceSampleUrls: {},
   evidenceImageUrls: {},
   evidenceModelUrls: {},
@@ -164,6 +165,7 @@ function snapshotFromConvexRow(row: {
       voiceModels:
         (m.voiceModels as CaseMedia['voiceModels']) ?? ({} as CaseMedia['voiceModels']),
       witnessPortraitUrls: asRecord(m.witnessPortraitUrls),
+      witnessModelUrls: {},
       witnessVoiceSampleUrls: asRecord(m.witnessVoiceSampleUrls),
       evidenceImageUrls: asRecord(m.evidenceImageUrls ?? m.evidenceRenders),
       evidenceModelUrls: asRecord(m.evidenceModelUrls ?? m.evidenceModels),

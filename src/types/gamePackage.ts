@@ -15,6 +15,7 @@ export interface AssetManifest {
   call911AudioUri?: string | null;
   revealNarrationAudioUri?: string | null;
   witnessPortraits: Record<string, string>;
+  witnessModels?: Record<string, string>;
   witnessVoiceSamples: Record<string, string>;
   voiceModels: Record<
     string,

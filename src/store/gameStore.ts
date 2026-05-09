@@ -17,6 +17,7 @@ interface GameState {
   witnessIntroAudioUrls: Record<string, string>;
   voiceModels: AssetManifest['voiceModels'];
   witnessPortraitUrls: Record<string, string>;
+  witnessModelUrls: Record<string, string>;
   witnessVoiceSampleUrls: Record<string, string>;
   evidenceImageUrls: Record<string, string>;
   evidenceModelUrls: Record<string, string>;
@@ -63,6 +64,7 @@ function snapshotToState(snapshot: GameSnapshot) {
     witnessIntroAudioUrls: snapshot.media.witnessIntroAudioUrls,
     voiceModels: snapshot.media.voiceModels,
     witnessPortraitUrls: snapshot.media.witnessPortraitUrls,
+    witnessModelUrls: snapshot.media.witnessModelUrls,
     witnessVoiceSampleUrls: snapshot.media.witnessVoiceSampleUrls,
     evidenceImageUrls: snapshot.media.evidenceImageUrls,
     evidenceModelUrls: snapshot.media.evidenceModelUrls,
@@ -92,6 +94,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   witnessIntroAudioUrls: {},
   voiceModels: {},
   witnessPortraitUrls: {},
+  witnessModelUrls: {},
   witnessVoiceSampleUrls: {},
   evidenceImageUrls: {},
   evidenceModelUrls: {},
@@ -131,6 +134,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         witnessIntroAudioUrls: {},
         voiceModels: {},
         witnessPortraitUrls: {},
+        witnessModelUrls: {},
         witnessVoiceSampleUrls: {},
         evidenceImageUrls: {},
         evidenceModelUrls: {},

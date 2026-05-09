@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Evidence3DViewer } from '@/components/Evidence3DViewer';
 import type { WitnessQuestionErrorCode } from '@/backend/contracts';
 import { useGameStore } from '@/store/gameStore';
 
@@ -47,6 +48,7 @@ export function InterrogationScreen() {
   const witnessId = useGameStore((s) => s.activeWitnessId)!;
   const transcript = useGameStore((s) => s.transcript);
   const witnessPortraitUrls = useGameStore((s) => s.witnessPortraitUrls);
+  const witnessModelUrls = useGameStore((s) => s.witnessModelUrls);
   const witnessQuestionCounts = useGameStore((s) => s.witnessQuestionCounts);
   const sendWitnessQuestion = useGameStore((s) => s.sendWitnessQuestion);
   const endInterrogation = useGameStore((s) => s.endInterrogation);
@@ -114,6 +116,7 @@ export function InterrogationScreen() {
 
   const firstName = witness.name.split(' ')[0]?.toUpperCase() ?? witness.name.toUpperCase();
   const portraitUrl = witnessPortraitUrls[witness.id];
+  const modelUrl = witnessModelUrls[witness.id];
 
   const submitQuestion = async (raw: string) => {
     const text = raw.trim();
@@ -170,17 +173,35 @@ export function InterrogationScreen() {
           <section className="paper-card lifted p-3.5">
             <div className="tape-corner left" />
             <div className="tape-corner right" />
-            {portraitUrl ? (
-              <img
-                src={portraitUrl}
-                alt={`${witness.name} generated witness portrait`}
-                className="h-[380px] w-full object-cover grayscale"
-              />
-            ) : (
-              <div className="photo-ph h-[380px] p-3 text-[11px]">
-                PORTRAIT — {witness.portrait_prompt}
-              </div>
-            )}
+            <div className="relative h-[380px] w-full overflow-hidden" style={{ background: '#0e110e' }}>
+              {modelUrl ? (
+                <Evidence3DViewer
+                  inline
+                  glbUrl={modelUrl}
+                  previewUrl={portraitUrl}
+                  label={witness.name}
+                  description={witness.role}
+                />
+              ) : portraitUrl ? (
+                <img
+                  src={portraitUrl}
+                  alt={`${witness.name} portrait`}
+                  className="h-full w-full object-cover grayscale"
+                />
+              ) : (
+                <div className="photo-ph h-full p-3 text-[11px]">
+                  PORTRAIT — {witness.portrait_prompt}
+                </div>
+              )}
+              {modelUrl && (
+                <div
+                  className="absolute bottom-2 left-2 text-[8px] tracking-[0.15em] pointer-events-none"
+                  style={{ color: 'rgba(255,255,255,0.35)' }}
+                >
+                  DRAG · ROTATE &nbsp;|&nbsp; SCROLL · ZOOM
+                </div>
+              )}
+            </div>
             <Stamp
               text={witness.lies ? 'INCONSISTENT' : 'COOPERATIVE'}
               top={20}
