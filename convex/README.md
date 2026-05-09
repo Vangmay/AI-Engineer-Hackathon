@@ -20,7 +20,7 @@ that client to call these server functions through the generated Convex API.
 
 1. Run `npm run convex:dev` (or `npx convex dev`) to generate `convex/_generated/*`.
 2. In **Convex Dashboard → Settings → Environment variables**, set `OPENAI_API_KEY` and **`EXA_API_KEY`** for real-case–inspired generation. Optionally set `OPENAI_MODEL` (defaults to `gpt-4o-mini` in code). Never put these behind `VITE_`.
-3. From the frontend, call the **action** `api.cases.startNewCase`, not `useMutation` — actions may run for several seconds during generation.
+3. From the frontend, set **`VITE_CONVEX_URL`** in `.env.local` (restart Vite). `src/main.tsx` creates **`ConvexReactClient`**, calls **`setGameBackend(createConvexGameBackend(client))` synchronously** (so the loading screen does not hit local Raymond first), then wraps **`ConvexProvider`**. **`loadStaticCase`** calls **`cases.startNewCase`**. Without `VITE_CONVEX_URL`, the app keeps the local Raymond adapter.
 4. Add server-side provider calls for image/audio/live voice when ready.
 5. Replace `src/backend/client.ts` with a Convex-backed adapter.
 6. Only `VITE_CONVEX_URL` should be exposed to the browser for Convex connectivity.

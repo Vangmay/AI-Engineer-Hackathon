@@ -26,6 +26,8 @@ type GenerationResearchMeta = {
   researchQuery?: string;
 };
 
+type PersistCaseResult = { sessionId: Id<'sessions'>; caseIdUsed: string };
+
 function researchArgsFromState(input: {
   sourceUrls: string[];
   sourceTitles: string[];
@@ -103,7 +105,7 @@ export const persistGeneratedCaseInternal = internalMutation({
     researchSourceTitles: v.optional(v.array(v.string())),
     researchQuery: v.optional(v.string()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<PersistCaseResult> => {
     const bundle: GeneratedCaseBundle = {
       publicCase: args.publicCase,
       hiddenTruth: args.hiddenTruth,
@@ -128,7 +130,7 @@ const CORPUS_PROMPT_THRESHOLD = 220;
 /** Primary entry: Exa retrieves real-case text (prefer Wikipedia via query hints) → LLM drafts fiction dossier → validate → persist. Falls back cleanly. */
 export const startNewCase = action({
   args: {},
-  handler: async (ctx) => {
+  handler: async (ctx): Promise<PersistCaseResult> => {
     const timestamp = Date.now();
     const openaiKey = process.env.OPENAI_API_KEY;
     const llmModel = process.env.OPENAI_MODEL ?? 'gpt-4o-mini';
@@ -167,7 +169,7 @@ export const startNewCase = action({
       bundle: GeneratedCaseBundle,
       model: string,
       promptVersion: string,
-    ) =>
+    ): Promise<PersistCaseResult> =>
       ctx.runMutation(internal.cases.persistGeneratedCaseInternal, {
         publicCase: bundle.publicCase,
         hiddenTruth: bundle.hiddenTruth,
@@ -243,6 +245,31 @@ export const getSessionSnapshot = query({
       .collect();
 
     return { session, caseDoc, media, transcript };
+  },
+});
+
+/** Lookup Convex `cases` row by public dossier slug (`publicCase.case_id`). */
+export const getCaseBySlug = query({
+  args: { slug: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query('cases')
+      .withIndex('by_case_id', (q) => q.eq('caseId', args.slug))
+      .first();
+  },
+});
+
+/** New session for an existing case row (e.g. frontend `loadCase(slug)`). */
+export const createSessionForCase = mutation({
+  args: { caseConvexId: v.id('cases') },
+  handler: async (ctx, args) => {
+    const ts = Date.now();
+    return await ctx.db.insert('sessions', {
+      caseId: args.caseConvexId,
+      phase: 'CASE_BRIEF',
+      createdAt: ts,
+      updatedAt: ts,
+    });
   },
 });
 

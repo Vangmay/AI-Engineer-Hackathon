@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { gameBackend } from '@/backend/client';
 import type { GameSnapshot } from '@/backend/contracts';
-import { raymondTeoCase } from '@/data/raymondTeoCase';
 import type { GamePhase, MysteryCase, TranscriptLine } from '@/types/case';
 
 interface GameState {
@@ -57,8 +56,10 @@ export const useGameStore = create<GameState>((set, get) => ({
   transcript: [],
   generationMs: null,
 
+  /** Convex: runs `cases.startNewCase` (Exa + LLM or template). Local: seeds Raymond Teo bundle. */
   loadStaticCase: async () => {
-    await get().loadCase(raymondTeoCase.case_id);
+    const snapshot = await gameBackend.startNewCase();
+    set(snapshotToState(snapshot));
   },
 
   loadCase: async (caseId) => {
