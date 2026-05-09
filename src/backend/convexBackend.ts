@@ -8,7 +8,27 @@ import type {
   GameSession,
   GameSnapshot,
 } from './contracts';
-import type { MysteryCase, TranscriptLine } from '@/types/case';
+import type { Call911Line, MysteryCase, TranscriptLine } from '@/types/case';
+
+function staleCase911Lines(victim: MysteryCase['victim']): Call911Line[] {
+  const loc = victim.location.slice(0, 120);
+  const nameWord = victim.name.split(/\s+/)[0] ?? 'They';
+  return [
+    { who: 'DISP', text: "Nine-one-one, what's your emergency?" },
+    {
+      who: 'CALL',
+      text: `${nameWord} won't wake up—I think they're hurt bad. Send someone now.`,
+    },
+    { who: 'DISP', text: 'Help is on the way. Where exactly are you calling from?' },
+    { who: 'CALL', text: `${loc}. I need units here right now.` },
+    { who: 'DISP', text: 'Stay with me—are they breathing at all?' },
+    {
+      who: 'CALL',
+      text:
+        'I—I can barely tell. Hurry. The building is quiet but the door was unlocked.',
+    },
+  ];
+}
 
 const emptyMedia: CaseMedia = {
   sceneImageUrl: null,
@@ -47,6 +67,7 @@ function mapTranscriptRows(
 }
 
 function snapshotFromConvexRow(row: {
+  witnesses?: Array<{ witnessId: string; introAudioUrl?: string }>;
   session: {
     _id: string;
     phase: GameSession['phase'];
@@ -63,29 +84,28 @@ function snapshotFromConvexRow(row: {
     hiddenTruth: Record<string, unknown>;
     generation?: { generationMs?: number };
   };
-  media: {
-    sceneImageUrl?: string;
-    sceneModelUrl?: string;
-    call911AudioUrl?: string;
-    revealNarrationAudioUrl?: string;
-    ambientAudioUrl?: string;
-    witnessIntroAudioUrls?: Record<string, string>;
-    voiceModels?: CaseMedia['voiceModels'];
-    witnessPortraitUrls?: Record<string, string>;
-    witnessVoiceSampleUrls?: Record<string, string>;
-    evidenceImageUrls?: Record<string, string>;
-    evidenceModelUrls?: Record<string, string>;
-    evidenceModelPreviewUrls?: Record<string, string>;
-  } | null;
+  media: Record<string, unknown> | null;
   transcript: Array<{
     speaker: TranscriptLine['speaker'];
     text: string;
     timestamp: number;
   }>;
 }): GameSnapshot {
-  const { session, caseDoc, media, transcript } = row;
+  const { session, caseDoc, media, transcript, witnesses } = row;
 
-  const caseData = mergeCaseDocToMystery(caseDoc.publicCase, caseDoc.hiddenTruth);
+  let caseData = mergeCaseDocToMystery(caseDoc.publicCase, caseDoc.hiddenTruth);
+
+  const rawLines = (
+    caseData as unknown as {
+      call911_transcript?: Array<{ who: 'DISP' | 'CALL'; text: string }>;
+    }
+  ).call911_transcript;
+  if ((!rawLines || rawLines.length < 6) && caseData.victim?.name && caseData.victim?.location) {
+    caseData = {
+      ...caseData,
+      call911_transcript: staleCase911Lines(caseData.victim),
+    };
+  }
 
   const gameSession: GameSession = {
     id: session._id,
@@ -99,25 +119,40 @@ function snapshotFromConvexRow(row: {
     updatedAt: session.updatedAt,
   };
 
-  const mediaOut: CaseMedia = {
-    ...emptyMedia,
-    ...(media
-      ? {
-          sceneImageUrl: media.sceneImageUrl ?? null,
-          sceneModelUrl: media.sceneModelUrl ?? null,
-          call911AudioUrl: media.call911AudioUrl ?? null,
-          revealNarrationAudioUrl: media.revealNarrationAudioUrl ?? null,
-          ambientAudioUrl: media.ambientAudioUrl ?? null,
-          witnessIntroAudioUrls: media.witnessIntroAudioUrls ?? {},
-          voiceModels: media.voiceModels ?? {},
-          witnessPortraitUrls: media.witnessPortraitUrls ?? {},
-          witnessVoiceSampleUrls: media.witnessVoiceSampleUrls ?? {},
-          evidenceImageUrls: media.evidenceImageUrls ?? {},
-          evidenceModelUrls: media.evidenceModelUrls ?? {},
-          evidenceModelPreviewUrls: media.evidenceModelPreviewUrls ?? {},
-        }
-      : {}),
-  };
+  const mediaOut: CaseMedia = (() => {
+    if (!media) return { ...emptyMedia };
+    const m = media as Record<string, unknown>;
+    const asRecord = (v: unknown): Record<string, string> =>
+      v && typeof v === 'object' && !Array.isArray(v)
+        ? (v as Record<string, string>)
+        : {};
+    return {
+      ...emptyMedia,
+      sceneImageUrl: (m.sceneImageUrl as string | undefined) ?? null,
+      sceneModelUrl: (m.sceneModelUrl as string | undefined) ?? null,
+      call911AudioUrl: (m.call911AudioUrl as string | undefined) ?? null,
+      revealNarrationAudioUrl:
+        (m.revealNarrationAudioUrl as string | undefined) ?? null,
+      ambientAudioUrl: (m.ambientAudioUrl as string | undefined) ?? null,
+      witnessIntroAudioUrls: {
+        ...asRecord(m.witnessIntroAudioUrls),
+        ...Object.fromEntries(
+          (witnesses ?? [])
+            .filter((w) => w.introAudioUrl)
+            .map((w) => [w.witnessId, w.introAudioUrl!]),
+        ),
+      },
+      voiceModels:
+        (m.voiceModels as CaseMedia['voiceModels']) ?? ({} as CaseMedia['voiceModels']),
+      witnessPortraitUrls: asRecord(m.witnessPortraitUrls),
+      witnessVoiceSampleUrls: asRecord(m.witnessVoiceSampleUrls),
+      evidenceImageUrls: asRecord(m.evidenceImageUrls ?? m.evidenceRenders),
+      evidenceModelUrls: asRecord(m.evidenceModelUrls ?? m.evidenceModels),
+      evidenceModelPreviewUrls: asRecord(
+        m.evidenceModelPreviewUrls ?? m.evidenceModelPreviews,
+      ),
+    };
+  })();
 
   return {
     session: gameSession,
@@ -142,6 +177,19 @@ export function createConvexGameBackend(client: ConvexReactClient): GameBackend 
       const out = await client.action(api.cases.startNewCase, {});
       const sessionId = (out as { sessionId: string }).sessionId;
       return fetchSnapshot(sessionId);
+    },
+
+    async startRandomExistingCase() {
+      const ids = await client.query(api.cases.listCaseConvexIds, {});
+      if (ids.length === 0) {
+        const out = await client.action(api.cases.startNewCase, {});
+        return fetchSnapshot((out as { sessionId: string }).sessionId);
+      }
+      const pick = ids[Math.floor(Math.random() * ids.length)]!;
+      const sessionId = await client.mutation(api.cases.createSessionForCase, {
+        caseConvexId: pick,
+      });
+      return fetchSnapshot(sessionId as unknown as string);
     },
 
     async loadCase(caseIdSlug: string) {

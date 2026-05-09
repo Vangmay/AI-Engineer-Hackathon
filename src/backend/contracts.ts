@@ -44,6 +44,8 @@ export interface AccusationResult {
 
 export interface GameBackend {
   startNewCase: () => Promise<GameSnapshot>;
+  /** Picks an existing persisted case (Convex) or bundled case (local). No LLM/extra row unless Convex has zero cases yet. */
+  startRandomExistingCase: () => Promise<GameSnapshot>;
   loadCase: (caseId: string) => Promise<GameSnapshot | null>;
   resumeSession: (sessionId: string) => Promise<GameSnapshot | null>;
   startInterview: (sessionId: string, witnessId: string) => Promise<GameSnapshot>;

@@ -33,6 +33,8 @@ interface GameState {
     evidenceImageUrls: Record<string, string>;
     evidenceModelUrls: Record<string, string>;
     evidenceModelPreviewUrls: Record<string, string>;
+    call911AudioUrl?: string | null;
+    witnessIntroAudioUrls?: Record<string, string>;
   }) => void;
   goToBrief: () => void;
   startInterrogation: (witnessId: string) => Promise<void>;
@@ -90,9 +92,9 @@ export const useGameStore = create<GameState>((set, get) => ({
   transcript: [],
   generationMs: null,
 
-  /** Convex: runs `cases.startNewCase` (Exa + LLM or template). Local: seeds Raymond Teo bundle. */
+  /** Convex: new session for a random row in `cases` (no new case). Local: single bundled case. Empty DB: one `startNewCase` bootstrap. */
   loadStaticCase: async () => {
-    const snapshot = await gameBackend.startNewCase();
+    const snapshot = await gameBackend.startRandomExistingCase();
     set(snapshotToState(snapshot));
   },
 
@@ -138,6 +140,14 @@ export const useGameStore = create<GameState>((set, get) => ({
       evidenceModelPreviewUrls: Object.keys(media.evidenceModelPreviewUrls).length > 0
         ? media.evidenceModelPreviewUrls
         : s.evidenceModelPreviewUrls,
+      call911AudioUrl:
+        media.call911AudioUrl !== undefined && media.call911AudioUrl !== null
+          ? media.call911AudioUrl
+          : s.call911AudioUrl,
+      witnessIntroAudioUrls:
+        media.witnessIntroAudioUrls && Object.keys(media.witnessIntroAudioUrls).length > 0
+          ? { ...s.witnessIntroAudioUrls, ...media.witnessIntroAudioUrls }
+          : s.witnessIntroAudioUrls,
     }));
   },
 

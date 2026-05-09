@@ -1,3 +1,9 @@
+/** 911 dossier excerpt; UI shows text while audio reads a derived script */
+export interface Call911Line {
+  who: 'DISP' | 'CALL';
+  text: string;
+}
+
 export interface Witness {
   id: string;
   name: string;
@@ -31,6 +37,8 @@ export interface MysteryCase {
   clues: string[]; // 2 real + 1 red herring (game knows by position)
   scene_prompt: string;
   brief: string;
+  /** If missing (legacy bundles), UI uses a canned fallback */
+  call911_transcript?: Call911Line[];
 }
 
 export interface TranscriptLine {

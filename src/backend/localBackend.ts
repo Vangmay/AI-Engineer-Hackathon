@@ -195,6 +195,12 @@ export const localBackend: GameBackend = {
     return toSnapshot(state);
   },
 
+  async startRandomExistingCase() {
+    const state = await createState();
+    writeState(state);
+    return toSnapshot(state);
+  },
+
   async loadCase(caseId) {
     const state = await createState();
     if (caseId !== state.caseData.case_id) return null;

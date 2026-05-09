@@ -2,8 +2,9 @@ import type { CSSProperties } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { Evidence3DViewer } from '@/components/Evidence3DViewer';
 import { useGameStore } from '@/store/gameStore';
+import type { Call911Line } from '@/types/case';
 
-const CALL_911_TRANSCRIPT = [
+const DEFAULT_911_TRANSCRIPT: Call911Line[] = [
   { who: 'DISP', text: "Nine-one-one, what's your emergency?" },
   { who: 'CALL', text: "I-- I think Ray is dead. He's not breathing. Oh god." },
   { who: 'DISP', text: "Ma'am, where are you?" },
@@ -98,6 +99,10 @@ function Waveform({ activeBars = 28 }: { activeBars?: number }) {
 
 export function CaseLoadScreen() {
   const caseData = useGameStore((s) => s.caseData)!;
+  const call911Lines: Call911Line[] =
+    caseData.call911_transcript && caseData.call911_transcript.length > 0
+      ? caseData.call911_transcript
+      : DEFAULT_911_TRANSCRIPT;
   const generationMs = useGameStore((s) => s.generationMs);
   const sceneImageUrl = useGameStore((s) => s.sceneImageUrl);
   const sceneModelUrl = useGameStore((s) => s.sceneModelUrl);
@@ -231,7 +236,7 @@ export function CaseLoadScreen() {
                 </div>
               </div>
               <div className="text-[12px] leading-[23px]">
-                {CALL_911_TRANSCRIPT.map((line, i) => (
+                {call911Lines.map((line, i) => (
                   <div key={i} className="flex gap-2.5">
                     <span className="w-[42px] opacity-60">{line.who}</span>
                     <span>{line.text}</span>

@@ -1,6 +1,7 @@
 import { action, internalMutation, internalQuery, mutation, query } from './_generated/server';
 import { v } from 'convex/values';
-import { internal } from './_generated/api';
+import { api, internal } from './_generated/api';
+import { normalize911Transcript, type GeneratedPublicCase } from './caseEngine';
 
 const audioKind = v.union(
   v.literal('intro'),
@@ -41,6 +42,73 @@ function sanitisePrompt(text: string): string {
     out = out.replace(pattern, replacement);
   }
   return out;
+}
+
+function build911SpeechScript(pub: GeneratedPublicCase): string {
+  const lines = pub.call911_transcript ?? [];
+  return lines
+    .map((line) => {
+      const role = line.who === 'DISP' ? 'Emergency dispatcher' : '911 caller';
+      return `${role}:\n${line.text}`;
+    })
+    .join('\n\n')
+    .slice(0, 3900);
+}
+
+async function synthOpenAiTtsMp3(openaiKey: string | undefined, input: string): Promise<ArrayBuffer | null> {
+  if (!openaiKey?.trim()) return null;
+  const text = sanitisePrompt(input).trim().slice(0, 3900);
+  if (!text) return null;
+
+  const response = await fetch('https://api.openai.com/v1/audio/speech', {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${openaiKey}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'tts-1',
+      voice: 'nova',
+      input: text,
+      response_format: 'mp3',
+    }),
+  });
+
+  if (!response.ok) {
+    console.error('[media] openai TTS:', response.status, await response.text());
+    return null;
+  }
+
+  return response.arrayBuffer();
+}
+
+async function synthElevenLabsMp3(
+  elevenKey: string,
+  voiceId: string,
+  input: string,
+  modelId: string,
+): Promise<ArrayBuffer | null> {
+  const text = sanitisePrompt(input).trim().slice(0, 2500);
+  if (!elevenKey || !voiceId || !text) return null;
+
+  const response = await fetch(
+    `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`,
+    {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'xi-api-key': elevenKey,
+      },
+      body: JSON.stringify({ text, model_id: modelId }),
+    },
+  );
+
+  if (!response.ok) {
+    console.error('[media] ElevenLabs TTS:', response.status, await response.text());
+    return null;
+  }
+
+  return response.arrayBuffer();
 }
 
 function buildSceneImagePrompt(scenePrompt: string): string {
@@ -137,6 +205,61 @@ export const patchMedia = internalMutation({
   },
 });
 
+export const listWitnessRowsForCase = internalQuery({
+  args: { caseId: v.id('cases') },
+  handler: async (ctx, args) =>
+    ctx.db
+      .query('witnesses')
+      .withIndex('by_case', (q) => q.eq('caseId', args.caseId))
+      .collect(),
+});
+
+export const linkCall911AudioFromStorage = internalMutation({
+  args: {
+    caseId: v.id('cases'),
+    storageId: v.id('_storage'),
+  },
+  handler: async (ctx, args) => {
+    const url = await ctx.storage.getUrl(args.storageId);
+    if (!url) return;
+
+    const mediaDoc = await ctx.db
+      .query('media')
+      .withIndex('by_case', (q) => q.eq('caseId', args.caseId))
+      .first();
+    if (!mediaDoc) {
+      await ctx.db.insert('media', {
+        caseId: args.caseId,
+        call911AudioUrl: url,
+        updatedAt: Date.now(),
+      });
+      return;
+    }
+    await ctx.db.patch(mediaDoc._id, { call911AudioUrl: url, updatedAt: Date.now() });
+  },
+});
+
+export const linkWitnessIntroFromStorage = internalMutation({
+  args: {
+    caseId: v.id('cases'),
+    witnessId: v.string(),
+    storageId: v.id('_storage'),
+  },
+  handler: async (ctx, args) => {
+    const url = await ctx.storage.getUrl(args.storageId);
+    if (!url) return;
+
+    const row = await ctx.db
+      .query('witnesses')
+      .withIndex('by_case_witness', (q) =>
+        q.eq('caseId', args.caseId).eq('witnessId', args.witnessId),
+      )
+      .first();
+    if (!row) return;
+    await ctx.db.patch(row._id, { introAudioUrl: url });
+  },
+});
+
 export const getMediaForCase = query({
   args: { caseId: v.id('cases') },
   handler: async (ctx, args) => {
@@ -162,16 +285,61 @@ export const getMediaByCaseStringId = query({
   },
 });
 
+/** Single round-trip for lobby polling: scene, 911 audio, witness intro URLs, evidence maps. */
+export const getLobbyMediaHydration = query({
+  args: { dossierSlug: v.string() },
+  handler: async (ctx, args) => {
+    const caseRow = await ctx.db
+      .query('cases')
+      .withIndex('by_case_id', (q) => q.eq('caseId', args.dossierSlug))
+      .first();
+    if (!caseRow) return null;
+
+    const [mediaDoc, witnessRows] = await Promise.all([
+      ctx.db
+        .query('media')
+        .withIndex('by_case', (q) => q.eq('caseId', caseRow._id))
+        .first(),
+      ctx.db
+        .query('witnesses')
+        .withIndex('by_case', (q) => q.eq('caseId', caseRow._id))
+        .collect(),
+    ]);
+
+    const witnessIntroAudioUrls: Record<string, string> = {};
+    for (const w of witnessRows) {
+      if (w.introAudioUrl) witnessIntroAudioUrls[w.witnessId] = w.introAudioUrl;
+    }
+
+    return {
+      sceneImageUrl: mediaDoc?.sceneImageUrl ?? null,
+      call911AudioUrl: mediaDoc?.call911AudioUrl ?? null,
+      witnessIntroAudioUrls,
+      evidenceImageUrls: (mediaDoc?.evidenceRenders as Record<string, string> | undefined) ?? {},
+      evidenceModels: (mediaDoc?.evidenceModels as Record<string, string> | undefined) ?? {},
+      evidenceModelPreviewUrls: (mediaDoc?.evidenceModelPreviews as Record<string, string> | undefined) ?? {},
+    };
+  },
+});
+
+type GenerateForCaseResult = {
+  sceneImageUrl: string | null;
+  evidenceRenders: unknown;
+  evidenceModels: unknown;
+};
+
 export const generateForCase = action({
   args: {
     caseId: v.id('cases'),
     force: v.optional(v.boolean()),
+    /** When true, only run TTS + storage linking (911 + witness intros)—no scene FAL/evidence patching. */
+    speechOnly: v.optional(v.boolean()),
     sceneImageUrl: v.optional(v.string()),
     evidenceRenders: v.optional(v.any()),
     evidenceModels: v.optional(v.any()),
     evidenceModelPreviews: v.optional(v.any()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<GenerateForCaseResult> => {
     const [media, caseDoc]: [
       | {
           sceneImageUrl?: string;
@@ -194,46 +362,187 @@ export const generateForCase = action({
 
     const patch: Record<string, unknown> = {};
 
-    if (!media?.sceneImageUrl || args.force) {
-      if (args.sceneImageUrl) {
-        patch.sceneImageUrl = args.sceneImageUrl;
-      } else {
-        const apiKey = process.env.FAL_API_KEY;
-        if (apiKey) {
-          const scenePrompt = buildSceneImagePrompt(
-            (caseDoc.publicCase as { scene_prompt?: string }).scene_prompt ?? caseDoc.title,
-          );
-          try {
-            patch.sceneImageUrl = await falGenerateImage(scenePrompt, apiKey);
-          } catch (err) {
-            console.error('[media] scene image generation failed:', err);
+    if (!args.speechOnly) {
+      if (!media?.sceneImageUrl || args.force) {
+        if (args.sceneImageUrl) {
+          patch.sceneImageUrl = args.sceneImageUrl;
+        } else {
+          const apiKey = process.env.FAL_API_KEY;
+          if (apiKey) {
+            const scenePrompt = buildSceneImagePrompt(
+              (caseDoc.publicCase as { scene_prompt?: string }).scene_prompt ?? caseDoc.title,
+            );
+            try {
+              patch.sceneImageUrl = await falGenerateImage(scenePrompt, apiKey);
+            } catch (err) {
+              console.error('[media] scene image generation failed:', err);
+            }
           }
         }
       }
+
+      if (args.evidenceRenders && (!media?.evidenceRenders || args.force)) {
+        patch.evidenceRenders = args.evidenceRenders;
+      }
+      if (args.evidenceModels && (!media?.evidenceModels || args.force)) {
+        patch.evidenceModels = args.evidenceModels;
+      }
+      if (args.evidenceModelPreviews && (!media?.evidenceModelPreviews || args.force)) {
+        patch.evidenceModelPreviews = args.evidenceModelPreviews;
+      }
+
+      if (Object.keys(patch).length > 0) {
+        await ctx.runMutation(mediaInternals.patchMedia as any, {
+          caseId: args.caseId,
+          ...patch,
+        } as any);
+      }
     }
 
-    if (args.evidenceRenders && (!media?.evidenceRenders || args.force)) {
-      patch.evidenceRenders = args.evidenceRenders;
-    }
-    if (args.evidenceModels && (!media?.evidenceModels || args.force)) {
-      patch.evidenceModels = args.evidenceModels;
-    }
-    if (args.evidenceModelPreviews && (!media?.evidenceModelPreviews || args.force)) {
-      patch.evidenceModelPreviews = args.evidenceModelPreviews;
-    }
-
-    if (Object.keys(patch).length > 0) {
-      await ctx.runMutation(mediaInternals.patchMedia as any, {
+    const refreshedMedia =
+      (await ctx.runQuery(mediaInternals.getMediaDoc as any, {
         caseId: args.caseId,
-        ...patch,
-      } as any);
+      } as any)) ?? media;
+
+    const openAi = process.env.OPENAI_API_KEY?.trim();
+    const eleven = process.env.ELEVENLABS_API_KEY?.trim();
+    const elevenModel = process.env.ELEVENLABS_MODEL_ID ?? 'eleven_multilingual_v2';
+    const call911FallbackVoice =
+      process.env.ELEVENLABS_CALL911_VOICE_ID ?? 'pNInz6obpgDQGcFmaJgB';
+
+    const pubClone =
+      JSON.parse(JSON.stringify(caseDoc.publicCase ?? {})) as GeneratedPublicCase;
+    normalize911Transcript(pubClone);
+
+    const shouldSynth =
+      !!(openAi || eleven) &&
+      pubClone.victim &&
+      Array.isArray(pubClone.call911_transcript) &&
+      pubClone.call911_transcript.length > 0;
+
+    if (shouldSynth) {
+      const script911 = build911SpeechScript(pubClone);
+      const need911 = args.force || !refreshedMedia?.call911AudioUrl;
+
+      if (need911 && script911.trim()) {
+        let buf: ArrayBuffer | null = null;
+        if (eleven) {
+          buf = await synthElevenLabsMp3(eleven, call911FallbackVoice, script911, elevenModel);
+        }
+        if (!buf?.byteLength && openAi) {
+          buf = await synthOpenAiTtsMp3(openAi, script911);
+        }
+        if (buf?.byteLength) {
+          const storageId = await ctx.storage.store(
+            new Blob([new Uint8Array(buf)], { type: 'audio/mpeg' }),
+          );
+          await ctx.runMutation(internal.media.linkCall911AudioFromStorage, {
+            caseId: args.caseId,
+            storageId,
+          });
+        }
+      }
+
+      const witnessRows = await ctx.runQuery(internal.media.listWitnessRowsForCase, {
+        caseId: args.caseId,
+      });
+
+      await Promise.all(
+        witnessRows.map(async (row) => {
+          if ((!args.force && row.introAudioUrl?.trim()) || !(openAi || eleven)) return;
+
+          const profile = row.publicProfile as {
+            name?: string;
+            role?: string;
+            knows?: string;
+          };
+          const introText = `Interview room. Recording is live. You open first.\nI'm ${profile.name ?? 'the witness'}, ${profile.role ?? 'present at the scene'}.\nWhat you need to know from me: ${String(profile.knows ?? '').slice(0, 900)}`.slice(
+            0,
+            2400,
+          );
+
+          const voiceId =
+            typeof row.voiceId === 'string' &&
+            row.voiceId.trim() !== '' &&
+            row.voiceId !== 'stub'
+              ? row.voiceId
+              : call911FallbackVoice;
+
+          let introBuf: ArrayBuffer | null = null;
+          if (eleven) {
+            introBuf = await synthElevenLabsMp3(eleven, voiceId, introText, elevenModel);
+          }
+          if (!introBuf?.byteLength && openAi) {
+            introBuf = await synthOpenAiTtsMp3(openAi, introText);
+          }
+
+          if (!introBuf?.byteLength) return;
+
+          const introStorageId = await ctx.storage.store(
+            new Blob([new Uint8Array(introBuf)], { type: 'audio/mpeg' }),
+          );
+          await ctx.runMutation(internal.media.linkWitnessIntroFromStorage, {
+            caseId: args.caseId,
+            witnessId: row.witnessId,
+            storageId: introStorageId,
+          });
+        }),
+      );
     }
+
+    const finalMedia =
+      (await ctx.runQuery(mediaInternals.getMediaDoc as any, {
+        caseId: args.caseId,
+      } as any)) ?? refreshedMedia;
 
     return {
-      sceneImageUrl: (patch.sceneImageUrl as string | undefined) ?? media?.sceneImageUrl ?? null,
-      evidenceRenders: patch.evidenceRenders ?? media?.evidenceRenders ?? null,
-      evidenceModels: patch.evidenceModels ?? media?.evidenceModels ?? null,
+      sceneImageUrl: (patch.sceneImageUrl as string | undefined) ?? finalMedia?.sceneImageUrl ?? null,
+      evidenceRenders: patch.evidenceRenders ?? finalMedia?.evidenceRenders ?? null,
+      evidenceModels: patch.evidenceModels ?? finalMedia?.evidenceModels ?? null,
     };
+  },
+});
+
+/** When URLs are missing, synthesize via ElevenLabs-first pipeline and store like `generateForCase`. */
+export const ensureSpeechIfMissingForSlug = action({
+  args: {
+    dossierSlug: v.string(),
+    force: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const eleven = process.env.ELEVENLABS_API_KEY?.trim();
+    const openAi = process.env.OPENAI_API_KEY?.trim();
+    if (!eleven && !openAi) {
+      return { ok: false as const, reason: 'no_tts_providers' };
+    }
+
+    const row = await ctx.runQuery(api.cases.getCaseBySlug, {
+      slug: args.dossierSlug,
+    });
+    if (!row?._id) return { ok: false as const, reason: 'case_not_found' };
+
+    const [mediaDoc, witnessRows] = await Promise.all([
+      ctx.runQuery(api.media.getMediaForCase, { caseId: row._id }),
+      ctx.runQuery(internal.media.listWitnessRowsForCase, { caseId: row._id }),
+    ]);
+
+    const force = Boolean(args.force);
+    const need911 = force || !mediaDoc?.call911AudioUrl?.trim();
+    const needIntro =
+      force ||
+      witnessRows.some((w) => !w.introAudioUrl?.trim());
+
+    if (!need911 && !needIntro) {
+      return { ok: true as const, skipped: true as const };
+    }
+
+    await ctx.runAction(api.media.generateForCase, {
+      caseId: row._id,
+      speechOnly: true,
+      force,
+    });
+
+    return { ok: true as const, synthesized: true as const };
   },
 });
 

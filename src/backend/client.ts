@@ -8,9 +8,10 @@ export function setGameBackend(next: GameBackend | null) {
   active = next ?? localBackend;
 }
 
-// Backend seam: default is local; `ConvexGameBackendProvider` installs Convex when `VITE_CONVEX_URL` is set.
+// Backend seam: default is local; `main.tsx` calls `setGameBackend(createConvexGameBackend(client))` when `VITE_CONVEX_URL` is set.
 export const gameBackend: GameBackend = {
   startNewCase: (...args) => active.startNewCase(...args),
+  startRandomExistingCase: (...args) => active.startRandomExistingCase(...args),
   loadCase: (...args) => active.loadCase(...args),
   resumeSession: (...args) => active.resumeSession(...args),
   startInterview: (...args) => active.startInterview(...args),
