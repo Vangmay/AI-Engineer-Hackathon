@@ -1,17 +1,11 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ConvexProvider, ConvexReactClient } from 'convex/react';
-import { setGameBackend } from '@/backend/client';
-import { createConvexGameBackend } from '@/backend/convexBackend';
 import './index.css';
 import App from './App.tsx';
 
 const convexUrl = import.meta.env.VITE_CONVEX_URL as string | undefined;
 const convexClient = convexUrl ? new ConvexReactClient(convexUrl) : null;
-
-// Must run before first paint: LoadingScreen calls `startNewCase` in useEffect;
-// a deferred provider effect would still leave `gameBackend` as local (Raymond).
-setGameBackend(convexClient ? createConvexGameBackend(convexClient) : null);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useGameStore } from '@/store/gameStore';
 import type { GamePhase } from '@/types/case';
-import { LoadingScreen } from '@/screens/LoadingScreen';
 import { CaseLoadScreen } from '@/screens/CaseLoadScreen';
 import { InterrogationScreen } from '@/screens/InterrogationScreen';
 import { AccusationScreen } from '@/screens/AccusationScreen';
@@ -12,8 +11,13 @@ export default function App() {
   const phase = useGameStore((s) => s.phase);
   const caseData = useGameStore((s) => s.caseData);
   const activeWitnessId = useGameStore((s) => s.activeWitnessId);
+  const loadStaticCase = useGameStore((s) => s.loadStaticCase);
   const historyReady = useRef(false);
   const applyingPopState = useRef(false);
+
+  useEffect(() => {
+    void loadStaticCase();
+  }, [loadStaticCase]);
 
   // Dev shortcut: R resets to a fresh case from any screen.
   useEffect(() => {
@@ -21,11 +25,12 @@ export default function App() {
       if (e.key === 'r' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         useGameStore.setState({ phase: 'LOADING', caseData: null });
+        void loadStaticCase();
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  }, [loadStaticCase]);
 
   useEffect(() => {
     const onPopState = (event: PopStateEvent) => {
@@ -73,9 +78,16 @@ export default function App() {
     });
   }, [activeWitnessId, phase]);
 
+  if (phase === 'LOADING' || !caseData) {
+    return (
+      <div className="min-h-screen w-full grid place-items-center">
+        <span className="text-[11px] tracking-[0.25em] opacity-50 uppercase">Loading case…</span>
+      </div>
+    );
+  }
+
   let screen;
-  if (phase === 'LOADING' || !caseData) screen = <LoadingScreen />;
-  else if (phase === 'CASE_BRIEF') screen = <CaseLoadScreen />;
+  if (phase === 'CASE_BRIEF') screen = <CaseLoadScreen />;
   else if (phase === 'INTERROGATING') screen = <InterrogationScreen />;
   else if (phase === 'ACCUSING') screen = <AccusationScreen />;
   else screen = <RevealScreen />;
