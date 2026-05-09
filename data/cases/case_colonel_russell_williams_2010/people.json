@@ -1,0 +1,121 @@
+[
+  {
+    "personId": "person_jessica_lloyd",
+    "caseId": "case_colonel_russell_williams_2010",
+    "fullName": "Jessica Lloyd",
+    "aliases": [],
+    "roleType": "victim",
+    "isPrimaryCharacter": false,
+    "isLiving": "no",
+    "birthYear": 1982,
+    "nationality": "Canadian",
+    "publicProfileLevel": "medium",
+    "narrativeValueScore": 85,
+    "suspicionScore": 0,
+    "documentationScore": 90,
+    "mediaRichnessScore": 68,
+    "voiceCloneCandidate": false,
+    "faceCloneCandidate": false,
+    "identityUseMode": "real",
+    "preferredVoiceMode": "undecided",
+    "voiceProfile": {
+      "ageBand": "young-adult",
+      "accentRegion": "Ontario",
+      "speakingStyle": "warm and conversational",
+      "genderPresentation": "female",
+      "demeanor": "unknown"
+    },
+    "shortBio": "Belleville resident whose disappearance triggered the final urgent phase of the investigation."
+  },
+  {
+    "personId": "person_russell_williams",
+    "caseId": "case_colonel_russell_williams_2010",
+    "fullName": "Russell Williams",
+    "aliases": [
+      "Col. Russell Williams"
+    ],
+    "roleType": "suspect",
+    "isPrimaryCharacter": true,
+    "isLiving": "yes",
+    "birthYear": 1963,
+    "nationality": "Canadian",
+    "publicProfileLevel": "high",
+    "narrativeValueScore": 95,
+    "suspicionScore": 96,
+    "documentationScore": 94,
+    "mediaRichnessScore": 86,
+    "voiceCloneCandidate": true,
+    "faceCloneCandidate": true,
+    "identityUseMode": "real",
+    "preferredVoiceMode": "profile_fallback",
+    "voiceProfile": {
+      "ageBand": "middle-aged",
+      "accentRegion": "Ontario",
+      "speakingStyle": "clipped military cadence",
+      "genderPresentation": "male",
+      "demeanor": "controlled and defensive"
+    },
+    "shortBio": "Former commander of CFB Trenton interviewed as evidence converged on him.",
+    "notes": "Maintains composure early in the interview, but the case closes around his vehicle, movements, and the forensic trail."
+  },
+  {
+    "personId": "person_jim_smyth",
+    "caseId": "case_colonel_russell_williams_2010",
+    "fullName": "Jim Smyth",
+    "aliases": [
+      "Det. Sgt. Jim Smyth"
+    ],
+    "roleType": "investigator",
+    "isPrimaryCharacter": true,
+    "isLiving": "yes",
+    "nationality": "Canadian",
+    "publicProfileLevel": "medium",
+    "narrativeValueScore": 82,
+    "suspicionScore": 8,
+    "documentationScore": 78,
+    "mediaRichnessScore": 58,
+    "voiceCloneCandidate": true,
+    "faceCloneCandidate": true,
+    "identityUseMode": "real",
+    "preferredVoiceMode": "profile_fallback",
+    "voiceProfile": {
+      "ageBand": "middle-aged",
+      "accentRegion": "Ontario",
+      "speakingStyle": "methodical investigative questioning",
+      "genderPresentation": "male",
+      "demeanor": "steady and probing"
+    },
+    "shortBio": "OPP detective sergeant leading the interview strategy in Ottawa.",
+    "notes": "Keeps the pressure on timelines, vehicle details, and the urgency surrounding Jessica Lloyd's disappearance."
+  },
+  {
+    "personId": "person_carol_lloyd",
+    "caseId": "case_colonel_russell_williams_2010",
+    "fullName": "Carol Lloyd",
+    "aliases": [
+      "Lloyd family representative"
+    ],
+    "roleType": "family",
+    "isPrimaryCharacter": true,
+    "isLiving": "yes",
+    "nationality": "Canadian",
+    "publicProfileLevel": "medium",
+    "narrativeValueScore": 74,
+    "suspicionScore": 4,
+    "documentationScore": 67,
+    "mediaRichnessScore": 49,
+    "voiceCloneCandidate": true,
+    "faceCloneCandidate": true,
+    "identityUseMode": "transformed",
+    "preferredVoiceMode": "profile_fallback",
+    "voiceProfile": {
+      "ageBand": "middle-aged",
+      "accentRegion": "Ontario",
+      "speakingStyle": "measured but emotional",
+      "genderPresentation": "female",
+      "demeanor": "grieving and direct"
+    },
+    "shortBio": "Family-side witness composite grounded in Jessica Lloyd coverage and memorial reporting.",
+    "notes": "Carries details about Jessica's routines, the urgency of the search, and how quickly the case shifted once investigators focused on Williams."
+  }
+]

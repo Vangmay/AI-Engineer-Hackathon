@@ -34,7 +34,7 @@ export function LoadingScreen() {
     <main className="dossier-page grid min-h-screen place-items-center px-6">
       <div className="dossier-tab" />
       <section className="paper-card lifted w-[560px] max-w-full p-8">
-        <div className="dossier-overline">Singapore Police Force · CID</div>
+        <div className="dossier-overline">Major Case File · Active Dossier</div>
         <h1 className="mt-2 text-[32px] leading-none">CASE FILE</h1>
         <div className="mt-1 text-[18px]">{casePackage.title}</div>
         <div className="my-6 border-t-2 border-[var(--ink)]" />

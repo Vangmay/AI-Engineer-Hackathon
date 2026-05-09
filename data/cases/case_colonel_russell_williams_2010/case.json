@@ -1,0 +1,34 @@
+{
+  "caseId": "case_colonel_russell_williams_2010",
+  "canonicalTitle": "The Russell Williams Interrogation",
+  "aliases": [
+    "Jessica Lloyd investigation interview",
+    "CFB Trenton commander case"
+  ],
+  "caseStatus": "solved",
+  "jurisdictionCountry": "Canada",
+  "jurisdictionRegion": "Ontario",
+  "primaryLanguage": "en",
+  "incidentStartDate": "2010-01-29",
+  "incidentEndDate": "2010-02-08",
+  "summaryShort": "On February 7, 2010, investigators questioned Colonel Russell Williams at Ottawa Police Service while the search for Jessica Lloyd was still active. Tire-track analysis, vehicle scrutiny, and inconsistencies in Williams's account had begun to collapse the image of a disciplined air-force commander into that of the prime suspect.",
+  "summaryLong": "On February 7, 2010, investigators questioned Colonel Russell Williams at Ottawa Police Service while the search for Jessica Lloyd was still active. Tire-track analysis, vehicle scrutiny, and inconsistencies in Williams's account had begun to collapse the image of a disciplined air-force commander into that of the prime suspect. The case package focuses on the interview pressure, the forensic narrowing of the suspect vehicle, and the evidence trail that led from Jessica Lloyd's disappearance to Williams's eventual admissions and charges.",
+  "mysteryFitScore": 88,
+  "documentationScore": 91,
+  "sourceCount": 5,
+  "mediaRichnessScore": 79,
+  "castClarityScore": 84,
+  "priorityScore": 86,
+  "gameAdaptationStatus": "adapted",
+  "assetGenerationStatus": "generated",
+  "primaryLocationLabel": "Jessica Lloyd residence area, Belleville, Ontario",
+  "tags": [
+    "canada",
+    "ontario",
+    "interrogation",
+    "solved",
+    "transcript"
+  ],
+  "createdAt": "2026-05-09T13:30:00.000Z",
+  "updatedAt": "2026-05-09T05:41:02.194Z"
+}
