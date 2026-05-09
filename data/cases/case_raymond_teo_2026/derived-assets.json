@@ -1,0 +1,18 @@
+[
+  {
+    "assetId": "asset_seed_marcus_voice",
+    "caseId": "case_raymond_teo_2026",
+    "personId": "person_w_marcus",
+    "assetType": "voice_line",
+    "toolProvider": "manual",
+    "inputMediaIds": [
+      "media_marcus_interview"
+    ],
+    "promptOrRecipe": "Seeded asset from prototype witness voice.",
+    "modelName": "seed-prototype",
+    "outputUri": "/assets/seed/marcus-intro.wav",
+    "generationDate": "2026-05-09T00:00:00.000Z",
+    "qualityScore": 72,
+    "approvalStatus": "approved"
+  }
+]

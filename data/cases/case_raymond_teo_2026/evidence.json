@@ -1,0 +1,53 @@
+[
+  {
+    "evidenceId": "evidence_e2cdad1f5c",
+    "caseId": "case_raymond_teo_2026",
+    "label": "Evidence 1",
+    "evidenceType": "forensic",
+    "description": "Tumbler on the nightstand contains residue of a benzodiazepine not prescribed to the victim.",
+    "supports": [
+      "person_w_priya"
+    ],
+    "contradicts": [],
+    "isPubliclyDocumented": true,
+    "gameplayValue": "core_clue",
+    "sourceIds": [
+      "source_seed_forensics"
+    ],
+    "confidenceScore": 86
+  },
+  {
+    "evidenceId": "evidence_b1bcecd41f",
+    "caseId": "case_raymond_teo_2026",
+    "label": "Evidence 2",
+    "evidenceType": "digital",
+    "description": "Penthouse access log shows door opened from the inside at 02:51, three minutes after estimated TOD.",
+    "supports": [
+      "person_w_priya"
+    ],
+    "contradicts": [],
+    "isPubliclyDocumented": true,
+    "gameplayValue": "core_clue",
+    "sourceIds": [
+      "source_seed_access_log"
+    ],
+    "confidenceScore": 86
+  },
+  {
+    "evidenceId": "evidence_fcb3a4d1ae",
+    "caseId": "case_raymond_teo_2026",
+    "label": "Evidence 3",
+    "evidenceType": "physical",
+    "description": "A second wine glass in the kitchen sink — lipstick on rim matches no one in the building.",
+    "supports": [],
+    "contradicts": [
+      "person_w_priya"
+    ],
+    "isPubliclyDocumented": true,
+    "gameplayValue": "red_herring",
+    "sourceIds": [
+      "source_seed_access_log"
+    ],
+    "confidenceScore": 51
+  }
+]

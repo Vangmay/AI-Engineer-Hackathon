@@ -1,0 +1,120 @@
+{
+  "packageId": "pkg_a56b860db2",
+  "caseId": "case_raymond_teo_2026",
+  "title": "The Marina One Penthouse",
+  "runtimeCase": {
+    "case_id": "case_raymond_teo_2026",
+    "title": "The Marina One Penthouse",
+    "victim": {
+      "name": "Raymond Teo",
+      "age": 47,
+      "occupation": "Property developer",
+      "time_of_death": "Unknown",
+      "location": "Marina One, Penthouse 47-B, Singapore",
+      "date": "2026-05-09"
+    },
+    "truth": {
+      "killer": "person_w_priya",
+      "motive": "Embezzlement of S$340,000 over eight months. The murder itself.",
+      "method": "Tumbler on the nightstand contains residue of a benzodiazepine not prescribed to the victim.",
+      "hidden_clue": "Tumbler on the nightstand contains residue of a benzodiazepine not prescribed to the victim."
+    },
+    "witnesses": [
+      {
+        "id": "person_w_marcus",
+        "name": "Marcus Lim",
+        "role": "Building concierge",
+        "age": 40,
+        "knows": "Raymond prepares to address unauthorized wire transfers and a staffing issue.",
+        "hiding": "Was asleep at his desk between 01:30 and 02:30 — broke building protocol and is afraid of losing his job.",
+        "lies": false,
+        "voice_id": "",
+        "portrait_prompt": "Marcus Lim, documentary portrait, realistic, editorial true crime style"
+      },
+      {
+        "id": "person_w_priya",
+        "name": "Priya Naidu",
+        "role": "Primary suspect",
+        "age": 39,
+        "knows": "Sedative slipped into the victim’s nightcap, then suffocation with a silk pillow once he was unconscious.",
+        "hiding": "Embezzlement of S$340,000 over eight months. The murder itself.",
+        "lies": true,
+        "voice_id": "",
+        "portrait_prompt": "Priya Naidu, documentary portrait, realistic, editorial true crime style"
+      },
+      {
+        "id": "person_w_eleanor",
+        "name": "Eleanor Teo",
+        "role": "Estranged wife",
+        "age": 38,
+        "knows": "Penthouse access log shows the door opened from the inside shortly after the estimated time of death.",
+        "hiding": "A pending divorce filing she planned to serve on Monday — unrelated to the death, but she fears it makes her look guilty.",
+        "lies": false,
+        "voice_id": "",
+        "portrait_prompt": "Eleanor Teo, documentary portrait, realistic, editorial true crime style"
+      }
+    ],
+    "clues": [
+      "Tumbler on the nightstand contains residue of a benzodiazepine not prescribed to the victim.",
+      "Penthouse access log shows door opened from the inside at 02:51, three minutes after estimated TOD.",
+      "A second wine glass in the kitchen sink — lipstick on rim matches no one in the building."
+    ],
+    "scene_prompt": "Investigative scene reconstruction of The Marina One Penthouse, grounded in documented evidence and timeline details.",
+    "brief": "Raymond Teo, 47, founder of Teo Holdings, was found unresponsive in the master bedroom of his Marina One penthouse at 04:22 by his housekeeper. No forced entry. No sign of struggle visible from the doorway. Cause of death pending pathology, but the responding officer flagged the scene as suspicious."
+  },
+  "witnessPromptPacks": [
+    {
+      "witnessId": "person_w_marcus",
+      "systemPrompt": "You are Marcus Lim. Stay grounded in documented case facts, answer in character, and do not reveal the hidden truth outright.",
+      "openingLine": "I'm Marcus Lim. What do you want to know about that night?",
+      "truthsTheyKnow": [
+        "Raymond prepares to address unauthorized wire transfers and a staffing issue."
+      ],
+      "secretsTheyHide": [
+        "Was asleep at his desk between 01:30 and 02:30 — broke building protocol and is afraid of losing his job."
+      ],
+      "lieStrategy": "Was asleep at his desk between 01:30 and 02:30 — broke building protocol and is afraid of losing his job."
+    },
+    {
+      "witnessId": "person_w_priya",
+      "systemPrompt": "You are Priya Naidu. Stay grounded in documented case facts, answer in character, and do not reveal the hidden truth outright.",
+      "openingLine": "I'm Priya Naidu. What do you want to know about that night?",
+      "truthsTheyKnow": [
+        "Sedative slipped into the victim’s nightcap, then suffocation with a silk pillow once he was unconscious."
+      ],
+      "secretsTheyHide": [
+        "Embezzlement of S$340,000 over eight months. The murder itself."
+      ],
+      "lieStrategy": "Deflect blame, narrow your time window, and answer only what was asked."
+    },
+    {
+      "witnessId": "person_w_eleanor",
+      "systemPrompt": "You are Eleanor Teo. Stay grounded in documented case facts, answer in character, and do not reveal the hidden truth outright.",
+      "openingLine": "I'm Eleanor Teo. What do you want to know about that night?",
+      "truthsTheyKnow": [
+        "Penthouse access log shows the door opened from the inside shortly after the estimated time of death."
+      ],
+      "secretsTheyHide": [
+        "A pending divorce filing she planned to serve on Monday — unrelated to the death, but she fears it makes her look guilty."
+      ],
+      "lieStrategy": "A pending divorce filing she planned to serve on Monday — unrelated to the death, but she fears it makes her look guilty."
+    }
+  ],
+  "call911Script": "Emergency dispatch, please respond to Marina One, Penthouse 47-B, Singapore. Raymond Teo has been found unresponsive and witnesses are giving conflicting accounts.",
+  "revealNarrationText": "The reconstructed truth points to person_w_priya. Embezzlement of S$340,000 over eight months. The murder itself. Tumbler on the nightstand contains residue of a benzodiazepine not prescribed to the victim.",
+  "assetManifest": {
+    "call911AudioUri": "/assets/seed/marcus-intro.wav",
+    "witnessPortraits": {
+      "person_w_marcus": "",
+      "person_w_priya": "",
+      "person_w_eleanor": ""
+    },
+    "witnessVoiceSamples": {
+      "person_w_marcus": "/assets/seed/marcus-intro.wav",
+      "person_w_priya": "",
+      "person_w_eleanor": ""
+    }
+  },
+  "packageVersion": "1.0.0",
+  "generatedAt": "2026-05-09T03:01:02.607Z"
+}
