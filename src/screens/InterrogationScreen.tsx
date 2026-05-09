@@ -321,6 +321,14 @@ export function InterrogationScreen() {
                   {witness.persona}
                 </div>
               )}
+              <div className="mt-2 rounded-sm border border-dashed border-[var(--ink)] px-2 py-1.5 text-[11px] leading-[1.55] opacity-75">
+                <span className="mr-1 tracking-[0.12em] opacity-55">KNOWS</span>
+                {witness.knows}
+              </div>
+              <div className="mt-2 rounded-sm border border-dashed border-[var(--ink)] px-2 py-1.5 text-[11px] leading-[1.55] opacity-75">
+                <span className="mr-1 tracking-[0.12em] opacity-55">WITHHOLDS</span>
+                {witness.hiding}
+              </div>
               <div className="mt-2.5 flex flex-wrap items-center gap-2 border-t border-[var(--ink)] pt-2.5 border-dashed">
                 <span className="rounded border border-[var(--ink)] px-2 py-0.5 text-[10px] tracking-[0.12em]">
                   QUESTIONS LEFT · {questionsRemaining} / 3

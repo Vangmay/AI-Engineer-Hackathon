@@ -115,7 +115,24 @@ export function AccusationScreen() {
                     <p className="mt-3 text-[13px] leading-relaxed opacity-80">
                       {suspect.profile || suspect.knows}
                     </p>
+                    {suspect.role && (
+                      <p className="mt-2 text-[12px] leading-relaxed opacity-72">
+                        <span className="mr-1 tracking-[0.14em] opacity-60">ROLE</span>
+                        {suspect.role}
+                      </p>
+                    )}
+                    {suspect.persona && (
+                      <p className="mt-2 text-[12px] leading-relaxed opacity-72">
+                        <span className="mr-1 tracking-[0.14em] opacity-60">PERSONA</span>
+                        {suspect.persona}
+                      </p>
+                    )}
+                    <p className="mt-2 text-[12px] leading-relaxed opacity-72">
+                      <span className="mr-1 tracking-[0.14em] opacity-60">KNOWS</span>
+                      {suspect.knows}
+                    </p>
                     <p className="mt-3 text-[12px] leading-relaxed opacity-65">
+                      <span className="mr-1 tracking-[0.14em] opacity-60">WITHHOLDS</span>
                       {suspect.hiding}
                     </p>
                   </div>
@@ -136,6 +153,11 @@ export function AccusationScreen() {
                 <div className="mt-1 text-[22px] leading-tight">
                   {selectedSuspect?.name ?? 'No suspect selected'}
                 </div>
+                {selectedSuspect && (
+                  <div className="mt-2 max-w-[520px] text-[12px] leading-relaxed opacity-72">
+                    {selectedSuspect.role}
+                  </div>
+                )}
                 <div className="mt-2 text-[12px] opacity-65">
                   {selectedSuspect
                     ? 'Finalizing will immediately reveal whether this choice is correct.'

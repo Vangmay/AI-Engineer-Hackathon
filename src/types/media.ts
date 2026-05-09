@@ -15,6 +15,7 @@ export type AssetType =
   | 'voice_line'
   | 'voice_fallback_profile'
   | 'portrait'
+  | 'character_render'
   | 'face_model'
   | 'animated_avatar'
   | 'case_image'

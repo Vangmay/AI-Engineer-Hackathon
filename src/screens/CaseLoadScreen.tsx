@@ -83,6 +83,42 @@ function WitnessFacts({
   );
 }
 
+function WitnessProfileNotes({
+  witness,
+}: {
+  witness: {
+    role: string;
+    profile?: string;
+    knows: string;
+    hiding: string;
+  };
+}) {
+  return (
+    <div className="mt-2.5 space-y-1.5 text-[10px] leading-[1.45]">
+      {witness.role && (
+        <div>
+          <span className="mr-1 tracking-[0.12em] opacity-[0.55]">ROLE</span>
+          <span className="opacity-[0.75]">{witness.role}</span>
+        </div>
+      )}
+      {witness.profile && (
+        <div>
+          <span className="mr-1 tracking-[0.12em] opacity-[0.55]">PROFILE</span>
+          <span className="opacity-[0.72]">{witness.profile}</span>
+        </div>
+      )}
+      <div>
+        <span className="mr-1 tracking-[0.12em] opacity-[0.55]">KNOWS</span>
+        <span className="opacity-[0.72]">{witness.knows}</span>
+      </div>
+      <div>
+        <span className="mr-1 tracking-[0.12em] opacity-[0.55]">WITHHOLDS</span>
+        <span className="opacity-[0.72]">{witness.hiding}</span>
+      </div>
+    </div>
+  );
+}
+
 function PaperClip({
   left,
   top,
@@ -455,32 +491,28 @@ export function CaseLoadScreen() {
               {suspects.map((witness, i) => (
                 <div
                   key={witness.id}
-                  className="flex items-center gap-2.5 border-t border-dashed border-[rgba(26,20,16,0.3)] py-2 first:border-t-0"
+                  className="flex items-start gap-2.5 border-t border-dashed border-[rgba(26,20,16,0.3)] py-3 first:border-t-0"
                 >
                   {witnessPortraitUrls[witness.id] ? (
                     <img
                       src={witnessPortraitUrls[witness.id]}
                       alt={`${witness.name} portrait`}
-                      className="h-[52px] w-[42px] object-cover grayscale"
+                      className="h-[92px] w-[72px] object-cover grayscale"
                     />
                   ) : (
-                    <div className="grid h-[46px] w-[38px] place-items-center bg-[var(--ink)] text-[9px] text-[var(--cream-on-dark)]">
+                    <div className="grid h-[92px] w-[72px] place-items-center bg-[var(--ink)] text-[9px] text-[var(--cream-on-dark)]">
                       W{i + 1}
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
                     <div className="text-[14px]">{witness.name}</div>
                     <WitnessFacts witness={witness} />
-                    {witness.profile && (
-                      <div className="mt-1.5 line-clamp-2 text-[10px] leading-snug opacity-[0.55]">
-                        {witness.profile}
-                      </div>
-                    )}
+                    <WitnessProfileNotes witness={witness} />
                   </div>
                   <button
                     type="button"
                     onClick={() => startInterrogation(witness.id)}
-                    className="bg-[var(--ink)] px-2.5 py-1.5 text-[11px] tracking-[0.1em] text-[var(--cream-on-dark)]"
+                    className="mt-1 bg-[var(--ink)] px-2.5 py-1.5 text-[11px] tracking-[0.1em] text-[var(--cream-on-dark)]"
                   >
                     INTERVIEW →
                   </button>
@@ -495,32 +527,28 @@ export function CaseLoadScreen() {
               {witnesses.map((witness, i) => (
                 <div
                   key={witness.id}
-                  className="flex items-center gap-2.5 border-t border-dashed border-[rgba(26,20,16,0.3)] py-2 first:border-t-0"
+                  className="flex items-start gap-2.5 border-t border-dashed border-[rgba(26,20,16,0.3)] py-3 first:border-t-0"
                 >
                   {witnessPortraitUrls[witness.id] ? (
                     <img
                       src={witnessPortraitUrls[witness.id]}
                       alt={`${witness.name} portrait`}
-                      className="h-[52px] w-[42px] object-cover grayscale"
+                      className="h-[92px] w-[72px] object-cover grayscale"
                     />
                   ) : (
-                    <div className="grid h-[46px] w-[38px] place-items-center bg-[var(--ink)] text-[9px] text-[var(--cream-on-dark)]">
+                    <div className="grid h-[92px] w-[72px] place-items-center bg-[var(--ink)] text-[9px] text-[var(--cream-on-dark)]">
                       W{i + 1}
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
                     <div className="text-[14px]">{witness.name}</div>
                     <WitnessFacts witness={witness} />
-                    {witness.profile && (
-                      <div className="mt-1.5 line-clamp-2 text-[10px] leading-snug opacity-[0.55]">
-                        {witness.profile}
-                      </div>
-                    )}
+                    <WitnessProfileNotes witness={witness} />
                   </div>
                   <button
                     type="button"
                     onClick={() => startInterrogation(witness.id)}
-                    className="bg-[var(--ink)] px-2.5 py-1.5 text-[11px] tracking-[0.1em] text-[var(--cream-on-dark)]"
+                    className="mt-1 bg-[var(--ink)] px-2.5 py-1.5 text-[11px] tracking-[0.1em] text-[var(--cream-on-dark)]"
                   >
                     INTERVIEW →
                   </button>
