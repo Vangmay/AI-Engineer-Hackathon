@@ -1,0 +1,85 @@
+[
+  {
+    "eventId": "event_2cf8e6b302",
+    "caseId": "case_raymond_teo_2026",
+    "timestampPrecision": "day",
+    "timestampStart": "2026-05-09",
+    "eventType": "media_report",
+    "description": "Raymond prepares to address unauthorized wire transfers and a staffing issue.",
+    "peopleInvolved": [
+      "person_raymond_teo",
+      "person_w_priya"
+    ],
+    "locationLabel": "Marina One, Penthouse 47-B, Singapore",
+    "sourceIds": [
+      "source_seed_brief"
+    ],
+    "confidenceScore": 77
+  },
+  {
+    "eventId": "event_7cc266b4ef",
+    "caseId": "case_raymond_teo_2026",
+    "timestampPrecision": "exact",
+    "timestampStart": "2026-05-09T02:47 SGT:00+08:00",
+    "eventType": "crime",
+    "description": "Sedative slipped into the victim’s nightcap, then suffocation with a silk pillow once he was unconscious.",
+    "peopleInvolved": [
+      "person_raymond_teo",
+      "person_w_priya"
+    ],
+    "locationLabel": "Marina One, Penthouse 47-B, Singapore",
+    "sourceIds": [
+      "source_seed_brief"
+    ],
+    "confidenceScore": 93
+  },
+  {
+    "eventId": "event_99f408769b",
+    "caseId": "case_raymond_teo_2026",
+    "timestampPrecision": "exact",
+    "timestampStart": "2026-05-09T02:51:00+08:00",
+    "eventType": "police_action",
+    "description": "Penthouse access log shows the door opened from the inside shortly after the estimated time of death.",
+    "peopleInvolved": [
+      "person_w_priya"
+    ],
+    "locationLabel": "Marina One, Penthouse 47-B, Singapore",
+    "sourceIds": [
+      "source_seed_access_log"
+    ],
+    "confidenceScore": 85
+  },
+  {
+    "eventId": "event_34f8e34e88",
+    "caseId": "case_raymond_teo_2026",
+    "timestampPrecision": "exact",
+    "timestampStart": "2026-05-09T03:12:00+08:00",
+    "eventType": "witness_statement",
+    "description": "Marcus reports that Priya left the lobby later than usual.",
+    "peopleInvolved": [
+      "person_w_marcus",
+      "person_w_priya"
+    ],
+    "locationLabel": "Marina One lobby",
+    "sourceIds": [
+      "source_seed_concierge"
+    ],
+    "confidenceScore": 79
+  },
+  {
+    "eventId": "event_4de797feff",
+    "caseId": "case_raymond_teo_2026",
+    "timestampPrecision": "exact",
+    "timestampStart": "2026-05-09T04:22:00+08:00",
+    "eventType": "discovery",
+    "description": "The housekeeper finds Raymond Teo unresponsive in the master bedroom.",
+    "peopleInvolved": [
+      "person_raymond_teo"
+    ],
+    "locationLabel": "Marina One, Penthouse 47-B, Singapore",
+    "sourceIds": [
+      "source_seed_brief"
+    ],
+    "confidenceScore": 88
+  }
+]

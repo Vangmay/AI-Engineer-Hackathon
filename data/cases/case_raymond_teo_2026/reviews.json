@@ -1,0 +1,12 @@
+[
+  {
+    "reviewId": "review_seed_case",
+    "caseId": "case_raymond_teo_2026",
+    "reviewScope": "case",
+    "reviewType": "factual",
+    "status": "approved",
+    "reviewer": "seed-system",
+    "decisionReason": "Seed demo case approved for pipeline validation.",
+    "decidedAt": "2026-05-09T00:00:00.000Z"
+  }
+]

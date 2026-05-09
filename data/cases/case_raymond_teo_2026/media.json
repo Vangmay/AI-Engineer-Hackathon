@@ -1,0 +1,39 @@
+[
+  {
+    "mediaId": "media_marcus_interview",
+    "caseId": "case_raymond_teo_2026",
+    "personId": "person_w_marcus",
+    "mediaKind": "video",
+    "originType": "interview",
+    "url": "https://example.local/media/marcus-interview",
+    "transcriptAvailable": true,
+    "containsTargetPerson": true,
+    "faceVisibilityScore": 77,
+    "voiceIsolatedScore": 75,
+    "backgroundNoiseScore": 18,
+    "usableForCloneScore": 79,
+    "sourceIds": [
+      "source_seed_concierge"
+    ],
+    "extractedAt": "2026-05-09T00:00:00.000Z",
+    "durationSec": 134
+  },
+  {
+    "mediaId": "media_priya_photo",
+    "caseId": "case_raymond_teo_2026",
+    "personId": "person_w_priya",
+    "mediaKind": "image",
+    "originType": "archive_photo",
+    "url": "https://example.local/media/priya-portrait",
+    "transcriptAvailable": false,
+    "containsTargetPerson": true,
+    "faceVisibilityScore": 88,
+    "voiceIsolatedScore": 0,
+    "backgroundNoiseScore": 0,
+    "usableForCloneScore": 74,
+    "sourceIds": [
+      "source_seed_brief"
+    ],
+    "extractedAt": "2026-05-09T00:00:00.000Z"
+  }
+]

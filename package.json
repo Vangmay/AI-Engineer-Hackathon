@@ -7,7 +7,15 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "typecheck:scripts": "tsc --noEmit -p tsconfig.scripts.json",
+    "discover-cases": "node --experimental-strip-types scripts/discoverCases.ts",
+    "ingest-sources": "node --experimental-strip-types scripts/ingestSources.ts",
+    "build-case-graph": "node --experimental-strip-types scripts/buildCaseGraph.ts",
+    "harvest-media": "node --experimental-strip-types scripts/harvestMedia.ts",
+    "generate-voice-drafts": "node --experimental-strip-types scripts/generateVoiceDrafts.ts",
+    "generate-face-drafts": "node --experimental-strip-types scripts/generateFaceDrafts.ts",
+    "build-game-package": "node --experimental-strip-types scripts/buildGamePackage.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.0",

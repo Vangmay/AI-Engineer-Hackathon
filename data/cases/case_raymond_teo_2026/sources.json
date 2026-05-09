@@ -1,0 +1,52 @@
+[
+  {
+    "sourceId": "source_seed_brief",
+    "caseId": "case_raymond_teo_2026",
+    "sourceType": "news",
+    "publisher": "Crime Scene Seed Data",
+    "title": "The Marina One Penthouse",
+    "publicationDate": "2026-05-09",
+    "url": "https://example.local/raymond-teo-case-brief",
+    "retrievedAt": "2026-05-09T00:00:00.000Z",
+    "excerpt": "Raymond Teo, 47, founder of Teo Holdings, was found unresponsive in the master bedroom of his Marina One penthouse at 04:22 by his housekeeper. No forced entry. No sign of struggle visible from the doorway. Cause of death pending pathology, but the responding officer flagged the scene as suspicious.",
+    "credibilityTier": "strong_secondary",
+    "dedupeHash": "seed-brief",
+    "language": "en"
+  },
+  {
+    "sourceId": "source_seed_access_log",
+    "caseId": "case_raymond_teo_2026",
+    "sourceType": "court",
+    "title": "Seed access log summary",
+    "url": "https://example.local/raymond-teo-access-log",
+    "retrievedAt": "2026-05-09T00:00:00.000Z",
+    "excerpt": "Penthouse access log shows door opened from the inside at 02:51, three minutes after estimated TOD.",
+    "credibilityTier": "primary",
+    "dedupeHash": "seed-access-log",
+    "language": "en"
+  },
+  {
+    "sourceId": "source_seed_forensics",
+    "caseId": "case_raymond_teo_2026",
+    "sourceType": "police",
+    "title": "Seed forensic note",
+    "url": "https://example.local/raymond-teo-forensics",
+    "retrievedAt": "2026-05-09T00:00:00.000Z",
+    "excerpt": "Tumbler on the nightstand contains residue of a benzodiazepine not prescribed to the victim.",
+    "credibilityTier": "primary",
+    "dedupeHash": "seed-forensics",
+    "language": "en"
+  },
+  {
+    "sourceId": "source_seed_concierge",
+    "caseId": "case_raymond_teo_2026",
+    "sourceType": "interview",
+    "title": "Marcus lobby statement",
+    "url": "https://example.local/raymond-teo-concierge",
+    "retrievedAt": "2026-05-09T00:00:00.000Z",
+    "excerpt": "Saw Priya leave the lobby at 03:12, much later than her usual departure. Logged a delivery van that was never on the manifest.",
+    "credibilityTier": "strong_secondary",
+    "dedupeHash": "seed-concierge",
+    "language": "en"
+  }
+]

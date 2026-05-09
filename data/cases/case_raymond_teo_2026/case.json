@@ -1,0 +1,31 @@
+{
+  "caseId": "case_raymond_teo_2026",
+  "canonicalTitle": "The Marina One Penthouse",
+  "aliases": [
+    "Raymond Teo penthouse death"
+  ],
+  "caseStatus": "unsolved",
+  "jurisdictionCountry": "Singapore",
+  "jurisdictionRegion": "Singapore",
+  "primaryLanguage": "en",
+  "incidentStartDate": "2026-05-09",
+  "incidentEndDate": "2026-05-09",
+  "summaryShort": "Raymond Teo, 47, founder of Teo Holdings, was found unresponsive in the master bedroom of his Marina One penthouse at 04:22 by his housekeeper. No forced entry. No sign of struggle visible from the doorway. Cause of death pending pathology, but the responding officer flagged the scene as suspicious.",
+  "summaryLong": "Raymond Teo, 47, founder of Teo Holdings, was found unresponsive in the master bedroom of his Marina One penthouse at 04:22 by his housekeeper. No forced entry. No sign of struggle visible from the doorway. Cause of death pending pathology, but the responding officer flagged the scene as suspicious. Raymond was about to fire her and report unauthorised wire transfers she had been making to cover her brother’s gambling debts.",
+  "mysteryFitScore": 84,
+  "documentationScore": 68,
+  "sourceCount": 3,
+  "mediaRichnessScore": 61,
+  "castClarityScore": 86,
+  "priorityScore": 76,
+  "gameAdaptationStatus": "adapted",
+  "assetGenerationStatus": "reviewed",
+  "primaryLocationLabel": "Marina One, Penthouse 47-B, Singapore",
+  "tags": [
+    "seed",
+    "demo",
+    "penthouse"
+  ],
+  "createdAt": "2026-05-09T00:00:00.000Z",
+  "updatedAt": "2026-05-09T03:01:02.607Z"
+}

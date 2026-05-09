@@ -1,4 +1,4 @@
-import type { MysteryCase } from '@/types/case';
+import type { MysteryCase } from '../types/case.ts';
 
 // Hardcoded seed case used while live generation is stubbed.
 // Replaced by GPT-5.5 output once src/api/generateCase.ts is wired.
