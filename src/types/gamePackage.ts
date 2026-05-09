@@ -11,10 +11,14 @@ export interface WitnessPromptPack {
 
 export interface AssetManifest {
   sceneImageUri?: string;
+  sceneModelUri?: string;
   call911AudioUri?: string;
   revealNarrationAudioUri?: string;
   witnessPortraits: Record<string, string>;
   witnessVoiceSamples: Record<string, string>;
+  evidenceRenders?: Record<string, string>;
+  evidenceModels?: Record<string, string>;
+  evidenceModelPreviews?: Record<string, string>;
 }
 
 export interface GameCasePackage {

@@ -3,7 +3,7 @@ import type { DerivedAsset } from '../src/types/media.ts';
 import { loadCaseBundle, saveCaseBundle, getCaseDir } from './lib/caseFiles.ts';
 import { parseArgs } from './lib/cli.ts';
 import { loadLocalEnv, requireEnv } from './lib/env.ts';
-import { createFalImageDraft } from './lib/fal.ts';
+import { createFalImageDraft, isUsableFalInputUrl } from './lib/fal.ts';
 import { ensureDir } from './lib/fs.ts';
 import { createId } from './lib/ids.ts';
 import { rootDir } from './lib/paths.ts';
@@ -17,7 +17,7 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   const env = requireEnv({
     required: ['FAL_API_KEY'],
-    optional: ['FAL_MODEL'],
+    optional: ['FAL_MODEL', 'FAL_IMAGE_MODEL', 'FAL_IMAGE_TO_IMAGE_MODEL'],
   });
   const caseId = args.caseId;
   if (!caseId) {
@@ -33,13 +33,28 @@ async function main() {
     const media = bundle.media
       .filter((entry) => entry.personId === person.personId && entry.mediaKind === 'image')
       .sort((a, b) => b.usableForCloneScore - a.usableForCloneScore)[0];
-    if (!media) continue;
+    const referenceUrl = isUsableFalInputUrl(media?.url) ? media?.url : undefined;
 
-    const prompt = `Editorial portrait inspired by ${person.fullName}. Documentary true-crime board game character card.`;
+    const prompt = referenceUrl
+      ? [
+          `Use the provided source image of ${person.fullName} as identity reference.`,
+          'Create an evidence-board witness portrait for a cinematic Singapore true-crime game.',
+          'Maintain adult facial identity and recognizable features, but render as a polished editorial dossier photograph.',
+          'Neutral background, direct gaze, restrained expression, realistic lighting, no text.',
+        ].join(' ')
+      : [
+          `Editorial witness portrait for ${person.fullName}.`,
+          `${person.shortBio}. ${person.nationality ?? 'Singaporean'} adult.`,
+          'Cinematic true-crime dossier photograph, direct gaze, neutral background, realistic lighting, no text.',
+        ].join(' ');
     const result = await createFalImageDraft({
       apiKey: env.FAL_API_KEY!,
       prompt,
-      model: env.FAL_MODEL,
+      imageUrl: referenceUrl,
+      model: referenceUrl
+        ? (env.FAL_IMAGE_TO_IMAGE_MODEL ?? env.FAL_MODEL)
+        : (env.FAL_IMAGE_MODEL ?? env.FAL_MODEL),
+      aspectRatio: '3:4',
     });
 
     additions.push({
@@ -48,13 +63,17 @@ async function main() {
       personId: person.personId,
       assetType: 'portrait',
       toolProvider: 'fal',
-      inputMediaIds: [media.mediaId],
+      inputMediaIds: media ? [media.mediaId] : [],
       promptOrRecipe: prompt,
       modelName: result.modelName,
       outputUri: result.outputUri,
       generationDate: new Date().toISOString(),
-      qualityScore: media.usableForCloneScore,
+      qualityScore: media?.usableForCloneScore ?? person.mediaRichnessScore,
+      similarityScore: media?.faceVisibilityScore,
       approvalStatus: 'needs_review',
+      reviewNotes: referenceUrl
+        ? `Generated from data media URL: ${referenceUrl}`
+        : 'Generated from person metadata because no fal-usable image URL was available in /data.',
     });
   }
 

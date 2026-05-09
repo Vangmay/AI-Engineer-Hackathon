@@ -8,7 +8,13 @@ interface GameState {
   phase: GamePhase;
   caseData: MysteryCase | null;
   sceneImageUrl: string | null;
+  sceneModelUrl: string | null;
   call911AudioUrl: string | null;
+  witnessPortraitUrls: Record<string, string>;
+  witnessVoiceSampleUrls: Record<string, string>;
+  evidenceImageUrls: Record<string, string>;
+  evidenceModelUrls: Record<string, string>;
+  evidenceModelPreviewUrls: Record<string, string>;
   activeWitnessId: string | null;
   accusation: string | null;
   isCorrect: boolean | null;
@@ -16,7 +22,13 @@ interface GameState {
   transcript: TranscriptLine[];
   generationMs: number | null;
 
-  loadStaticCase: () => Promise<void>;
+  loadDataCase: () => Promise<void>;
+  setConvexMedia: (media: {
+    sceneImageUrl: string | null;
+    evidenceImageUrls: Record<string, string>;
+    evidenceModelUrls: Record<string, string>;
+    evidenceModelPreviewUrls: Record<string, string>;
+  }) => void;
   goToBrief: () => void;
   startInterrogation: (witnessId: string) => Promise<void>;
   endInterrogation: () => Promise<void>;
@@ -32,7 +44,13 @@ function snapshotToState(snapshot: GameSnapshot) {
     phase: snapshot.session.phase,
     caseData: snapshot.caseData,
     sceneImageUrl: snapshot.media.sceneImageUrl,
+    sceneModelUrl: snapshot.media.sceneModelUrl,
     call911AudioUrl: snapshot.media.call911AudioUrl,
+    witnessPortraitUrls: snapshot.media.witnessPortraitUrls,
+    witnessVoiceSampleUrls: snapshot.media.witnessVoiceSampleUrls,
+    evidenceImageUrls: snapshot.media.evidenceImageUrls,
+    evidenceModelUrls: snapshot.media.evidenceModelUrls,
+    evidenceModelPreviewUrls: snapshot.media.evidenceModelPreviewUrls,
     generationMs: snapshot.generationMs,
     transcript: snapshot.transcript,
     activeWitnessId: snapshot.session.activeWitnessId,
@@ -47,7 +65,13 @@ export const useGameStore = create<GameState>((set, get) => ({
   phase: 'LOADING',
   caseData: null,
   sceneImageUrl: null,
+  sceneModelUrl: null,
   call911AudioUrl: null,
+  witnessPortraitUrls: {},
+  witnessVoiceSampleUrls: {},
+  evidenceImageUrls: {},
+  evidenceModelUrls: {},
+  evidenceModelPreviewUrls: {},
   activeWitnessId: null,
   accusation: null,
   isCorrect: null,
@@ -55,9 +79,24 @@ export const useGameStore = create<GameState>((set, get) => ({
   transcript: [],
   generationMs: null,
 
-  loadStaticCase: async () => {
+  loadDataCase: async () => {
     const snapshot = await gameBackend.startNewCase();
     set(snapshotToState(snapshot));
+  },
+
+  setConvexMedia: (media) => {
+    set((s) => ({
+      sceneImageUrl: media.sceneImageUrl ?? s.sceneImageUrl,
+      evidenceImageUrls: Object.keys(media.evidenceImageUrls).length > 0
+        ? media.evidenceImageUrls
+        : s.evidenceImageUrls,
+      evidenceModelUrls: Object.keys(media.evidenceModelUrls).length > 0
+        ? media.evidenceModelUrls
+        : s.evidenceModelUrls,
+      evidenceModelPreviewUrls: Object.keys(media.evidenceModelPreviewUrls).length > 0
+        ? media.evidenceModelPreviewUrls
+        : s.evidenceModelPreviewUrls,
+    }));
   },
 
   goToBrief: () => set({ phase: 'CASE_BRIEF', activeWitnessId: null }),

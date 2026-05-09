@@ -4,11 +4,11 @@ This is the practical build list for turning the dossier UI into the actual game
 
 ## 0. Current State
 
-- React/Vite frontend exists with static Raymond Teo case data.
+- React/Vite frontend exists with the Raymond Teo case loaded from `data/cases/case_raymond_teo_2026/package.json`.
 - Screens exist for loading, case briefing, interview, accusation, and reveal.
 - Game state is Zustand backed by a backend contract and local adapter.
 - Interview transcript is stubbed with timed fake lines.
-- Accusation is evaluated through the backend contract with local fallback logic.
+- Accusation is evaluated through the backend contract with local data-backed logic.
 - Convex schema/function scaffolding exists, but the frontend is not yet using deployed Convex.
 - No generated cases, media pipeline, or live voice connection yet.
 
@@ -58,7 +58,7 @@ This is the practical build list for turning the dossier UI into the actual game
   - [ ] Ensure each clue is represented in scene prompt or witness knowledge.
   - [ ] Ensure the killer has a consistent lie and at least one contradiction.
 - [ ] Store hidden truth separately from the public case payload.
-- [ ] Add static fallback case if generation fails.
+- [x] Keep runtime cases sourced from `data/cases/*/package.json`; fail loudly when the data package is missing.
 
 ## 3. Media Pipeline
 
@@ -136,7 +136,7 @@ This is the practical build list for turning the dossier UI into the actual game
 
 ## 7. Frontend State Wiring
 
-- [ ] Replace static `raymondTeoCase` boot flow.
+- [x] Replace static boot flow with the packaged case under `data/cases`.
   - [x] Loading screen calls backend `startNewCase()`.
   - [x] Case file renders backend-provided public case.
   - [ ] Media placeholders swap to generated assets when ready.

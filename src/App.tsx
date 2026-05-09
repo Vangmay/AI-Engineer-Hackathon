@@ -6,6 +6,7 @@ import { CaseLoadScreen } from '@/screens/CaseLoadScreen';
 import { InterrogationScreen } from '@/screens/InterrogationScreen';
 import { AccusationScreen } from '@/screens/AccusationScreen';
 import { RevealScreen } from '@/screens/RevealScreen';
+import { ConvexMediaSync } from '@/components/ConvexMediaSync';
 
 export default function App() {
   const phase = useGameStore((s) => s.phase);
@@ -66,6 +67,12 @@ export default function App() {
     window.history.pushState(state, '', hash);
   }, [activeWitnessId, caseData, phase]);
 
+  useEffect(() => {
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0 });
+    });
+  }, [activeWitnessId, phase]);
+
   let screen;
   if (phase === 'LOADING' || !caseData) screen = <LoadingScreen />;
   else if (phase === 'CASE_BRIEF') screen = <CaseLoadScreen />;
@@ -75,6 +82,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen w-full relative">
+      <ConvexMediaSync />
       {screen}
     </div>
   );

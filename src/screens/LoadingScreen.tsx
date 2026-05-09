@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { getCurrentCasePackage } from '@/data/currentCasePackage';
 import { useGameStore } from '@/store/gameStore';
 
 const STAGES = [
@@ -11,7 +12,8 @@ const STAGES = [
 ];
 
 export function LoadingScreen() {
-  const loadStaticCase = useGameStore((s) => s.loadStaticCase);
+  const loadDataCase = useGameStore((s) => s.loadDataCase);
+  const casePackage = getCurrentCasePackage();
   const [stage, setStage] = useState(0);
   const [t, setT] = useState(0);
 
@@ -21,13 +23,13 @@ export function LoadingScreen() {
     const stages = setInterval(() => {
       setStage((s) => Math.min(STAGES.length - 1, s + 1));
     }, 700);
-    const done = setTimeout(() => loadStaticCase(), 4500);
+    const done = setTimeout(() => loadDataCase(), 4500);
     return () => {
       clearInterval(tick);
       clearInterval(stages);
       clearTimeout(done);
     };
-  }, [loadStaticCase]);
+  }, [loadDataCase]);
 
   return (
     <main className="dossier-page grid min-h-screen place-items-center px-6">
@@ -35,7 +37,7 @@ export function LoadingScreen() {
       <section className="paper-card lifted w-[560px] max-w-full p-8">
         <div className="dossier-overline">Singapore Police Force · CID</div>
         <h1 className="mt-2 text-[32px] leading-none">CASE FILE</h1>
-        <div className="mt-1 text-[18px]">Death at Duxton Hill</div>
+        <div className="mt-1 text-[18px]">{casePackage.title}</div>
         <div className="my-6 border-t-2 border-[var(--ink)]" />
         <div className="flex items-baseline justify-between">
           <span className="text-[11px] tracking-[0.25em] opacity-70">

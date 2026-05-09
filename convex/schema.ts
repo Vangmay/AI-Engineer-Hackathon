@@ -29,6 +29,9 @@ export default defineSchema({
       promptVersion: v.string(),
       generationMs: v.optional(v.number()),
       createdAt: v.number(),
+      researchQuery: v.optional(v.string()),
+      researchSourceUrls: v.optional(v.array(v.string())),
+      researchSourceTitles: v.optional(v.array(v.string())),
     }),
   }).index('by_case_id', ['caseId']),
 
@@ -58,6 +61,9 @@ export default defineSchema({
     call911AudioUrl: v.optional(v.string()),
     revealNarrationAudioUrl: v.optional(v.string()),
     ambientAudioUrl: v.optional(v.string()),
+    evidenceRenders: v.optional(v.any()),
+    evidenceModels: v.optional(v.any()),
+    evidenceModelPreviews: v.optional(v.any()),
     updatedAt: v.number(),
   }).index('by_case', ['caseId']),
 });

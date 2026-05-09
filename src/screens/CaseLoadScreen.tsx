@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { Evidence3DViewer } from '@/components/Evidence3DViewer';
 import { useGameStore } from '@/store/gameStore';
 
 const CALL_911_TRANSCRIPT = [
@@ -98,11 +99,34 @@ function Waveform({ activeBars = 28 }: { activeBars?: number }) {
 export function CaseLoadScreen() {
   const caseData = useGameStore((s) => s.caseData)!;
   const generationMs = useGameStore((s) => s.generationMs);
+  const sceneImageUrl = useGameStore((s) => s.sceneImageUrl);
+  const sceneModelUrl = useGameStore((s) => s.sceneModelUrl);
+  const call911AudioUrl = useGameStore((s) => s.call911AudioUrl);
+  const witnessPortraitUrls = useGameStore((s) => s.witnessPortraitUrls);
+  const evidenceImageUrls = useGameStore((s) => s.evidenceImageUrls);
+  const evidenceModelUrls = useGameStore((s) => s.evidenceModelUrls);
+  const evidenceModelPreviewUrls = useGameStore(
+    (s) => s.evidenceModelPreviewUrls,
+  );
   const startInterrogation = useGameStore((s) => s.startInterrogation);
   const goToAccusation = useGameStore((s) => s.goToAccusation);
   const [noted, setNoted] = useState<Set<number>>(() => new Set());
+  const [activeModel, setActiveModel] = useState<number | null>(null);
+  const [playing911, setPlaying911] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const generatedIn = `${((generationMs ?? 8300) / 1000).toFixed(1)}s`;
+  const toggle911 = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (playing911) {
+      audio.pause();
+      setPlaying911(false);
+      return;
+    }
+    await audio.play();
+    setPlaying911(true);
+  };
 
   return (
     <main className="dossier-page">
@@ -136,14 +160,35 @@ export function CaseLoadScreen() {
             <section className="paper-card lifted p-[14px_14px_18px]">
               <div className="tape-corner left" />
               <div className="tape-corner right" />
-              <div className="photo-ph h-[250px] text-[11px] leading-relaxed">
-                CRIME SCENE — {caseData.victim.location.toUpperCase()}
-                <br />
-                {caseData.scene_prompt}
+              <div className="case-scene-frame h-[250px]">
+                {sceneImageUrl ? (
+                  <img
+                    src={sceneImageUrl}
+                    alt={`Crime scene reconstruction for ${caseData.title}`}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="photo-ph h-full text-[11px] leading-relaxed">
+                    CRIME SCENE — {caseData.victim.location.toUpperCase()}
+                    <br />
+                    {caseData.scene_prompt}
+                  </div>
+                )}
               </div>
               <div className="mt-2 flex justify-between gap-4 text-[10px] opacity-70">
                 <span>EXHIBIT A · SCENE PHOTOGRAPH 01</span>
-                <span>RESPONDING OFFICER · 04:22 SGT</span>
+                {sceneModelUrl ? (
+                  <a
+                    href={sceneModelUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="opacity-100 underline decoration-dashed underline-offset-2"
+                  >
+                    3D SCENE MODEL · GLB
+                  </a>
+                ) : (
+                  <span>RESPONDING OFFICER · 04:22 SGT</span>
+                )}
               </div>
               <Stamp text="CONFIDENTIAL" top={-22} left={310} rotate={-8} />
             </section>
@@ -158,11 +203,20 @@ export function CaseLoadScreen() {
               <div className="flex items-center gap-2.5 py-[10px] pb-1.5">
                 <button
                   type="button"
+                  onClick={toggle911}
+                  disabled={!call911AudioUrl}
                   className="grid h-7 w-7 place-items-center rounded-full bg-[var(--ink)] text-[11px] text-[var(--cream-on-dark)]"
                   aria-label="Play 911 call"
                 >
-                  ▶
+                  {playing911 ? '||' : '▶'}
                 </button>
+                {call911AudioUrl && (
+                  <audio
+                    ref={audioRef}
+                    src={call911AudioUrl}
+                    onEnded={() => setPlaying911(false)}
+                  />
+                )}
                 <Waveform />
                 <div className="text-[10px] opacity-70">0:48 / 1:42</div>
               </div>
@@ -202,29 +256,61 @@ export function CaseLoadScreen() {
 
             <section className="paper-card p-[14px_16px]">
               <div className="dossier-overline mb-2">Evidence Collected</div>
-              {caseData.clues.map((clue, i) => (
-                <button
-                  key={clue}
-                  type="button"
-                  onClick={() =>
-                    setNoted((prev) => {
-                      const next = new Set(prev);
-                      if (next.has(i)) next.delete(i);
-                      else next.add(i);
-                      return next;
-                    })
-                  }
-                  className="flex w-full items-start gap-2.5 border-t border-dashed border-[rgba(26,20,16,0.3)] py-2 text-left first:border-t-0"
-                >
-                  <span className="w-[26px] text-[11px] opacity-70">
-                    EX-{String.fromCharCode(65 + i)}
-                  </span>
-                  <span className="flex-1 text-[13px]">{clue}</span>
-                  <span className="mt-0.5 grid h-3.5 w-3.5 place-items-center border border-[var(--ink)] text-[10px]">
-                    {noted.has(i) ? '×' : ''}
-                  </span>
-                </button>
-              ))}
+              {caseData.clues.map((clue, i) => {
+                const renderUrl = evidenceImageUrls[String(i)];
+                const modelUrl = evidenceModelUrls[String(i)];
+                const previewUrl = evidenceModelPreviewUrls[String(i)];
+                const thumbnailUrl = renderUrl || previewUrl;
+                return (
+                  <div
+                    key={clue}
+                    className="flex w-full items-start gap-2.5 border-t border-dashed border-[rgba(26,20,16,0.3)] py-2 text-left first:border-t-0"
+                  >
+                    <span className="w-[26px] text-[11px] opacity-70">
+                      EX-{String.fromCharCode(65 + i)}
+                    </span>
+                    {thumbnailUrl && (
+                      <img
+                        src={thumbnailUrl}
+                        alt={`Rendered evidence ${String.fromCharCode(65 + i)}`}
+                        className="h-[52px] w-[68px] shrink-0 object-cover"
+                      />
+                    )}
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[13px]">{clue}</span>
+                      {(renderUrl || modelUrl) && (
+                        <span className="mt-1 flex gap-2 text-[9px] tracking-[0.14em] opacity-70">
+                          {renderUrl && <span>FAL RENDER</span>}
+                          {modelUrl && (
+                            <button
+                              type="button"
+                              onClick={() => setActiveModel(i)}
+                              className="underline decoration-dashed underline-offset-2 cursor-pointer hover:opacity-100"
+                            >
+                              VIEW 3D ↗
+                            </button>
+                          )}
+                        </span>
+                      )}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setNoted((prev) => {
+                          const next = new Set(prev);
+                          if (next.has(i)) next.delete(i);
+                          else next.add(i);
+                          return next;
+                        })
+                      }
+                      className="mt-0.5 grid h-3.5 w-3.5 place-items-center border border-[var(--ink)] text-[10px]"
+                      aria-label={`Toggle evidence ${String.fromCharCode(65 + i)} note`}
+                    >
+                      {noted.has(i) ? '×' : ''}
+                    </button>
+                  </div>
+                );
+              })}
             </section>
 
             <section className="paper-card p-[14px_16px]">
@@ -237,9 +323,17 @@ export function CaseLoadScreen() {
                   key={witness.id}
                   className="flex items-center gap-2.5 border-t border-dashed border-[rgba(26,20,16,0.3)] py-2 first:border-t-0"
                 >
-                  <div className="grid h-[46px] w-[38px] place-items-center bg-[var(--ink)] text-[9px] text-[var(--cream-on-dark)]">
-                    W{i + 1}
-                  </div>
+                  {witnessPortraitUrls[witness.id] ? (
+                    <img
+                      src={witnessPortraitUrls[witness.id]}
+                      alt={`${witness.name} portrait`}
+                      className="h-[52px] w-[42px] object-cover grayscale"
+                    />
+                  ) : (
+                    <div className="grid h-[46px] w-[38px] place-items-center bg-[var(--ink)] text-[9px] text-[var(--cream-on-dark)]">
+                      W{i + 1}
+                    </div>
+                  )}
                   <div className="min-w-0 flex-1">
                     <div className="text-[14px]">{witness.name}</div>
                     <div className="truncate text-[11px] opacity-[0.65]">
@@ -283,6 +377,16 @@ export function CaseLoadScreen() {
           </button>
         </div>
       </div>
+
+      {activeModel !== null && evidenceModelUrls[String(activeModel)] && (
+        <Evidence3DViewer
+          glbUrl={evidenceModelUrls[String(activeModel)]}
+          previewUrl={evidenceModelPreviewUrls[String(activeModel)] || evidenceImageUrls[String(activeModel)]}
+          label={`Exhibit ${String.fromCharCode(65 + activeModel)}`}
+          description={caseData.clues[activeModel] ?? ''}
+          onClose={() => setActiveModel(null)}
+        />
+      )}
 
       <Stamp text="CASE OPEN" top={56} left={920} rotate={6} />
       <Stamp

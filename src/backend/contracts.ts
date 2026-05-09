@@ -2,9 +2,15 @@ import type { GamePhase, MysteryCase, TranscriptLine } from '@/types/case';
 
 export interface CaseMedia {
   sceneImageUrl: string | null;
+  sceneModelUrl: string | null;
   call911AudioUrl: string | null;
   revealNarrationAudioUrl: string | null;
   ambientAudioUrl: string | null;
+  witnessPortraitUrls: Record<string, string>;
+  witnessVoiceSampleUrls: Record<string, string>;
+  evidenceImageUrls: Record<string, string>;
+  evidenceModelUrls: Record<string, string>;
+  evidenceModelPreviewUrls: Record<string, string>;
 }
 
 export interface GameSession {
