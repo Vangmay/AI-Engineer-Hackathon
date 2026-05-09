@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useGameStore } from '@/store/gameStore';
 import type { TranscriptLine } from '@/types/case';
 
@@ -103,20 +103,21 @@ export function InterrogationScreen() {
     [caseData, witnessId],
   );
 
-  const cancelled = useRef(false);
   useEffect(() => {
-    cancelled.current = false;
+    let cancelled = false;
+    const timeouts: number[] = [];
     const lines = stubConversation(witnessId);
     let i = 0;
     const tick = () => {
-      if (cancelled.current || i >= lines.length) return;
+      if (cancelled || i >= lines.length) return;
       appendTranscript(lines[i]);
       i += 1;
-      setTimeout(tick, 1800 + Math.random() * 700);
+      timeouts.push(window.setTimeout(tick, 1800 + Math.random() * 700));
     };
-    setTimeout(tick, 600);
+    timeouts.push(window.setTimeout(tick, 600));
     return () => {
-      cancelled.current = true;
+      cancelled = true;
+      timeouts.forEach((id) => window.clearTimeout(id));
     };
   }, [witnessId, appendTranscript]);
 
@@ -127,8 +128,15 @@ export function InterrogationScreen() {
       <div className="dossier-artboard min-h-screen !pb-[40px]">
         <header className="dossier-header">
           <div className="dossier-overline">Interview Recording · {caseData.case_id}</div>
-          <div className="flex gap-6 text-[12px]">
-            <span>● REC 00:04:17</span>
+          <div className="flex flex-wrap items-center justify-end gap-4 text-[12px]">
+            <button
+              type="button"
+              onClick={endInterrogation}
+              className="border border-[var(--ink)] px-2.5 py-1 text-[10px] tracking-[0.15em]"
+            >
+              RETURN TO CASE FILE
+            </button>
+            <span>REC 00:04:17</span>
             <span>TAPE 02 / SIDE A</span>
           </div>
         </header>
@@ -239,6 +247,13 @@ export function InterrogationScreen() {
                 {chip}
               </button>
             ))}
+            <button
+              type="button"
+              onClick={endInterrogation}
+              className="border border-[var(--ink)] px-2 py-1 text-[10px] tracking-[0.15em]"
+            >
+              RETURN TO CASE FILE
+            </button>
             <button
               type="button"
               onClick={goToAccusation}

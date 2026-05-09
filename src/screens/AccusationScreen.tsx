@@ -1,8 +1,6 @@
+import type { CSSProperties } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '@/store/gameStore';
-import { StatusBar } from '@/components/ui/StatusBar';
-import { CornerTicks } from '@/components/ui/CornerTicks';
-import { WaveformBar } from '@/components/ui/WaveformBar';
 
 interface SpeechRecognitionResultLike {
   0: { transcript: string };
@@ -24,6 +22,30 @@ interface SpeechRecognitionLike {
 }
 
 type SpeechRecognitionCtor = new () => SpeechRecognitionLike;
+
+function AccusationWaveform({ active }: { active: boolean }) {
+  return (
+    <svg width="100%" height="42" viewBox="0 0 420 42" aria-hidden="true">
+      {Array.from({ length: 70 }).map((_, i) => {
+        const h =
+          5 +
+          Math.abs(Math.sin(i * 0.52) * Math.cos(i * 0.17 + (active ? 1 : 0))) *
+            (active ? 31 : 16);
+        return (
+          <rect
+            key={i}
+            x={i * 6}
+            y={(42 - h) / 2}
+            width="3"
+            height={h}
+            fill="var(--ink)"
+            opacity={active ? 0.9 : 0.35}
+          />
+        );
+      })}
+    </svg>
+  );
+}
 
 export function AccusationScreen() {
   const caseData = useGameStore((s) => s.caseData)!;
@@ -63,19 +85,31 @@ export function AccusationScreen() {
     rec.onend = () => setHolding(false);
     recRef.current = rec;
     return () => {
-      try { rec.stop(); } catch { /* noop */ }
+      try {
+        rec.stop();
+      } catch {
+        /* noop */
+      }
     };
   }, []);
 
   const start = () => {
     setTranscript('');
     setHolding(true);
-    try { recRef.current?.start(); } catch { /* already started */ }
+    try {
+      recRef.current?.start();
+    } catch {
+      /* already started */
+    }
   };
 
   const stop = () => {
     setHolding(false);
-    try { recRef.current?.stop(); } catch { /* noop */ }
+    try {
+      recRef.current?.stop();
+    } catch {
+      /* noop */
+    }
     if (transcript.trim()) {
       setTimeout(() => submitAccusation(transcript), 350);
     }
@@ -89,79 +123,102 @@ export function AccusationScreen() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-[var(--bg-base)]">
-      <StatusBar caseId={caseData.case_id} phase="ACCUSATION" />
+    <main className="dossier-page">
+      <div className="dossier-tab" />
+      <div className="dossier-artboard grid min-h-screen place-items-center">
+        <section className="paper-card lifted relative w-[720px] max-w-full p-8 text-center">
+          <div className="tape-corner left" />
+          <div className="tape-corner right" />
 
-      <div className="flex-1 grid place-items-center px-6">
-        <div className="w-full max-w-[640px] flex flex-col items-center text-center">
-          <div className="text-[10px] uppercase tracking-[0.32em] text-[var(--text-faint)] mb-3">
-            FORMAL ACCUSATION · ON THE RECORD
+          <div className="dossier-overline">Formal Accusation · On The Record</div>
+          <h1 className="mt-3 text-[34px] leading-none">Name The Killer</h1>
+          <div className="mx-auto mt-4 h-0 w-full border-t-2 border-[var(--ink)]" />
+
+          <div className="mx-auto mt-8 max-w-[520px] text-[13px] leading-relaxed opacity-75">
+            Case file {caseData.case_id} is ready for indictment. Record the suspect's
+            name clearly, then release the seal to enter it into evidence.
           </div>
-          <h1 className="text-[28px] font-light text-[var(--accent-yellow)] tracking-[0.18em] uppercase mb-10">
-            Speak the name of the killer
-          </h1>
 
-          <div className="relative w-[200px] h-[200px] mb-8 grid place-items-center">
-            <CornerTicks size={18} />
+          <div className="mx-auto mt-8 grid h-[184px] w-[184px] place-items-center border-2 border-dashed border-[var(--ink)]">
             <button
+              type="button"
               onMouseDown={start}
               onMouseUp={stop}
               onMouseLeave={() => holding && stop()}
               onTouchStart={start}
               onTouchEnd={stop}
               disabled={!supported}
-              className={`w-[140px] h-[140px] rounded-full grid place-items-center text-4xl border transition-all select-none ${
+              className={`h-[132px] w-[132px] rounded-full border-2 text-[40px] transition-transform ${
                 holding
-                  ? 'bg-[var(--accent-red)] border-[var(--accent-red)] text-[var(--text-primary)] scale-105'
-                  : 'bg-[var(--bg-panel)] border-[var(--accent-yellow)] text-[var(--accent-yellow)] hover:bg-[var(--accent-yellow)]/10'
-              }`}
+                  ? 'scale-105 border-[var(--oxblood)] bg-[var(--oxblood)] text-[var(--cream-on-dark)]'
+                  : 'border-[var(--ink)] bg-[var(--paper-card)] text-[var(--ink)] hover:bg-[var(--paper-warm-base)]'
+              } disabled:cursor-not-allowed disabled:opacity-45`}
+              aria-label="Hold to record accusation"
             >
-              ◉
+              REC
             </button>
           </div>
 
-          <div className="w-full mb-6">
-            <WaveformBar active={holding} bars={56} height={32} />
+          <div className="mx-auto mt-6 max-w-[520px]">
+            <AccusationWaveform active={holding} />
           </div>
 
-          <div className="min-h-[60px] w-full mb-6 px-4 py-3 border border-[var(--border-yellow)] bg-[var(--bg-panel)] text-left">
-            <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-faint)] mb-1">
-              CAPTURED
+          <div className="lined-paper mx-auto mt-6 min-h-[82px] max-w-[560px] p-[14px_18px] text-left shadow-[0_4px_12px_rgba(0,0,0,0.12)]">
+            <div className="border-b border-dashed border-[var(--ink)] pb-1 text-[11px] tracking-[0.15em] opacity-70">
+              CAPTURED STATEMENT
             </div>
-            <div className="text-[15px] text-[var(--text-primary)] min-h-[20px]">
+            <div className="mt-2 min-h-[24px] text-[15px] leading-[24px]">
               {transcript || (
-                <span className="text-[var(--text-faint)] italic">
-                  {supported ? 'Hold the button and say the name…' : 'Speech recognition unavailable in this browser.'}
+                <span className="opacity-50 italic">
+                  {supported
+                    ? 'Hold REC and say the suspect name.'
+                    : 'Speech recognition unavailable. Type the accusation below.'}
                 </span>
               )}
-              {holding && <span className="cursor-blink ml-1 text-[var(--accent-yellow)]">_</span>}
+              {holding && <span className="cursor-blink ml-1 text-[var(--oxblood)]">_</span>}
             </div>
           </div>
 
           {!supported && (
-            <form onSubmit={submitTextFallback} className="w-full flex gap-2 mb-6">
+            <form onSubmit={submitTextFallback} className="mx-auto mt-5 flex max-w-[560px] gap-2">
               <input
                 name="name"
                 placeholder="Type the killer's name"
-                className="flex-1 px-3 py-2 bg-[var(--bg-panel)] border border-[var(--border-yellow)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-yellow)]"
+                className="min-w-0 flex-1 border border-[var(--ink)] bg-[var(--paper-card)] px-3 py-2 text-[13px] text-[var(--ink)] outline-none focus:border-[var(--oxblood)]"
               />
               <button
                 type="submit"
-                className="px-4 py-2 bg-[var(--accent-yellow)] text-[var(--bg-base)] text-[11px] uppercase tracking-[0.22em]"
+                className="bg-[var(--ink)] px-4 py-2 text-[11px] tracking-[0.15em] text-[var(--cream-on-dark)]"
               >
-                Submit
+                SUBMIT
               </button>
             </form>
           )}
 
-          <button
-            onClick={endInterrogation}
-            className="text-[10px] uppercase tracking-[0.22em] text-[var(--text-muted)] hover:text-[var(--accent-yellow)]"
+          <div className="mt-8 flex items-center justify-between gap-4 border-t border-[var(--ink)] pt-3 text-[10px] tracking-[0.15em] max-[620px]:flex-col">
+            <button type="button" onClick={endInterrogation} className="border border-[var(--ink)] px-3 py-1.5">
+              RETURN TO CASE FILE
+            </button>
+            <span className="opacity-60">PAGE 04 / 04 · CHAIN OF CUSTODY {caseData.case_id}</span>
+          </div>
+
+          <div
+            className="dossier-stamp"
+            style={
+              {
+                top: 24,
+                right: 28,
+                '--stamp-rotate': '6deg',
+                '--stamp-color': 'var(--oxblood)',
+                '--stamp-size': '11px',
+              } as CSSProperties
+            }
           >
-            ← Return to brief
-          </button>
-        </div>
+            FINAL
+          </div>
+        </section>
       </div>
-    </div>
+      <div className="dossier-grain" />
+    </main>
   );
 }
