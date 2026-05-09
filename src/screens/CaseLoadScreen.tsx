@@ -224,30 +224,76 @@ export function CaseLoadScreen() {
           </div>
         </header>
 
-        {/* Full-width crime scene hero at top */}
-        <section className="paper-card lifted mt-[22px] p-[14px_14px_10px] relative">
-          <div className="tape-corner left" />
-          <div className="tape-corner right" />
-          <div className="overflow-hidden" style={{ height: 420 }}>
-            {sceneModelUrl ? (
-              <Scene3DViewer glbUrl={sceneModelUrl} previewUrl={sceneImageUrl ?? undefined} />
-            ) : sceneImageUrl ? (
-              <img
-                src={sceneImageUrl}
-                alt={`Crime scene — ${caseData.title}`}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="photo-ph h-full text-[11px] leading-relaxed">
-                CRIME SCENE — {caseData.victim.location.toUpperCase()}
-              </div>
-            )}
+        {/* Hero: crime scene left, key evidence right */}
+        <section className="mt-[22px] grid grid-cols-[1.6fr_1fr] gap-4 max-[900px]:grid-cols-1">
+          {/* Crime scene 3D */}
+          <div className="paper-card lifted p-[12px_12px_8px] relative">
+            <div className="tape-corner left" />
+            <div className="tape-corner right" />
+            <div className="overflow-hidden" style={{ height: 400 }}>
+              {sceneModelUrl ? (
+                <Scene3DViewer glbUrl={sceneModelUrl} previewUrl={sceneImageUrl ?? undefined} />
+              ) : sceneImageUrl ? (
+                <img
+                  src={sceneImageUrl}
+                  alt={`Crime scene — ${caseData.title}`}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="photo-ph h-full text-[11px] leading-relaxed">
+                  CRIME SCENE — {caseData.victim.location.toUpperCase()}
+                </div>
+              )}
+            </div>
+            <div className="mt-1.5 flex justify-between gap-4 text-[9px] opacity-60">
+              <span>EXHIBIT A · CRIME SCENE · HIGHWAY 37 HASTINGS COUNTY</span>
+              <span>DRAG · ROTATE | SCROLL · ZOOM</span>
+            </div>
+            <Stamp text="CONFIDENTIAL" top={-22} left={240} rotate={-8} />
           </div>
-          <div className="mt-2 flex justify-between gap-4 text-[10px] opacity-70">
-            <span>{sceneModelUrl ? 'EXHIBIT A · CRIME SCENE RECONSTRUCTION · INTERACTIVE 3D' : 'EXHIBIT A · SCENE PHOTOGRAPH 01'}</span>
-            <span>{sceneModelUrl ? 'DRAG TO ROTATE · SCROLL TO ZOOM' : 'RESPONDING OFFICER · 04:22 SGT'}</span>
+
+          {/* Key evidence: vehicle + weapon */}
+          <div className="flex flex-col gap-4">
+            {(['4', '5'] as const).map((idx, i) => {
+              const modelUrl = evidenceModelUrls[idx];
+              const previewUrl = evidenceModelPreviewUrls[idx] || evidenceImageUrls[idx];
+              const labels = [
+                { tag: 'EXHIBIT B', title: 'SUSPECT VEHICLE', sub: 'Nissan Pathfinder · Tire Match' },
+                { tag: 'EXHIBIT C', title: 'MURDER WEAPON', sub: 'Maglite Flashlight · Ligature' },
+              ];
+              const lbl = labels[i]!;
+              return (
+                <div key={idx} className="paper-card p-[10px_10px_8px] flex-1 relative">
+                  <div
+                    className="overflow-hidden cursor-pointer"
+                    style={{ height: 188, background: '#1c2030' }}
+                    onClick={() => modelUrl && setActiveModel(Number(idx))}
+                  >
+                    {modelUrl ? (
+                      <Evidence3DViewer
+                        inline
+                        glbUrl={modelUrl}
+                        previewUrl={previewUrl}
+                        label={lbl.title}
+                        description={lbl.sub}
+                      />
+                    ) : previewUrl ? (
+                      <img src={previewUrl} alt={lbl.title} className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="h-full flex items-center justify-center text-[9px] tracking-widest opacity-30">
+                        GENERATING…
+                      </div>
+                    )}
+                  </div>
+                  <div className="mt-1 flex items-baseline justify-between">
+                    <span className="text-[10px] tracking-[0.12em]">{lbl.title}</span>
+                    <span className="text-[8px] opacity-50">{lbl.tag}</span>
+                  </div>
+                  <div className="text-[8px] opacity-45 tracking-[0.1em]">{lbl.sub}</div>
+                </div>
+              );
+            })}
           </div>
-          <Stamp text="CONFIDENTIAL" top={-22} left={310} rotate={-8} />
         </section>
 
         <section className="mt-[22px] grid grid-cols-[1.35fr_1fr] gap-8 max-[900px]:grid-cols-1">

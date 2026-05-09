@@ -21,12 +21,32 @@ const args = parseArgs(process.argv.slice(2));
 const caseId = (args['--caseId'] as string | undefined) ?? 'case_colonel_russell_williams_2010';
 
 const SCENE_PROMPT =
-  'Isolated 1920s limestone farmhouse at night, rural Highway 37 Hastings County Ontario Canada, winter, ' +
-  'crime scene investigation, yellow police tape strung between weathered fence posts, ' +
-  'numbered yellow evidence placards on snow-dusted ground, forensic flashlight beams casting cold blue light, ' +
-  'faint boot impressions in the snow near rear entrance, bare oak trees, ' +
-  'distant stars in a dark overcast sky, patrol car headlights off in background, ' +
-  'no people, no gore, highly detailed photorealistic render, cinematic, 8K, atmospheric';
+  'Photorealistic crime scene exterior, isolated 1920s limestone farmhouse, Highway 37 Hastings County Ontario Canada, ' +
+  'late winter night, fresh snow on the ground. ' +
+
+  'Evidence details: ' +
+  'deep size-10.5 military boot impressions in snow leading to rear door, ' +
+  'yellow numbered forensic evidence placards (A1 A2 A3 A4) placed precisely beside each boot print and near rear entrance, ' +
+  'yellow-and-black police tape (DO NOT CROSS) strung low between rusted fence posts and a weathered oak tree, ' +
+  'single visible tire tread mark in the driveway snow consistent with an SUV, ' +
+  'shattered rear door lock with visible pry marks on the limestone frame, ' +
+  'forensic photographer tripod with bright strobe light illuminating the rear entrance, ' +
+  'small numbered orange evidence tent near the doorstep, ' +
+  'evidence collection kit bag open on the snowy ground beside the door, latex gloves discarded nearby, ' +
+  'forensic ruler lying flat next to a boot impression, ' +
+  'faint flashlight beam sweeping across the snow from inside through a cracked window. ' +
+
+  'Scene atmosphere: ' +
+  'bare skeletal oak trees surrounding the property, ' +
+  'two OPP cruisers parked at angle in driveway with roof lights off, ' +
+  'cold blue forensic work lights on tripod stands, ' +
+  'breath vapour in cold air visible near evidence markers, ' +
+  'overcast sky with faint moonlight breaking through, ' +
+  'limestone farmhouse walls showing age and weathering, ' +
+  'snow undisturbed except near the evidence trail. ' +
+
+  'No people, no blood, no gore. ' +
+  'Ultra-high detail, photorealistic, cinematic DSLR photography, 8K resolution, shallow depth of field on evidence markers.';
 
 console.log('Generating crime scene image…');
 const imgDraft = await createFalImageDraft({
