@@ -21,3 +21,14 @@ export function createId(prefix: string, seed: string): string {
 export function hashText(value: string): string {
   return crypto.createHash('sha1').update(value).digest('hex');
 }
+
+export function fileExtensionFromUrl(url: string, fallback = 'bin'): string {
+  try {
+    const pathname = new URL(url).pathname;
+    const candidate = pathname.split('/').pop() ?? '';
+    const ext = candidate.includes('.') ? candidate.split('.').pop() : '';
+    return ext && /^[a-z0-9]+$/iu.test(ext) ? ext.toLowerCase() : fallback;
+  } catch {
+    return fallback;
+  }
+}

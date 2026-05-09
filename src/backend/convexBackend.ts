@@ -16,6 +16,8 @@ const emptyMedia: CaseMedia = {
   call911AudioUrl: null,
   revealNarrationAudioUrl: null,
   ambientAudioUrl: null,
+  witnessIntroAudioUrls: {},
+  voiceModels: {},
   witnessPortraitUrls: {},
   witnessVoiceSampleUrls: {},
   evidenceImageUrls: {},
@@ -63,9 +65,17 @@ function snapshotFromConvexRow(row: {
   };
   media: {
     sceneImageUrl?: string;
+    sceneModelUrl?: string;
     call911AudioUrl?: string;
     revealNarrationAudioUrl?: string;
     ambientAudioUrl?: string;
+    witnessIntroAudioUrls?: Record<string, string>;
+    voiceModels?: CaseMedia['voiceModels'];
+    witnessPortraitUrls?: Record<string, string>;
+    witnessVoiceSampleUrls?: Record<string, string>;
+    evidenceImageUrls?: Record<string, string>;
+    evidenceModelUrls?: Record<string, string>;
+    evidenceModelPreviewUrls?: Record<string, string>;
   } | null;
   transcript: Array<{
     speaker: TranscriptLine['speaker'];
@@ -94,9 +104,17 @@ function snapshotFromConvexRow(row: {
     ...(media
       ? {
           sceneImageUrl: media.sceneImageUrl ?? null,
+          sceneModelUrl: media.sceneModelUrl ?? null,
           call911AudioUrl: media.call911AudioUrl ?? null,
           revealNarrationAudioUrl: media.revealNarrationAudioUrl ?? null,
           ambientAudioUrl: media.ambientAudioUrl ?? null,
+          witnessIntroAudioUrls: media.witnessIntroAudioUrls ?? {},
+          voiceModels: media.voiceModels ?? {},
+          witnessPortraitUrls: media.witnessPortraitUrls ?? {},
+          witnessVoiceSampleUrls: media.witnessVoiceSampleUrls ?? {},
+          evidenceImageUrls: media.evidenceImageUrls ?? {},
+          evidenceModelUrls: media.evidenceModelUrls ?? {},
+          evidenceModelPreviewUrls: media.evidenceModelPreviewUrls ?? {},
         }
       : {}),
   };

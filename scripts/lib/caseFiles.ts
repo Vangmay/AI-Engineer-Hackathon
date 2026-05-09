@@ -1,6 +1,11 @@
 import path from 'node:path';
 import type { GameCasePackage } from '../../src/types/gamePackage.ts';
-import type { ReviewRecord, MediaCandidate, DerivedAsset } from '../../src/types/media.ts';
+import type {
+  ReviewRecord,
+  MediaCandidate,
+  DerivedAsset,
+  VoiceRosterEntry,
+} from '../../src/types/media.ts';
 import type {
   CaseRecord,
   EvidenceItem,
@@ -20,6 +25,7 @@ export interface CaseBundle {
   media: MediaCandidate[];
   reviews: ReviewRecord[];
   derivedAssets: DerivedAsset[];
+  voiceRoster: VoiceRosterEntry[];
   packageRecord?: GameCasePackage;
 }
 
@@ -44,6 +50,7 @@ export function loadCaseBundle(caseId: string): CaseBundle {
     media: readJsonFile<MediaCandidate[]>(path.join(dir, 'media.json'), []),
     reviews: readJsonFile<ReviewRecord[]>(path.join(dir, 'reviews.json'), []),
     derivedAssets: readJsonFile<DerivedAsset[]>(path.join(dir, 'derived-assets.json'), []),
+    voiceRoster: readJsonFile<VoiceRosterEntry[]>(path.join(dir, 'voice-roster.json'), []),
     packageRecord: readJsonFile<GameCasePackage | undefined>(
       path.join(dir, 'package.json'),
       undefined,
@@ -63,6 +70,9 @@ export function saveCaseBundle(caseId: string, bundle: Partial<CaseBundle>): voi
   if (bundle.reviews) writeJsonFile(path.join(dir, 'reviews.json'), bundle.reviews);
   if (bundle.derivedAssets) {
     writeJsonFile(path.join(dir, 'derived-assets.json'), bundle.derivedAssets);
+  }
+  if (bundle.voiceRoster) {
+    writeJsonFile(path.join(dir, 'voice-roster.json'), bundle.voiceRoster);
   }
   if (bundle.packageRecord) writeJsonFile(path.join(dir, 'package.json'), bundle.packageRecord);
 }

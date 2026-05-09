@@ -1,0 +1,87 @@
+[
+  {
+    "eventId": "event_2c28b3d31c",
+    "caseId": "case_the-case-against-adnan-syed-don-clinedinst-and-the-killing-of-hae-min-lee_2024",
+    "timestampPrecision": "day",
+    "timestampStart": "2024-07-10T02:56:50.000Z",
+    "eventType": "crime",
+    "description": "The Case Against Adnan Syed - Don Clinedinst and the Killing of Hae Min Lee",
+    "peopleInvolved": [
+      "person_4bcf23ffca",
+      "person_0918f51542",
+      "person_f23f12627a"
+    ],
+    "sourceIds": [
+      "source_fb3f03e019"
+    ],
+    "confidenceScore": 90
+  },
+  {
+    "eventId": "event_7e6fd87699",
+    "caseId": "case_the-case-against-adnan-syed-don-clinedinst-and-the-killing-of-hae-min-lee_2024",
+    "timestampPrecision": "day",
+    "timestampStart": "2019-04-04T17:21:37.000Z",
+    "eventType": "witness_statement",
+    "description": "The Case Against Adnan Syed updates on Don Clinedinst beyond Serial | Metro News",
+    "peopleInvolved": [
+      "person_4bcf23ffca",
+      "person_0918f51542",
+      "person_f23f12627a"
+    ],
+    "sourceIds": [
+      "source_0ccfbceef3"
+    ],
+    "confidenceScore": 84
+  },
+  {
+    "eventId": "event_74b0695644",
+    "caseId": "case_the-case-against-adnan-syed-don-clinedinst-and-the-killing-of-hae-min-lee_2024",
+    "timestampPrecision": "day",
+    "timestampStart": "2019-04-04T23:43:32.000Z",
+    "eventType": "witness_statement",
+    "description": "Here’s what you need to know about ‘The Case Against Adnan Syed’ | SBS What's On",
+    "peopleInvolved": [
+      "person_4bcf23ffca",
+      "person_0918f51542",
+      "person_f23f12627a"
+    ],
+    "sourceIds": [
+      "source_290b2b565d"
+    ],
+    "confidenceScore": 78
+  },
+  {
+    "eventId": "event_6a2ea2ac3d",
+    "caseId": "case_the-case-against-adnan-syed-don-clinedinst-and-the-killing-of-hae-min-lee_2024",
+    "timestampPrecision": "day",
+    "timestampStart": "2019-04-03T11:00:01.000Z",
+    "eventType": "witness_statement",
+    "description": "Don Clinedinst - The Case Against Adnan Syed offers updates on Hae's former boyfriend",
+    "peopleInvolved": [
+      "person_4bcf23ffca",
+      "person_0918f51542",
+      "person_f23f12627a"
+    ],
+    "sourceIds": [
+      "source_a710fe4bd8"
+    ],
+    "confidenceScore": 72
+  },
+  {
+    "eventId": "event_020ab0fb45",
+    "caseId": "case_the-case-against-adnan-syed-don-clinedinst-and-the-killing-of-hae-min-lee_2024",
+    "timestampPrecision": "day",
+    "timestampStart": "2025-02-26T00:00:00.000Z",
+    "eventType": "media_report",
+    "description": "Timeline: The Adnan Syed Case - The New York Times",
+    "peopleInvolved": [
+      "person_4bcf23ffca",
+      "person_0918f51542",
+      "person_f23f12627a"
+    ],
+    "sourceIds": [
+      "source_13681415da"
+    ],
+    "confidenceScore": 66
+  }
+]

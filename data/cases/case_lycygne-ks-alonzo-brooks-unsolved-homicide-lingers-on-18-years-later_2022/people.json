@@ -1,0 +1,77 @@
+[
+  {
+    "personId": "person_4cca449dc9",
+    "caseId": "case_lycygne-ks-alonzo-brooks-unsolved-homicide-lingers-on-18-years-later_2022",
+    "fullName": "Alonzo Brooks",
+    "aliases": [],
+    "roleType": "victim",
+    "isPrimaryCharacter": false,
+    "isLiving": "unknown",
+    "publicProfileLevel": "medium",
+    "narrativeValueScore": 84,
+    "suspicionScore": 52,
+    "documentationScore": 40,
+    "mediaRichnessScore": 35,
+    "voiceCloneCandidate": false,
+    "faceCloneCandidate": false,
+    "identityUseMode": "real",
+    "preferredVoiceMode": "undecided",
+    "voiceProfile": {
+      "ageBand": "middle-aged",
+      "accentRegion": "Unknown",
+      "speakingStyle": "documentary interview",
+      "demeanor": "measured"
+    },
+    "shortBio": "Primary named figure in case coverage."
+  },
+  {
+    "personId": "person_d314583609",
+    "caseId": "case_lycygne-ks-alonzo-brooks-unsolved-homicide-lingers-on-18-years-later_2022",
+    "fullName": "It Was No",
+    "aliases": [],
+    "roleType": "suspect",
+    "isPrimaryCharacter": true,
+    "isLiving": "unknown",
+    "publicProfileLevel": "medium",
+    "narrativeValueScore": 77,
+    "suspicionScore": 78,
+    "documentationScore": 40,
+    "mediaRichnessScore": 35,
+    "voiceCloneCandidate": true,
+    "faceCloneCandidate": true,
+    "identityUseMode": "real",
+    "preferredVoiceMode": "real_clone",
+    "voiceProfile": {
+      "ageBand": "adult",
+      "accentRegion": "Unknown",
+      "speakingStyle": "guarded and controlled",
+      "demeanor": "evasive"
+    },
+    "shortBio": "Named in source coverage."
+  },
+  {
+    "personId": "person_399624af83",
+    "caseId": "case_lycygne-ks-alonzo-brooks-unsolved-homicide-lingers-on-18-years-later_2022",
+    "fullName": "Why Alonzo Brooks",
+    "aliases": [],
+    "roleType": "witness",
+    "isPrimaryCharacter": true,
+    "isLiving": "unknown",
+    "publicProfileLevel": "medium",
+    "narrativeValueScore": 70,
+    "suspicionScore": 34,
+    "documentationScore": 40,
+    "mediaRichnessScore": 35,
+    "voiceCloneCandidate": true,
+    "faceCloneCandidate": true,
+    "identityUseMode": "real",
+    "preferredVoiceMode": "undecided",
+    "voiceProfile": {
+      "ageBand": "adult",
+      "accentRegion": "Unknown",
+      "speakingStyle": "documentary interview",
+      "demeanor": "measured"
+    },
+    "shortBio": "Named in source coverage."
+  }
+]

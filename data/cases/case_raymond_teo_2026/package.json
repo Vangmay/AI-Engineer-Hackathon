@@ -1,5 +1,5 @@
 {
-  "packageId": "pkg_a54ea9c0cd",
+  "packageId": "pkg_6346bd4099",
   "caseId": "case_raymond_teo_2026",
   "title": "The Marina One Penthouse",
   "runtimeCase": {
@@ -100,16 +100,44 @@
       "lieStrategy": "A pending divorce filing she planned to serve on Monday — unrelated to the death, but she fears it makes her look guilty."
     }
   ],
-  "call911Script": "Emergency dispatch, please respond to Marina One, Penthouse 47-B, Singapore. Raymond Teo has been found unresponsive and witnesses are giving conflicting accounts.",
-  "revealNarrationText": "The reconstructed truth points to person_w_priya. Embezzlement of S$340,000 over eight months. The murder itself. Tumbler on the nightstand contains residue of a benzodiazepine not prescribed to the victim.",
+  "call911Script": "Emergency dispatch, please respond to Marina One, Penthouse 47-B, Singapore. Someone has been found unresponsive.",
+  "revealNarrationText": "The reconstructed truth points to the highest-confidence suspect in The Marina One Penthouse.",
   "assetManifest": {
-    "sceneImageUri": "https://v3b.fal.media/files/b/0a99788f/5bGoVR15vQUr0WRapv_0o_011ac6ec93134f67b13df0af0e4222f7.jpg",
-    "call911AudioUri": "/assets/seed/marcus-intro.wav",
     "witnessPortraits": {
       "person_w_marcus": "",
       "person_w_priya": "",
       "person_w_eleanor": ""
     },
+    "voiceModels": {
+      "person_w_marcus": {
+        "voiceMode": "profile_fallback",
+        "providerVoiceId": "Uf7qn45wx9BU9j4h5BBU",
+        "sampleAssetUri": "/case-assets/case_raymond_teo_2026/assets/audio/renders/witness-person_w_marcus-sample.mp3"
+      },
+      "person_w_priya": {
+        "voiceMode": "profile_fallback",
+        "providerVoiceId": "8gl8GY95TeZjfLmEAjOj",
+        "sampleAssetUri": "/case-assets/case_raymond_teo_2026/assets/audio/renders/criminal-person_w_priya-sample.mp3"
+      },
+      "person_w_eleanor": {
+        "voiceMode": "profile_fallback",
+        "providerVoiceId": "2OpORQGls7cZm2tZo3og",
+        "sampleAssetUri": "/case-assets/case_raymond_teo_2026/assets/audio/renders/witness-person_w_eleanor-sample.mp3"
+      }
+    },
+    "renderedAudio": {
+      "call911AudioUri": "/case-assets/case_raymond_teo_2026/assets/audio/renders/caller_911-roster_eef67127e9-911.mp3",
+      "revealNarrationAudioUri": "/case-assets/case_raymond_teo_2026/assets/audio/renders/narrator-roster_0e02d08380-reveal.mp3",
+      "witnessIntroUris": {
+        "person_w_marcus": "/case-assets/case_raymond_teo_2026/assets/audio/renders/witness-person_w_marcus-intro.mp3",
+        "person_w_priya": "/case-assets/case_raymond_teo_2026/assets/audio/renders/criminal-person_w_priya-intro.mp3",
+        "person_w_eleanor": "/case-assets/case_raymond_teo_2026/assets/audio/renders/witness-person_w_eleanor-intro.mp3"
+      }
+    },
+    "sceneImageUri": "https://v3b.fal.media/files/b/0a99788f/5bGoVR15vQUr0WRapv_0o_011ac6ec93134f67b13df0af0e4222f7.jpg",
+    "sceneModelUri": null,
+    "call911AudioUri": "/case-assets/case_raymond_teo_2026/assets/audio/renders/caller_911-roster_eef67127e9-911.mp3",
+    "revealNarrationAudioUri": "/case-assets/case_raymond_teo_2026/assets/audio/renders/narrator-roster_0e02d08380-reveal.mp3",
     "witnessVoiceSamples": {
       "person_w_marcus": "/assets/seed/marcus-intro.wav",
       "person_w_priya": "",
@@ -132,5 +160,5 @@
     }
   },
   "packageVersion": "1.0.0",
-  "generatedAt": "2026-05-09T04:23:34.107Z"
+  "generatedAt": "2026-05-09T04:47:25.986Z"
 }

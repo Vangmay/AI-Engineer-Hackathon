@@ -30,3 +30,13 @@ export function writeTextFile(filePath: string, value: string): void {
   ensureDir(path.dirname(filePath));
   fs.writeFileSync(filePath, value, 'utf8');
 }
+
+export function writeBinaryFile(filePath: string, value: Uint8Array): void {
+  ensureDir(path.dirname(filePath));
+  fs.writeFileSync(filePath, value);
+}
+
+export function copyFile(fromPath: string, toPath: string): void {
+  ensureDir(path.dirname(toPath));
+  fs.copyFileSync(fromPath, toPath);
+}

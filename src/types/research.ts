@@ -29,6 +29,7 @@ export type PersonRoleType =
   | 'other';
 
 export type IdentityUseMode = 'real' | 'transformed' | 'exclude';
+export type PreferredVoiceMode = 'real_clone' | 'profile_fallback' | 'undecided';
 
 export type TimestampPrecision =
   | 'exact'
@@ -126,6 +127,14 @@ export interface PersonRecord {
   voiceCloneCandidate: boolean;
   faceCloneCandidate: boolean;
   identityUseMode: IdentityUseMode;
+  preferredVoiceMode: PreferredVoiceMode;
+  voiceProfile: {
+    ageBand?: string;
+    accentRegion?: string;
+    speakingStyle?: string;
+    genderPresentation?: string;
+    demeanor?: string;
+  };
   shortBio: string;
   notes?: string;
 }

@@ -1,0 +1,72 @@
+[
+  {
+    "evidenceId": "evidence_2f2414da44",
+    "caseId": "case_the-case-against-adnan-syed-don-clinedinst-and-the-killing-of-hae-min-lee_2024",
+    "label": "Lead 1",
+    "evidenceType": "testimonial",
+    "description": "The Case Against Adnan Syed - Don Clinedinst and the Killing of Hae Min Lee",
+    "supports": [
+      "person_0918f51542"
+    ],
+    "contradicts": [],
+    "isPubliclyDocumented": true,
+    "gameplayValue": "core_clue",
+    "sourceIds": [
+      "source_fb3f03e019"
+    ],
+    "confidenceScore": 84
+  },
+  {
+    "evidenceId": "evidence_4ac8c93441",
+    "caseId": "case_the-case-against-adnan-syed-don-clinedinst-and-the-killing-of-hae-min-lee_2024",
+    "label": "Lead 2",
+    "evidenceType": "document",
+    "description": "The Case Against Adnan Syed updates on Don Clinedinst beyond Serial | Metro News",
+    "supports": [
+      "person_0918f51542"
+    ],
+    "contradicts": [],
+    "isPubliclyDocumented": true,
+    "gameplayValue": "core_clue",
+    "sourceIds": [
+      "source_0ccfbceef3"
+    ],
+    "confidenceScore": 77
+  },
+  {
+    "evidenceId": "evidence_4b80f198af",
+    "caseId": "case_the-case-against-adnan-syed-don-clinedinst-and-the-killing-of-hae-min-lee_2024",
+    "label": "Lead 3",
+    "evidenceType": "digital",
+    "description": "Here’s what you need to know about ‘The Case Against Adnan Syed’ | SBS What's On",
+    "supports": [
+      "person_0918f51542"
+    ],
+    "contradicts": [],
+    "isPubliclyDocumented": true,
+    "gameplayValue": "secondary_clue",
+    "sourceIds": [
+      "source_290b2b565d"
+    ],
+    "confidenceScore": 70
+  },
+  {
+    "evidenceId": "evidence_675a9a0bd9",
+    "caseId": "case_the-case-against-adnan-syed-don-clinedinst-and-the-killing-of-hae-min-lee_2024",
+    "label": "Lead 4",
+    "evidenceType": "digital",
+    "description": "Don Clinedinst - The Case Against Adnan Syed offers updates on Hae's former boyfriend",
+    "supports": [
+      "person_0918f51542"
+    ],
+    "contradicts": [
+      "person_f23f12627a"
+    ],
+    "isPubliclyDocumented": true,
+    "gameplayValue": "red_herring",
+    "sourceIds": [
+      "source_a710fe4bd8"
+    ],
+    "confidenceScore": 63
+  }
+]

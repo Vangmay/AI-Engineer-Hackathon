@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Evidence3DViewer } from '@/components/Evidence3DViewer';
 import { useGameStore } from '@/store/gameStore';
 
@@ -105,27 +105,43 @@ export function CaseLoadScreen() {
   const witnessPortraitUrls = useGameStore((s) => s.witnessPortraitUrls);
   const evidenceImageUrls = useGameStore((s) => s.evidenceImageUrls);
   const evidenceModelUrls = useGameStore((s) => s.evidenceModelUrls);
-  const evidenceModelPreviewUrls = useGameStore(
-    (s) => s.evidenceModelPreviewUrls,
-  );
+  const evidenceModelPreviewUrls = useGameStore((s) => s.evidenceModelPreviewUrls);
   const startInterrogation = useGameStore((s) => s.startInterrogation);
   const goToAccusation = useGameStore((s) => s.goToAccusation);
+
   const [noted, setNoted] = useState<Set<number>>(() => new Set());
   const [activeModel, setActiveModel] = useState<number | null>(null);
-  const [playing911, setPlaying911] = useState(false);
+  const [isPlaying911, setIsPlaying911] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const generatedIn = `${((generationMs ?? 8300) / 1000).toFixed(1)}s`;
-  const toggle911 = async () => {
+
+  useEffect(() => {
+    if (!call911AudioUrl) return;
+    const audio = new Audio(call911AudioUrl);
+    audioRef.current = audio;
+    audio.addEventListener('play', () => setIsPlaying911(true));
+    audio.addEventListener('pause', () => setIsPlaying911(false));
+    audio.addEventListener('ended', () => setIsPlaying911(false));
+    void audio.play().catch(() => {
+      setIsPlaying911(false);
+    });
+
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+      audioRef.current = null;
+    };
+  }, [call911AudioUrl]);
+
+  const toggle911Audio = () => {
     const audio = audioRef.current;
     if (!audio) return;
-    if (playing911) {
+    if (audio.paused) {
+      void audio.play();
+    } else {
       audio.pause();
-      setPlaying911(false);
-      return;
     }
-    await audio.play();
-    setPlaying911(true);
   };
 
   return (
@@ -203,22 +219,16 @@ export function CaseLoadScreen() {
               <div className="flex items-center gap-2.5 py-[10px] pb-1.5">
                 <button
                   type="button"
-                  onClick={toggle911}
-                  disabled={!call911AudioUrl}
+                  onClick={toggle911Audio}
                   className="grid h-7 w-7 place-items-center rounded-full bg-[var(--ink)] text-[11px] text-[var(--cream-on-dark)]"
                   aria-label="Play 911 call"
                 >
-                  {playing911 ? '||' : '▶'}
+                  {isPlaying911 ? '❚❚' : '▶'}
                 </button>
-                {call911AudioUrl && (
-                  <audio
-                    ref={audioRef}
-                    src={call911AudioUrl}
-                    onEnded={() => setPlaying911(false)}
-                  />
-                )}
                 <Waveform />
-                <div className="text-[10px] opacity-70">0:48 / 1:42</div>
+                <div className="text-[10px] opacity-70">
+                  {call911AudioUrl ? (isPlaying911 ? 'LIVE' : 'READY') : 'NO AUDIO'}
+                </div>
               </div>
               <div className="text-[12px] leading-[23px]">
                 {CALL_911_TRANSCRIPT.map((line, i) => (
@@ -285,7 +295,7 @@ export function CaseLoadScreen() {
                             <button
                               type="button"
                               onClick={() => setActiveModel(i)}
-                              className="underline decoration-dashed underline-offset-2 cursor-pointer hover:opacity-100"
+                              className="cursor-pointer underline decoration-dashed underline-offset-2 hover:opacity-100"
                             >
                               VIEW 3D ↗
                             </button>
@@ -381,7 +391,10 @@ export function CaseLoadScreen() {
       {activeModel !== null && evidenceModelUrls[String(activeModel)] && (
         <Evidence3DViewer
           glbUrl={evidenceModelUrls[String(activeModel)]}
-          previewUrl={evidenceModelPreviewUrls[String(activeModel)] || evidenceImageUrls[String(activeModel)]}
+          previewUrl={
+            evidenceModelPreviewUrls[String(activeModel)] ||
+            evidenceImageUrls[String(activeModel)]
+          }
           label={`Exhibit ${String.fromCharCode(65 + activeModel)}`}
           description={caseData.clues[activeModel] ?? ''}
           onClose={() => setActiveModel(null)}

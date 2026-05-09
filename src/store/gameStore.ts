@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { gameBackend } from '@/backend/client';
 import type { GameSnapshot } from '@/backend/contracts';
 import type { GamePhase, MysteryCase, TranscriptLine } from '@/types/case';
+import type { AssetManifest } from '@/types/gamePackage';
 
 interface GameState {
   sessionId: string | null;
@@ -10,6 +11,9 @@ interface GameState {
   sceneImageUrl: string | null;
   sceneModelUrl: string | null;
   call911AudioUrl: string | null;
+  revealNarrationAudioUrl: string | null;
+  witnessIntroAudioUrls: Record<string, string>;
+  voiceModels: AssetManifest['voiceModels'];
   witnessPortraitUrls: Record<string, string>;
   witnessVoiceSampleUrls: Record<string, string>;
   evidenceImageUrls: Record<string, string>;
@@ -47,6 +51,9 @@ function snapshotToState(snapshot: GameSnapshot) {
     sceneImageUrl: snapshot.media.sceneImageUrl,
     sceneModelUrl: snapshot.media.sceneModelUrl,
     call911AudioUrl: snapshot.media.call911AudioUrl,
+    revealNarrationAudioUrl: snapshot.media.revealNarrationAudioUrl,
+    witnessIntroAudioUrls: snapshot.media.witnessIntroAudioUrls,
+    voiceModels: snapshot.media.voiceModels,
     witnessPortraitUrls: snapshot.media.witnessPortraitUrls,
     witnessVoiceSampleUrls: snapshot.media.witnessVoiceSampleUrls,
     evidenceImageUrls: snapshot.media.evidenceImageUrls,
@@ -68,6 +75,9 @@ export const useGameStore = create<GameState>((set, get) => ({
   sceneImageUrl: null,
   sceneModelUrl: null,
   call911AudioUrl: null,
+  revealNarrationAudioUrl: null,
+  witnessIntroAudioUrls: {},
+  voiceModels: {},
   witnessPortraitUrls: {},
   witnessVoiceSampleUrls: {},
   evidenceImageUrls: {},
@@ -94,7 +104,16 @@ export const useGameStore = create<GameState>((set, get) => ({
         sessionId: null,
         caseData: null,
         sceneImageUrl: null,
+        sceneModelUrl: null,
         call911AudioUrl: null,
+        revealNarrationAudioUrl: null,
+        witnessIntroAudioUrls: {},
+        voiceModels: {},
+        witnessPortraitUrls: {},
+        witnessVoiceSampleUrls: {},
+        evidenceImageUrls: {},
+        evidenceModelUrls: {},
+        evidenceModelPreviewUrls: {},
         activeWitnessId: null,
         accusation: null,
         isCorrect: null,

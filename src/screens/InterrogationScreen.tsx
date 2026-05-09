@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useGameStore } from '@/store/gameStore';
 import type { TranscriptLine } from '@/types/case';
 
@@ -100,11 +100,17 @@ export function InterrogationScreen() {
   const appendTranscript = useGameStore((s) => s.appendTranscript);
   const endInterrogation = useGameStore((s) => s.endInterrogation);
   const goToAccusation = useGameStore((s) => s.goToAccusation);
+  const witnessIntroAudioUrls = useGameStore((s) => s.witnessIntroAudioUrls);
+  const voiceModels = useGameStore((s) => s.voiceModels);
+  const introAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [isIntroPlaying, setIsIntroPlaying] = useState(false);
 
   const witness = useMemo(
     () => caseData.witnesses.find((w) => w.id === witnessId)!,
     [caseData, witnessId],
   );
+  const introAudioUrl = witnessIntroAudioUrls[witnessId] ?? null;
+  const voiceModel = voiceModels[witnessId];
 
   useEffect(() => {
     let cancelled = false;
@@ -123,6 +129,34 @@ export function InterrogationScreen() {
       timeouts.forEach((id) => window.clearTimeout(id));
     };
   }, [witnessId, appendTranscript]);
+
+  useEffect(() => {
+    if (!introAudioUrl) return;
+    const audio = new Audio(introAudioUrl);
+    introAudioRef.current = audio;
+    audio.addEventListener('play', () => setIsIntroPlaying(true));
+    audio.addEventListener('pause', () => setIsIntroPlaying(false));
+    audio.addEventListener('ended', () => setIsIntroPlaying(false));
+    void audio.play().catch(() => {
+      setIsIntroPlaying(false);
+    });
+
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+      introAudioRef.current = null;
+    };
+  }, [introAudioUrl]);
+
+  const toggleIntroAudio = () => {
+    const audio = introAudioRef.current;
+    if (!audio) return;
+    if (audio.paused) {
+      void audio.play();
+    } else {
+      audio.pause();
+    }
+  };
 
   const firstName = witness.name.split(' ')[0].toUpperCase();
   const portraitUrl = witnessPortraitUrls[witness.id];
@@ -184,10 +218,11 @@ export function InterrogationScreen() {
               <div className="flex gap-2">
                 <button
                   type="button"
+                  onClick={toggleIntroAudio}
                   className="h-10 w-10 rounded-full bg-[#3a342c] text-[16px]"
-                  aria-label="Pause call"
+                  aria-label="Play witness intro"
                 >
-                  ⏸
+                  {isIntroPlaying ? '⏸' : '▶'}
                 </button>
                 <button
                   type="button"
@@ -208,8 +243,13 @@ export function InterrogationScreen() {
                 {witness.knows}
               </p>
               <div className="mt-2.5 text-[10px] tracking-[0.1em] opacity-60">
-                VOICE PROFILE · {witness.voice_id}
+                VOICE · ELEVENLABS PROFILE (TEXT-TO-VOICE)
               </div>
+              {voiceModel?.providerVoiceId && (
+                <div className="mt-1 text-[10px] tracking-[0.08em] opacity-55">
+                  PROVIDER VOICE ID · {voiceModel.providerVoiceId}
+                </div>
+              )}
             </div>
 
             <div className="paper-card p-[12px_14px]">

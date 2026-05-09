@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '@/store/gameStore';
 
 function Stamp({
@@ -67,15 +67,45 @@ export function RevealScreen() {
   const isCorrect = useGameStore((s) => s.isCorrect);
   const accusation = useGameStore((s) => s.accusation);
   const revealNarration = useGameStore((s) => s.revealNarration);
+  const revealNarrationAudioUrl = useGameStore((s) => s.revealNarrationAudioUrl);
   const witnessPortraitUrls = useGameStore((s) => s.witnessPortraitUrls);
   const resetCase = useGameStore((s) => s.resetCase);
   const goToBrief = useGameStore((s) => s.goToBrief);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPlayingReveal, setIsPlayingReveal] = useState(false);
 
   const [flash, setFlash] = useState(true);
   useEffect(() => {
     const t = window.setTimeout(() => setFlash(false), 650);
     return () => window.clearTimeout(t);
   }, []);
+
+  useEffect(() => {
+    if (!revealNarrationAudioUrl) return;
+    const audio = new Audio(revealNarrationAudioUrl);
+    audioRef.current = audio;
+    audio.addEventListener('play', () => setIsPlayingReveal(true));
+    audio.addEventListener('pause', () => setIsPlayingReveal(false));
+    audio.addEventListener('ended', () => setIsPlayingReveal(false));
+    void audio.play().catch(() => {
+      setIsPlayingReveal(false);
+    });
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+      audioRef.current = null;
+    };
+  }, [revealNarrationAudioUrl]);
+
+  const toggleRevealAudio = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (audio.paused) {
+      void audio.play();
+    } else {
+      audio.pause();
+    }
+  };
 
   const killer = caseData.witnesses.find((w) => w.id === caseData.truth.killer);
   const verdictLabel = isCorrect ? 'CASE CLOSED' : 'WRONG CALL';
@@ -181,8 +211,15 @@ export function RevealScreen() {
             </section>
 
             <section className="paper-card lined-paper flex-1 p-[16px_18px]">
-              <div className="border-b border-dashed border-[var(--ink)] pb-1 text-[12px] tracking-[0.12em]">
-                RECONSTRUCTION NOTES
+              <div className="flex items-center justify-between border-b border-dashed border-[var(--ink)] pb-1 text-[12px] tracking-[0.12em]">
+                <span>RECONSTRUCTION NOTES</span>
+                <button
+                  type="button"
+                  onClick={toggleRevealAudio}
+                  className="border border-[var(--ink)] px-2 py-0.5 text-[10px] tracking-[0.1em]"
+                >
+                  {isPlayingReveal ? 'PAUSE AUDIO' : 'PLAY AUDIO'}
+                </button>
               </div>
               <p className="mt-3 text-[13px] leading-[24px]">
                 {revealNarration}

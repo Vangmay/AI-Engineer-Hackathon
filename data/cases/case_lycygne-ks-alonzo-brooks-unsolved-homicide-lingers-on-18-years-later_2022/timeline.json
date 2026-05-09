@@ -1,0 +1,67 @@
+[
+  {
+    "eventId": "event_9c052e0105",
+    "caseId": "case_lycygne-ks-alonzo-brooks-unsolved-homicide-lingers-on-18-years-later_2022",
+    "timestampPrecision": "day",
+    "timestampStart": "2022-05-17T23:39:00.000Z",
+    "eventType": "crime",
+    "description": "LyCygne, KS: Alonzo Brooks' unsolved homicide lingers on 18 years later",
+    "peopleInvolved": [],
+    "sourceIds": [
+      "source_ae8cd930f5"
+    ],
+    "confidenceScore": 90
+  },
+  {
+    "eventId": "event_73af10eaa0",
+    "caseId": "case_lycygne-ks-alonzo-brooks-unsolved-homicide-lingers-on-18-years-later_2022",
+    "timestampPrecision": "day",
+    "timestampStart": "2021-10-13T00:00:00.000Z",
+    "eventType": "witness_statement",
+    "description": "The FBI ruled this 17-year cold case in Kansas a homicide, but still no answers for Alonzo Brooks’ family",
+    "peopleInvolved": [],
+    "sourceIds": [
+      "source_23921b66e0"
+    ],
+    "confidenceScore": 84
+  },
+  {
+    "eventId": "event_f699271a2f",
+    "caseId": "case_lycygne-ks-alonzo-brooks-unsolved-homicide-lingers-on-18-years-later_2022",
+    "timestampPrecision": "day",
+    "timestampStart": "2021-04-06T00:00:00.000Z",
+    "eventType": "witness_statement",
+    "description": "New Autopsy Determines Death of Alonzo Brooks was a Homicide",
+    "peopleInvolved": [],
+    "sourceIds": [
+      "source_820ae02b02"
+    ],
+    "confidenceScore": 78
+  },
+  {
+    "eventId": "event_44143b4d9c",
+    "caseId": "case_lycygne-ks-alonzo-brooks-unsolved-homicide-lingers-on-18-years-later_2022",
+    "timestampPrecision": "day",
+    "timestampStart": "2020-06-19T21:39:53.000Z",
+    "eventType": "witness_statement",
+    "description": "Family continues to seek answers as FBI, US Attorney announce $100,000 reward in murder of Alonzo Brooks, who was found dead in rural Kansas after attending a party in 2004",
+    "peopleInvolved": [],
+    "sourceIds": [
+      "source_9955c31fff"
+    ],
+    "confidenceScore": 72
+  },
+  {
+    "eventId": "event_c30e58b4d6",
+    "caseId": "case_lycygne-ks-alonzo-brooks-unsolved-homicide-lingers-on-18-years-later_2022",
+    "timestampPrecision": "day",
+    "timestampStart": "2023-10-05T19:35:12.000Z",
+    "eventType": "media_report",
+    "description": "FBI seeks tips on Alonzo Brooks killing, a likely hate crime | Kansas City Star",
+    "peopleInvolved": [],
+    "sourceIds": [
+      "source_5cfa460ffc"
+    ],
+    "confidenceScore": 66
+  }
+]
