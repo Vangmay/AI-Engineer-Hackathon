@@ -226,11 +226,45 @@ export function CaseLoadScreen() {
 
         <section className="mt-[22px] grid grid-cols-[1.35fr_1fr] gap-8 max-[900px]:grid-cols-1">
           <div>
-            <section className="paper-card lined-paper p-[14px_18px_16px]">
+            <section className="paper-card p-[14px_16px_16px]">
+              <div className="dossier-overline mb-3">Evidence Collected</div>
+              <div className="grid grid-cols-2 gap-3">
+                {caseData.clues.map((clue, i) => {
+                  const modelUrl = evidenceModelUrls[String(i)];
+                  const previewUrl = evidenceModelPreviewUrls[String(i)] || evidenceImageUrls[String(i)];
+                  return (
+                    <div key={clue} className="flex flex-col gap-1">
+                      <div
+                        className="relative overflow-hidden cursor-pointer"
+                        style={{ height: 130, background: '#1c2030' }}
+                        onClick={() => modelUrl && setActiveModel(i)}
+                      >
+                        {modelUrl ? (
+                          <Evidence3DViewer
+                            inline
+                            glbUrl={modelUrl}
+                            previewUrl={previewUrl}
+                            label={`Exhibit ${String.fromCharCode(65 + i)}`}
+                            description={clue}
+                          />
+                        ) : previewUrl ? (
+                          <img src={previewUrl} alt="" className="h-full w-full object-cover opacity-60" />
+                        ) : (
+                          <div className="h-full flex items-center justify-center text-[9px] opacity-30 tracking-widest">NO MODEL</div>
+                        )}
+                      </div>
+                      <div className="text-[9px] tracking-[0.14em] opacity-60">
+                        EX-{String.fromCharCode(65 + i)}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
+            <section className="paper-card lined-paper mt-[18px] p-[14px_18px_16px]">
               <div className="flex items-baseline justify-between border-b border-dashed border-[var(--ink)] pb-1">
-                <span className="text-[13px] tracking-[0.1em]">
-                  911 CALL · TRANSCRIPT
-                </span>
+                <span className="text-[13px] tracking-[0.1em]">911 CALL · TRANSCRIPT</span>
                 <span className="text-[11px] opacity-70">04:22 SGT · 1:42</span>
               </div>
               <div className="flex items-center gap-2.5 py-[10px] pb-1.5">
@@ -294,44 +328,6 @@ export function CaseLoadScreen() {
                   ██████████ <span className="opacity-55">(pending tox)</span>
                 </dd>
               </dl>
-            </section>
-
-            <section className="paper-card p-[14px_16px]">
-              <div className="dossier-overline mb-2">Evidence Collected</div>
-              {caseData.clues.map((clue, i) => {
-                const imgUrl = evidenceImageUrls[String(i)];
-                const modelUrl = evidenceModelUrls[String(i)];
-                const previewUrl = evidenceModelPreviewUrls[String(i)];
-                return (
-                  <div
-                    key={clue}
-                    className="flex w-full items-start gap-2.5 border-t border-dashed border-[rgba(26,20,16,0.3)] py-2 first:border-t-0"
-                  >
-                    <span className="w-[26px] shrink-0 text-[11px] opacity-70">
-                      EX-{String.fromCharCode(65 + i)}
-                    </span>
-                    {(imgUrl || previewUrl) && (
-                      <img
-                        src={imgUrl || previewUrl}
-                        alt={`Evidence ${String.fromCharCode(65 + i)}`}
-                        className="h-[56px] w-[72px] shrink-0 object-cover grayscale"
-                      />
-                    )}
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-[12px] leading-[1.55]">{clue}</span>
-                      {modelUrl && (
-                        <button
-                          type="button"
-                          onClick={() => setActiveModel(i)}
-                          className="mt-1 text-[9px] tracking-[0.14em] opacity-70 underline decoration-dashed underline-offset-2 hover:opacity-100"
-                        >
-                          VIEW 3D ↗
-                        </button>
-                      )}
-                    </span>
-                  </div>
-                );
-              })}
             </section>
 
             <section className="paper-card p-[14px_16px]">

@@ -30,11 +30,13 @@ export function Evidence3DViewer({ glbUrl, previewUrl, label, description, onClo
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.8;
     container.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0e110e);
-    scene.fog = new THREE.Fog(0x0e110e, 8, 20);
+    scene.background = new THREE.Color(0x1c2030);
+    scene.fog = new THREE.Fog(0x1c2030, 10, 28);
 
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.01, 100);
     camera.position.set(0, 1.2, 3.5);
@@ -47,23 +49,24 @@ export function Evidence3DViewer({ glbUrl, previewUrl, label, description, onClo
     controls.autoRotate = true;
     controls.autoRotateSpeed = 1.2;
 
-    const ambientLight = new THREE.AmbientLight(0xd4d4c8, 0.6);
-    scene.add(ambientLight);
+    const hemi = new THREE.HemisphereLight(0xc8d8f0, 0x405030, 1.4);
+    scene.add(hemi);
 
-    const keyLight = new THREE.DirectionalLight(0xffe5b0, 1.8);
+    const keyLight = new THREE.DirectionalLight(0xfff0d0, 2.8);
     keyLight.position.set(3, 5, 4);
     keyLight.castShadow = true;
+    keyLight.shadow.mapSize.set(2048, 2048);
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0x8ab4d4, 0.5);
+    const fillLight = new THREE.DirectionalLight(0x90b8e0, 1.2);
     fillLight.position.set(-3, 2, -2);
     scene.add(fillLight);
 
-    const rimLight = new THREE.DirectionalLight(0xd6c440, 0.35);
+    const rimLight = new THREE.DirectionalLight(0xffe090, 0.8);
     rimLight.position.set(0, -1, -4);
     scene.add(rimLight);
 
-    const gridHelper = new THREE.GridHelper(6, 20, 0x1a3020, 0x141a14);
+    const gridHelper = new THREE.GridHelper(6, 20, 0x3a4050, 0x2a3040);
     gridHelper.position.y = -0.01;
     scene.add(gridHelper);
 
@@ -145,7 +148,7 @@ export function Evidence3DViewer({ glbUrl, previewUrl, label, description, onClo
       <div className="relative w-full h-full">
         <div ref={canvasRef} className="w-full h-full" />
         {loading && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ background: '#0e110e' }}>
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ background: '#1c2030' }}>
             {previewUrl && (
               <img src={previewUrl} alt="Preview" className="h-20 w-20 object-contain opacity-40" />
             )}
@@ -155,7 +158,7 @@ export function Evidence3DViewer({ glbUrl, previewUrl, label, description, onClo
           </div>
         )}
         {error && (
-          <div className="absolute inset-0 flex items-center justify-center text-[10px] opacity-60" style={{ background: '#0e110e' }}>
+          <div className="absolute inset-0 flex items-center justify-center text-[10px] opacity-60" style={{ background: '#1c2030' }}>
             3D UNAVAILABLE
           </div>
         )}
