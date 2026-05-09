@@ -20,6 +20,7 @@
     "generate-voice-drafts": "node --experimental-strip-types scripts/generateVoiceDrafts.ts",
     "generate-face-drafts": "node --experimental-strip-types scripts/generateFaceDrafts.ts",
     "build-game-package": "node --experimental-strip-types scripts/buildGamePackage.ts",
+    "upload-case-audio-convex": "node --experimental-strip-types scripts/uploadCaseAudioToConvex.ts",
     "convex:dev": "convex dev",
     "convex:deploy": "convex deploy"
   },
