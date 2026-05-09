@@ -143,6 +143,7 @@ function firstUrl(files: FalImageFile[] | undefined): string | undefined {
 
 export function isUsableFalInputUrl(url: string | undefined): boolean {
   if (!url) return false;
+  if (url.startsWith('data:')) return true;
   try {
     const parsed = new URL(url);
     return (
