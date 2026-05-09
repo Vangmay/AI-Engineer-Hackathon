@@ -201,23 +201,59 @@ const CLUE_TEMPLATES = [
 ];
 const VOICE_IDS = ['pNInz6obpgDQGcFmaJgB', 'EXAVITQu4vr4xnSDxMaL', 'ThT5KcBeYPX3keUQqHPh'];
 
-export function synthesizeFallback911Lines(context: GeneratedPublicCase['victim']): GeneratedCall911Line[] {
-  const loc = context.location.slice(0, 120);
-  const nameWord = context.name.split(/\s+/)[0] ?? 'They';
+function trimSentence(input: string, max = 140): string {
+  const out = input.replace(/\s+/g, ' ').trim();
+  if (!out) return '';
+  return out.length <= max ? out : `${out.slice(0, max - 1).trimEnd()}…`;
+}
+
+function firstPhrase(input: string, max = 110): string {
+  const clean = input.replace(/\s+/g, ' ').trim();
+  if (!clean) return '';
+  const stop = clean.search(/[.?!]/);
+  const first = stop >= 0 ? clean.slice(0, stop + 1) : clean;
+  return trimSentence(first, max);
+}
+
+function inferCallerRole(publicCase: GeneratedPublicCase): string {
+  const lower = publicCase.brief.toLowerCase();
+  if (lower.includes('housekeeper')) return 'the housekeeper';
+  if (lower.includes('assistant')) return 'an assistant';
+  if (lower.includes('concierge')) return 'the building concierge';
+  return 'a witness at the residence';
+}
+
+export function synthesizeFallback911Lines(publicCase: GeneratedPublicCase): GeneratedCall911Line[] {
+  const victim = publicCase.victim;
+  const loc = trimSentence(victim.location, 120);
+  const nameWord = victim.name.split(/\s+/)[0] ?? 'They';
+  const callerRole = inferCallerRole(publicCase);
+  const topClue = firstPhrase(publicCase.clues[0] ?? '', 110);
+  const secondClue = firstPhrase(publicCase.clues[1] ?? '', 100);
+  const witnessHint = firstPhrase(publicCase.witnesses[0]?.knows ?? '', 96);
+  const tod = trimSentence(victim.time_of_death, 26);
   return [
     { who: 'DISP', text: "Nine-one-one, what's your emergency?" },
     {
       who: 'CALL',
-      text: `${nameWord} won't wake up—I think they're hurt bad. Send someone now.`,
+      text: `I found ${victim.name} unresponsive at ${loc}. I'm ${callerRole}. Send police and EMS now.`,
     },
-    { who: 'DISP', text: 'Help is on the way. Where exactly are you calling from?' },
-    { who: 'CALL', text: `${loc}. I need units here right now.` },
-    { who: 'DISP', text: 'Stay with me—are they breathing at all?' },
+    { who: 'DISP', text: 'Units are dispatching. Confirm exact floor/unit and what you can see right now.' },
     {
       who: 'CALL',
-      text:
-        'I—I can barely tell. Hurry. The building is quiet but the door was unlocked.',
+      text: `Top floor private residence at ${loc}. No forced entry that I can see. ${nameWord} is cold and not breathing.`,
     },
+    { who: 'DISP', text: 'Do not touch anything else. Any sign this happened recently, or anyone still inside?' },
+    {
+      who: 'CALL',
+      text: `${tod ? `Possible window around ${tod}. ` : ''}${witnessHint || 'Most staff already left for the night.'} I do not see anyone else in the unit.`,
+    },
+    { who: 'DISP', text: 'Understood. Keep visual on exits. Anything unusual near the victim for responders?' },
+    {
+      who: 'CALL',
+      text: `${topClue || 'There is a disturbed drink setup near the bed.'}${secondClue ? ` Also: ${secondClue}` : ''}`,
+    },
+    { who: 'DISP', text: 'Stay on the line. Officers and medics are arriving now.' },
   ];
 }
 
@@ -241,7 +277,7 @@ export function normalize911Transcript(publicCase: GeneratedPublicCase): void {
   let lines =
     Array.isArray(publicCase.call911_transcript) && publicCase.call911_transcript.length > 0
       ? [...publicCase.call911_transcript]
-      : synthesizeFallback911Lines(publicCase.victim);
+      : synthesizeFallback911Lines(publicCase);
 
   lines = lines.map((line) => {
     const raw = typeof line?.who === 'string' ? line.who.toUpperCase() : '';
@@ -251,13 +287,13 @@ export function normalize911Transcript(publicCase: GeneratedPublicCase): void {
   }).filter((l) => l.text.length > 0);
 
   if (lines.length < 6) {
-    lines = synthesizeFallback911Lines(publicCase.victim);
+    lines = synthesizeFallback911Lines(publicCase);
   }
 
   const hasDisp = lines.some((l) => l.who === 'DISP');
   const hasCall = lines.some((l) => l.who === 'CALL');
   if (!hasDisp || !hasCall) {
-    lines = synthesizeFallback911Lines(publicCase.victim);
+    lines = synthesizeFallback911Lines(publicCase);
   }
 
   publicCase.call911_transcript = lines.slice(0, 16);
@@ -479,8 +515,9 @@ export function generateCaseBundle(): GeneratedCaseBundle {
       'Forensic photo of a high-end residence at night, victim in bedroom, overturned glass, evidence markers.',
     brief:
       'The victim was found unresponsive in a private residence before dawn. No forced entry was reported, but timeline inconsistencies suggest homicide.',
-    call911_transcript: synthesizeFallback911Lines(victim),
+    call911_transcript: [],
   };
+  publicCase.call911_transcript = synthesizeFallback911Lines(publicCase);
 
   const hiddenTruth: GeneratedHiddenTruth = {
     killer: witnesses[killerIndex].id,

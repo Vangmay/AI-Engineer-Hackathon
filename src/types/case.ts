@@ -45,6 +45,8 @@ export interface TranscriptLine {
   speaker: 'witness' | 'detective' | 'system';
   text: string;
   timestamp: number;
+  /** When set (interrogation), ties the line to one witness transcript thread. */
+  witnessId?: string;
 }
 
 export type GamePhase =

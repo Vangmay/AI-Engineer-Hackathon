@@ -8,6 +8,7 @@ import type {
   GameBackend,
   GameSession,
   GameSnapshot,
+  WitnessQuestionResult,
 } from './contracts';
 
 const STORAGE_KEY = 'crime-scene.local-backend.v1';
@@ -184,8 +185,24 @@ async function updateState(edit: (state: LocalBackendState) => void): Promise<Ga
   return toSnapshot(state);
 }
 
+const MAX_WITNESS_QUESTION_LEN = 600;
+
 function transcriptKey(line: TranscriptLine) {
-  return `${line.speaker}:${line.timestamp}:${line.text}`;
+  return `${line.speaker}:${line.timestamp}:${line.text}:${line.witnessId ?? ''}`;
+}
+
+function templateWitnessReply(witness: MysteryCase['witnesses'][number], question: string): string {
+  const q = question.toLowerCase();
+  if (/alibi|where were you|when did you|that night/i.test(q)) {
+    return `You're asking the obvious timeline. ${witness.knows} I'll stick with that.`;
+  }
+  if (/motive|why would|why did/i.test(q)) {
+    return `I didn't come here to spin motives—I laid out facts. ${witness.knows}`;
+  }
+  if (/see|saw|hear|notice|anything unusual/i.test(q)) {
+    return `If it mattered, I already surfaced it plainly: ${witness.knows}`;
+  }
+  return `Fine. ${witness.knows} Anchor the minute and I'll walk you through it again—I work better under specifics.`;
 }
 
 export const localBackend: GameBackend = {
@@ -218,8 +235,56 @@ export const localBackend: GameBackend = {
     return updateState((state) => {
       state.session.phase = 'INTERROGATING';
       state.session.activeWitnessId = witnessId;
-      state.transcript = [];
     });
+  },
+
+  async sendWitnessQuestion(sessionId, witnessId, question) {
+    const trimmed = question.trim();
+    if (!trimmed.length) return { ok: false as const, code: 'EMPTY_QUESTION' };
+    if (trimmed.length > MAX_WITNESS_QUESTION_LEN)
+      return { ok: false as const, code: 'QUESTION_TOO_LONG' };
+
+    let state = readState();
+    if (!state || state.session.id !== sessionId) {
+      return { ok: false as const, code: 'NO_SESSION' };
+    }
+    if (state.session.phase !== 'INTERROGATING')
+      return { ok: false as const, code: 'NOT_INTERVIEW' };
+    if (state.session.activeWitnessId !== witnessId)
+      return { ok: false as const, code: 'WRONG_WITNESS' };
+
+    const counts = state.session.witnessQuestionCounts ?? {};
+    const prev = counts[witnessId] ?? 0;
+    if (prev >= 3) return { ok: false as const, code: 'LIMIT' };
+
+    const witness = state.caseData.witnesses.find((w) => w.id === witnessId);
+    if (!witness) return { ok: false as const, code: 'WITNESS_NOT_FOUND' };
+
+    const reply = templateWitnessReply(witness, trimmed.slice(0, MAX_WITNESS_QUESTION_LEN));
+    const baseTs = now();
+
+    const snapshot = await updateState((s) => {
+      s.session.witnessQuestionCounts = { ...(s.session.witnessQuestionCounts ?? {}), [witnessId]: prev + 1 };
+      s.transcript.push({
+        speaker: 'detective',
+        text: trimmed.slice(0, MAX_WITNESS_QUESTION_LEN),
+        timestamp: baseTs,
+        witnessId,
+      });
+      s.transcript.push({
+        speaker: 'witness',
+        text: reply,
+        timestamp: baseTs + 1,
+        witnessId,
+      });
+    });
+
+    const out: WitnessQuestionResult = {
+      ok: true,
+      snapshot,
+      remainingQuestions: 3 - (prev + 1),
+    };
+    return out;
   },
 
   async endInterview() {
@@ -273,6 +338,7 @@ export const localBackend: GameBackend = {
       state.session.accusation = null;
       state.session.isCorrect = null;
       state.session.revealNarration = null;
+      state.session.witnessQuestionCounts = undefined;
       state.transcript = [];
     });
   },

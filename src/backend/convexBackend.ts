@@ -7,26 +7,29 @@ import type {
   GameBackend,
   GameSession,
   GameSnapshot,
+  WitnessQuestionResult,
 } from './contracts';
 import type { Call911Line, MysteryCase, TranscriptLine } from '@/types/case';
 
-function staleCase911Lines(victim: MysteryCase['victim']): Call911Line[] {
+function staleCase911Lines(caseData: MysteryCase): Call911Line[] {
+  const victim = caseData.victim;
   const loc = victim.location.slice(0, 120);
-  const nameWord = victim.name.split(/\s+/)[0] ?? 'They';
+  const firstWitness = caseData.witnesses[0];
+  const firstClue = (caseData.clues[0] ?? '').slice(0, 110);
+  const secondClue = (caseData.clues[1] ?? '').slice(0, 90);
   return [
     { who: 'DISP', text: "Nine-one-one, what's your emergency?" },
     {
       who: 'CALL',
-      text: `${nameWord} won't wake up—I think they're hurt bad. Send someone now.`,
+      text: `I found ${victim.name} unresponsive at ${loc}. Send police and EMS now.`,
     },
-    { who: 'DISP', text: 'Help is on the way. Where exactly are you calling from?' },
-    { who: 'CALL', text: `${loc}. I need units here right now.` },
-    { who: 'DISP', text: 'Stay with me—are they breathing at all?' },
+    { who: 'DISP', text: 'Units are dispatching. What do you see and is anyone else still there?' },
     {
       who: 'CALL',
-      text:
-        'I—I can barely tell. Hurry. The building is quiet but the door was unlocked.',
+      text: `${firstWitness ? `${firstWitness.knows.slice(0, 80)}. ` : ''}${firstClue || 'No forced entry that I can see.'}`,
     },
+    { who: 'DISP', text: 'Do not touch the room. Stay with me and report unusual details.' },
+    { who: 'CALL', text: `${secondClue || 'There are signs someone moved around after the incident window.'} Please hurry.` },
   ];
 }
 
@@ -59,11 +62,21 @@ function mergeCaseDocToMystery(
 }
 
 function mapTranscriptRows(
-  rows: Array<{ speaker: TranscriptLine['speaker']; text: string; timestamp: number }>,
+  rows: Array<{
+    speaker: TranscriptLine['speaker'];
+    text: string;
+    timestamp: number;
+    witnessId?: string;
+  }>,
 ): TranscriptLine[] {
   return [...rows]
     .sort((a, b) => a.timestamp - b.timestamp)
-    .map((r) => ({ speaker: r.speaker, text: r.text, timestamp: r.timestamp }));
+    .map((r) => ({
+      speaker: r.speaker,
+      text: r.text,
+      timestamp: r.timestamp,
+      ...(r.witnessId ? { witnessId: r.witnessId } : {}),
+    }));
 }
 
 function snapshotFromConvexRow(row: {
@@ -75,6 +88,7 @@ function snapshotFromConvexRow(row: {
     accusation?: string;
     isCorrect?: boolean;
     revealNarration?: string;
+    witnessQuestionCounts?: Record<string, number>;
     createdAt: number;
     updatedAt: number;
   };
@@ -89,6 +103,7 @@ function snapshotFromConvexRow(row: {
     speaker: TranscriptLine['speaker'];
     text: string;
     timestamp: number;
+    witnessId?: string;
   }>;
 }): GameSnapshot {
   const { session, caseDoc, media, transcript, witnesses } = row;
@@ -103,7 +118,7 @@ function snapshotFromConvexRow(row: {
   if ((!rawLines || rawLines.length < 6) && caseData.victim?.name && caseData.victim?.location) {
     caseData = {
       ...caseData,
-      call911_transcript: staleCase911Lines(caseData.victim),
+      call911_transcript: staleCase911Lines(caseData),
     };
   }
 
@@ -115,6 +130,10 @@ function snapshotFromConvexRow(row: {
     accusation: session.accusation ?? null,
     isCorrect: session.isCorrect ?? null,
     revealNarration: session.revealNarration ?? null,
+    witnessQuestionCounts:
+      session.witnessQuestionCounts && Object.keys(session.witnessQuestionCounts).length > 0
+        ? { ...session.witnessQuestionCounts }
+        : undefined,
     createdAt: session.createdAt,
     updatedAt: session.updatedAt,
   };
@@ -236,9 +255,27 @@ export function createConvexGameBackend(client: ConvexReactClient): GameBackend 
         speaker: line.speaker,
         text: line.text,
         timestamp: line.timestamp,
+        ...(line.witnessId ? { witnessId: line.witnessId } : {}),
       });
       const snap = await fetchSnapshot(sessionId);
       return snap.transcript;
+    },
+
+    async sendWitnessQuestion(sessionId, witnessId, question) {
+      const result = await client.action(api.interrogation.sendWitnessQuestion, {
+        sessionId: asSessionId(sessionId),
+        witnessId,
+        question,
+      });
+      if (!result.ok) {
+        return result as WitnessQuestionResult;
+      }
+      const snap = await fetchSnapshot(sessionId);
+      return {
+        ok: true,
+        snapshot: snap,
+        remainingQuestions: result.remainingQuestions,
+      };
     },
 
     async evaluateAccusation(sessionId, accusationText) {

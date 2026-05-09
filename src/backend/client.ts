@@ -18,6 +18,7 @@ export const gameBackend: GameBackend = {
   endInterview: (...args) => active.endInterview(...args),
   goToAccusation: (...args) => active.goToAccusation(...args),
   appendTranscriptLine: (...args) => active.appendTranscriptLine(...args),
+  sendWitnessQuestion: (...args) => active.sendWitnessQuestion(...args),
   evaluateAccusation: (...args) => active.evaluateAccusation(...args),
   resetSession: (...args) => active.resetSession(...args),
 };

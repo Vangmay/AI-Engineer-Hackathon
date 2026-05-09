@@ -24,9 +24,26 @@ export interface GameSession {
   accusation: string | null;
   isCorrect: boolean | null;
   revealNarration: string | null;
+  /** Questions consumed this session keyed by dossier witness id (max 3 per witness enforced in interrogation). */
+  witnessQuestionCounts?: Record<string, number>;
   createdAt: number;
   updatedAt: number;
 }
+
+export type WitnessQuestionErrorCode =
+  | 'EMPTY_QUESTION'
+  | 'QUESTION_TOO_LONG'
+  | 'LIMIT'
+  | 'NO_SESSION'
+  | 'NOT_INTERVIEW'
+  | 'WRONG_WITNESS'
+  | 'WITNESS_NOT_FOUND'
+  | 'NO_API_KEY'
+  | 'LLM_ERROR';
+
+export type WitnessQuestionResult =
+  | { ok: true; snapshot: GameSnapshot; remainingQuestions: number }
+  | { ok: false; code: WitnessQuestionErrorCode; message?: string };
 
 export interface GameSnapshot {
   session: GameSession;
@@ -55,6 +72,11 @@ export interface GameBackend {
     sessionId: string,
     line: TranscriptLine,
   ) => Promise<TranscriptLine[]>;
+  sendWitnessQuestion: (
+    sessionId: string,
+    witnessId: string,
+    question: string,
+  ) => Promise<WitnessQuestionResult>;
   evaluateAccusation: (
     sessionId: string,
     accusationText: string,
