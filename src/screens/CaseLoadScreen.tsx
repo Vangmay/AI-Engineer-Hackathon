@@ -110,6 +110,11 @@ function PaperClip({
   );
 }
 
+function getEvidenceLabel(clue: string): string {
+  const seg = clue.split(/\s*[—–]\s*/)[0]?.trim() ?? clue;
+  return seg.length > 40 ? seg.slice(0, 38).trim() + '…' : seg;
+}
+
 function formatPlaybackTime(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
   const wholeSeconds = Math.floor(seconds);
@@ -279,7 +284,7 @@ export function CaseLoadScreen() {
               )}
             </div>
             <div className="mt-1.5 flex justify-between gap-4 text-[9px] opacity-60">
-              <span>EXHIBIT A · CRIME SCENE · HIGHWAY 37 HASTINGS COUNTY</span>
+              <span>CRIME SCENE · HIGHWAY 37 HASTINGS COUNTY</span>
               <span>DRAG · ROTATE | SCROLL · ZOOM</span>
             </div>
             <Stamp text="CONFIDENTIAL" top={-22} left={240} rotate={-8} />
@@ -291,8 +296,8 @@ export function CaseLoadScreen() {
               const modelUrl = evidenceModelUrls[idx];
               const previewUrl = evidenceModelPreviewUrls[idx] || evidenceImageUrls[idx];
               const labels = [
-                { tag: 'EXHIBIT B', title: 'SUSPECT VEHICLE', sub: 'Nissan Pathfinder · Tire Match' },
-                { tag: 'EXHIBIT C', title: 'MURDER WEAPON', sub: 'Maglite Flashlight · Ligature' },
+                { title: 'SUSPECT VEHICLE', sub: 'Nissan Pathfinder · Tire Match' },
+                { title: 'MURDER WEAPON', sub: 'Maglite Flashlight · Ligature' },
               ];
               const lbl = labels[i]!;
               return (
@@ -318,9 +323,8 @@ export function CaseLoadScreen() {
                       </div>
                     )}
                   </div>
-                  <div className="mt-1 flex items-baseline justify-between">
+                  <div className="mt-1">
                     <span className="text-[10px] tracking-[0.12em]">{lbl.title}</span>
-                    <span className="text-[8px] opacity-50">{lbl.tag}</span>
                   </div>
                   <div className="text-[8px] opacity-45 tracking-[0.1em]">{lbl.sub}</div>
                 </div>
@@ -358,8 +362,8 @@ export function CaseLoadScreen() {
                           <div className="h-full flex items-center justify-center text-[9px] opacity-30 tracking-widest">NO MODEL</div>
                         )}
                       </div>
-                      <div className="text-[9px] tracking-[0.14em] opacity-60">
-                        EX-{String.fromCharCode(65 + i)}
+                      <div className="text-[9px] tracking-[0.1em] opacity-60 leading-tight">
+                        {getEvidenceLabel(clue)}
                       </div>
                     </div>
                   );
@@ -560,7 +564,7 @@ export function CaseLoadScreen() {
         <Evidence3DViewer
           glbUrl={evidenceModelUrls[String(activeModel)]}
           previewUrl={evidenceModelPreviewUrls[String(activeModel)] || evidenceImageUrls[String(activeModel)]}
-          label={`Exhibit ${String.fromCharCode(65 + activeModel)}`}
+          label={getEvidenceLabel(caseData.clues[activeModel] ?? '')}
           description={caseData.clues[activeModel] ?? ''}
           onClose={() => setActiveModel(null)}
         />
