@@ -8,10 +8,11 @@ interface Props {
   previewUrl?: string;
   label: string;
   description: string;
-  onClose: () => void;
+  onClose?: () => void;
+  inline?: boolean;
 }
 
-export function Evidence3DViewer({ glbUrl, previewUrl, label, description, onClose }: Props) {
+export function Evidence3DViewer({ glbUrl, previewUrl, label, description, onClose, inline }: Props) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -139,11 +140,32 @@ export function Evidence3DViewer({ glbUrl, previewUrl, label, description, onClo
     };
   }, [glbUrl]);
 
+  if (inline) {
+    return (
+      <div className="relative w-full" style={{ height: 160 }}>
+        <div ref={canvasRef} className="w-full h-full" />
+        {loading && (
+          <div className="absolute inset-0 flex items-center justify-center" style={{ background: '#0e110e' }}>
+            {previewUrl
+              ? <img src={previewUrl} alt="" className="h-full w-full object-contain opacity-30" />
+              : <span className="text-[9px] tracking-[0.2em] animate-pulse opacity-50">LOADING…</span>
+            }
+          </div>
+        )}
+        {error && (
+          <div className="absolute inset-0 flex items-center justify-center" style={{ background: '#0e110e' }}>
+            <span className="text-[9px] opacity-40">MODEL UNAVAILABLE</span>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ background: 'rgba(0,0,0,0.82)' }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose?.(); }}
     >
       <div
         className="relative flex flex-col"
@@ -154,31 +176,21 @@ export function Evidence3DViewer({ glbUrl, previewUrl, label, description, onClo
           border: '1px solid var(--border-strong)',
         }}
       >
-        {/* Header bar */}
         <div
           className="flex items-center justify-between px-3 py-2 shrink-0"
-          style={{
-            borderBottom: '1px solid var(--border-yellow)',
-            background: 'var(--bg-statusbar)',
-          }}
+          style={{ borderBottom: '1px solid var(--border-yellow)', background: 'var(--bg-statusbar)' }}
         >
           <div className="flex items-center gap-3">
-            <span
-              className="text-[9px] tracking-[0.2em]"
-              style={{ color: 'var(--accent-yellow)' }}
-            >
+            <span className="text-[9px] tracking-[0.2em]" style={{ color: 'var(--accent-yellow)' }}>
               FORENSIC ANALYSIS
             </span>
-            <span
-              className="text-[11px] tracking-[0.12em]"
-              style={{ color: 'var(--text-primary)' }}
-            >
+            <span className="text-[11px] tracking-[0.12em]" style={{ color: 'var(--text-primary)' }}>
               {label.toUpperCase()}
             </span>
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={() => onClose?.()}
             className="text-[11px] tracking-[0.15em]"
             style={{ color: 'var(--text-muted)' }}
             aria-label="Close 3D viewer"
@@ -187,71 +199,31 @@ export function Evidence3DViewer({ glbUrl, previewUrl, label, description, onClo
           </button>
         </div>
 
-        {/* Canvas area */}
         <div className="relative flex-1 min-h-0">
           <div ref={canvasRef} className="w-full h-full" />
-
           {loading && (
-            <div
-              className="absolute inset-0 flex flex-col items-center justify-center gap-3"
-              style={{ background: 'var(--bg-panel)' }}
-            >
-              {previewUrl && (
-                <img
-                  src={previewUrl}
-                  alt="Evidence preview"
-                  className="h-32 w-32 object-contain opacity-40"
-                />
-              )}
-              <div
-                className="text-[10px] tracking-[0.2em] animate-pulse"
-                style={{ color: 'var(--accent-yellow)' }}
-              >
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ background: 'var(--bg-panel)' }}>
+              {previewUrl && <img src={previewUrl} alt="Evidence preview" className="h-32 w-32 object-contain opacity-40" />}
+              <div className="text-[10px] tracking-[0.2em] animate-pulse" style={{ color: 'var(--accent-yellow)' }}>
                 LOADING 3D MODEL…
               </div>
             </div>
           )}
-
           {error && (
-            <div
-              className="absolute inset-0 flex flex-col items-center justify-center gap-2"
-              style={{ background: 'var(--bg-panel)' }}
-            >
-              <div
-                className="text-[11px] tracking-[0.1em]"
-                style={{ color: 'var(--accent-red)' }}
-              >
-                MODEL LOAD ERROR
-              </div>
-              <div
-                className="text-[10px] max-w-[60%] text-center"
-                style={{ color: 'var(--text-muted)' }}
-              >
-                {error}
-              </div>
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ background: 'var(--bg-panel)' }}>
+              <div className="text-[11px] tracking-[0.1em]" style={{ color: 'var(--accent-red)' }}>MODEL LOAD ERROR</div>
+              <div className="text-[10px] max-w-[60%] text-center" style={{ color: 'var(--text-muted)' }}>{error}</div>
             </div>
           )}
         </div>
 
-        {/* Footer */}
         <div
           className="px-3 py-2 shrink-0 flex items-center justify-between"
-          style={{
-            borderTop: '1px solid var(--border-yellow)',
-            background: 'var(--bg-statusbar)',
-          }}
+          style={{ borderTop: '1px solid var(--border-yellow)', background: 'var(--bg-statusbar)' }}
         >
-          <p
-            className="text-[10px] leading-snug flex-1 mr-4"
-            style={{ color: 'var(--text-muted)' }}
-          >
-            {description}
-          </p>
+          <p className="text-[10px] leading-snug flex-1 mr-4" style={{ color: 'var(--text-muted)' }}>{description}</p>
           {!loading && !error && (
-            <span
-              className="text-[9px] tracking-[0.15em] shrink-0"
-              style={{ color: 'var(--accent-green)' }}
-            >
+            <span className="text-[9px] tracking-[0.15em] shrink-0" style={{ color: 'var(--accent-green)' }}>
               DRAG TO ROTATE · SCROLL TO ZOOM
             </span>
           )}
